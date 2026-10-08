@@ -10,11 +10,15 @@ const pool = new pg.Pool({
   max: 1,
 });
 try {
-  for (const file of [
-    "tests/api.test.js",
-    "tests/rules.test.js",
-    "tests/concurrency.test.js",
-  ]) {
+  const files = process.argv.slice(2);
+  for (const file of files.length
+    ? files
+    : [
+        "tests/api.test.js",
+        "tests/rules.test.js",
+        "tests/concurrency.test.js",
+        "tests/content.test.js",
+      ]) {
     const schema = "alsj_test_" + randomBytes(8).toString("hex");
     await pool.query(`CREATE SCHEMA ${schema}`);
     const url = new URL(process.env.TEST_DATABASE_URL);

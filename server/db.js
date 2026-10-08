@@ -1,6 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
+import { applyNpcOutline } from "./migrations/npc-outline-v2.js";
 import { npcs, evidence, lots } from "./content.js";
 async function openSqlite(path) {
   if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
@@ -56,6 +57,7 @@ async function openSqlite(path) {
       release();
     }
   };
+  await db.transaction(() => applyNpcOutline(db));
   return db;
 }
 

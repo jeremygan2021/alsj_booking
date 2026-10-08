@@ -17,7 +17,7 @@ npm run dev
 node scripts/credentials.js
 ```
 
-这个命令仅在本机显示GM及六NPC各自的账号密码。GM账号为 `gm`，NPC账号为 `npc:host`、`npc:detective`、`npc:security`、`npc:singer`、`npc:scientist`、`npc:attorney`。只将对应NPC口令发给对应工作人员；`.env`不提交版本控制。
+这个命令仅在本机显示GM及六NPC各自的账号密码。GM账号为 `gm`，NPC账号为 `npc:host`、`npc:detective`、`npc:security`、`npc:singer`、`npc:scientist`、`npc:attorney`。账号标识保留兼容：`host` 对应盖茨比、`singer` 对应黛西、`attorney` 对应维拉、`detective` 对应FBI探员、`security` 对应保镖、`scientist` 对应AI研究员。只将对应NPC口令发给对应工作人员；`.env`不提交版本控制。
 
 ```sh
 npm test

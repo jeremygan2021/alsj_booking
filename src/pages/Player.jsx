@@ -571,7 +571,7 @@ function CharacterForm({ character: c, onSubmit, busy }) {
             placeholder="寻找真相，改变命运，或找回一个人"
           />
         </Field>
-        <Field label="你与极光集团的过去">
+        <Field label="你与ECHO集团的过去">
           <textarea
             name="story"
             required

@@ -7,7 +7,7 @@ import {
   createHmac,
 } from "node:crypto";
 import { openDb } from "./db.js";
-import { phases } from "./content.js";
+import { phases, npcOrder } from "./content.js";
 const token = () => randomBytes(24).toString("hex");
 export function hashPassword(p) {
   const salt = token();
@@ -156,7 +156,9 @@ export async function createApp({
     s.json({
       settings: await setting(),
       phases,
-      npcs: await all("SELECT id,name,english,role,bio FROM npcs"),
+      npcs: await all(
+        `SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`,
+      ),
       registered: (await one("SELECT COUNT(*) n FROM players")).n,
       events: await all("SELECT * FROM events ORDER BY id DESC LIMIT 8"),
     }),
@@ -291,7 +293,7 @@ export async function createApp({
         profession,
         skill,
         story,
-        "你曾接触极光集团的一份内部材料。今晚必须决定把它交给谁。",
+        "你曾接触ECHO集团的一份内部材料。今晚必须决定把它交给谁。",
         npc,
         motive,
       );
@@ -518,7 +520,9 @@ export async function createApp({
         ...(gm ? [] : [r.auth.user_id]),
       ),
       npcs: await all(
-        gm ? "SELECT * FROM npcs" : "SELECT id,name,english,role,bio FROM npcs",
+        gm
+          ? `SELECT * FROM npcs ORDER BY ${npcOrder}`
+          : `SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`,
       ),
       clues: gm ? await all("SELECT * FROM clues") : [],
       lots: gm ? await all("SELECT * FROM lots") : [],
