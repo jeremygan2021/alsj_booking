@@ -101,10 +101,16 @@ function App() {
   };
   const authSuccess = async (role) => {
     const welcome = authMode === "register";
+    const pendingClue = new URLSearchParams(location.search).get("clue");
     setAuthMode(null);
     await load();
     navigate(role === "player" ? "play" : "admin");
-    if (welcome) history.replaceState({}, "", "/play?welcome=1");
+    if (role === "player") {
+      const params = new URLSearchParams();
+      if (pendingClue) params.set("clue", pendingClue);
+      else if (welcome) params.set("welcome", "1");
+      if (params.size) history.replaceState({}, "", "/play?" + params);
+    }
   };
   if (error && !pub)
     return (

@@ -4,3 +4,6 @@ data/
 .env
 *.log
 test-results/
+
+output/playwright/
+.playwright-cli/

@@ -2765,3 +2765,232 @@ html {
 .admin-sidebar nav::-webkit-scrollbar {
   display: none;
 }
+
+/* Sealed evidence: the scanner and cards share the existing dossier palette. */
+.clue-scan-entry {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+}
+.clue-scan-entry > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.clue-scanner > .muted {
+  margin: 0 0 18px;
+}
+.scanner-preview {
+  position: relative;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.scanner-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+.scanner-preview.active video {
+  opacity: 1;
+}
+.scanner-target {
+  position: absolute;
+  inset: 18% 22%;
+  border: 1px solid var(--gold);
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+  box-shadow: 0 0 0 160px #14171675;
+}
+.scanner-preview.active .scanner-target svg {
+  visibility: hidden;
+}
+.scanner-preview.active .scanner-target::after {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  height: 1px;
+  background: var(--gold-light);
+  box-shadow: 0 0 9px var(--gold);
+  animation: clue-scan-line 2.4s ease-in-out infinite;
+}
+.scanner-status {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--gold-light);
+}
+.scanner-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.scanner-file {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.scanner-file input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.scanner-file:focus-within {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 4px;
+}
+.scanner-privacy {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 16px 0;
+}
+.scanner-error {
+  color: var(--error);
+  font-size: 13px;
+  margin: 14px 0 0;
+}
+.clue-flip-scene {
+  perspective: 1500px;
+}
+.clue-flip-inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.clue-flip-scene.is-flipped .clue-flip-inner {
+  transform: rotateY(180deg);
+}
+.clue-flip-front,
+.clue-flip-back {
+  grid-area: 1/1;
+  min-width: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.clue-flip-front {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 420px;
+  padding: 28px 20px;
+  background:
+    radial-gradient(ellipse at top, #c6a5740d, transparent 65%), var(--surface);
+  border: 1px solid #c6a57460;
+  outline: 1px solid #c6a57425;
+  outline-offset: -9px;
+}
+.clue-flip-front .eyebrow {
+  font-size: 9px;
+}
+.clue-seal {
+  width: 90px;
+  height: 90px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  transform: rotate(45deg);
+  margin: 35px 0 24px;
+}
+.clue-seal svg {
+  transform: rotate(-45deg);
+}
+.clue-number {
+  font: 35px var(--display);
+  color: var(--gold-light);
+  letter-spacing: 3px;
+}
+.clue-flip-front h3 {
+  font: 21px var(--serif);
+  margin: 8px 0;
+}
+.clue-flip-front > p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 4px 0 16px;
+}
+.clue-flip-front > .clue-flip-hint {
+  margin: 22px 0 16px;
+  line-height: 1.8;
+}
+.clue-flip-front .button {
+  min-height: 44px;
+}
+.clue-flip-back {
+  transform: rotateY(180deg);
+  padding: 22px;
+}
+.clue-flip-back .clue-reveal {
+  animation: none;
+}
+.clue-reveal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.clue-reveal-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--green);
+}
+@keyframes clue-scan-line {
+  0%,
+  100% {
+    top: 8%;
+  }
+  50% {
+    top: 92%;
+  }
+}
+@media (max-width: 600px) {
+  .clue-scan-entry {
+    gap: 8px;
+  }
+  .clue-scan-entry .button {
+    width: 100%;
+    min-height: 44px;
+  }
+  .clue-flip-front {
+    padding: 24px 15px;
+    min-height: 400px;
+  }
+  .clue-flip-back {
+    padding: 16px;
+  }
+  .scanner-actions .button {
+    flex: 1;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clue-flip-inner {
+    transition: none;
+  }
+  .scanner-preview.active .scanner-target::after {
+    animation: none;
+    top: 50%;
+  }
+}

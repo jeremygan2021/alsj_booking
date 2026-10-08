@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -44,6 +44,9 @@ import {
   QR,
   useResource,
 } from "../components/ui";
+import ClueScanner from "../components/ClueScanner";
+import ClueReveal from "../components/ClueReveal";
+import { parseClueCode } from "../clue-scan";
 function Player({ pub, notify }) {
   const [data, refresh] = useResource("/me", notify),
     [tab, setTab] = useState("identity"),
@@ -51,7 +54,17 @@ function Player({ pub, notify }) {
     [lots, refreshLots] = useResource("/lots", notify),
     [qr, setQr] = useState(new URLSearchParams(location.search).has("welcome")),
     [detail, setDetail] = useState(null),
+    [flipped, setFlipped] = useState(false),
+    [scanning, setScanning] = useState(false),
     [busy, setBusy] = useState(false);
+  const handledClue = useRef(null),
+    detailGeneration = useRef(0);
+  const openClue = (clue) => {
+    detailGeneration.current++;
+    setDetail(clue);
+    setFlipped(false);
+    setTab("evidence");
+  };
   const action = async (fn) => {
     setBusy(true);
     try {
@@ -76,6 +89,18 @@ function Player({ pub, notify }) {
       );
     }
   }, []);
+  useEffect(() => {
+    const raw = new URLSearchParams(location.search).get("clue");
+    if (!raw || !clueData || !data || handledClue.current === raw) return;
+    handledClue.current = raw;
+    const id = parseClueCode(raw, location.origin);
+    const clue = clueData.clues.find((c) => c.id === id);
+    if (clue) {
+      setDetail(clue);
+      setFlipped(false);
+      setTab("evidence");
+    } else notify("未找到该线索卡，请扫描现场二维码或输入有效编号");
+  }, [clueData, data, notify]);
   if (!data) return <div className="boot">正在调取私人档案…</div>;
   const { player: p, character: c } = data;
   const identity = new URLSearchParams(location.search).get("identity");
@@ -92,13 +117,33 @@ function Player({ pub, notify }) {
         </a>
       </main>
     );
-  const openClue = (clue) =>
+  const blocker = !detail
+    ? ""
+    : p.payment !== "paid" || !p.checked_in
+      ? "请先核验票务并完成现场签到"
+      : c?.status !== "approved"
+        ? "人物档案等待GM审核"
+        : !detail.unlocked && pub.settings.phase < detail.phase
+          ? `该线索卡将在第${detail.phase}幕开放`
+          : "";
+  const flipClue = () =>
     action(async () => {
-      const d = clue.unlocked
-        ? await api(`/clues/${clue.id}`)
-        : await api(`/clues/${clue.id}/unlock`, {});
-      setDetail({ ...clue, ...d });
+      const generation = detailGeneration.current;
+      const d = detail.unlocked
+        ? await api(`/clues/${detail.id}`)
+        : await api(`/clues/${detail.id}/unlock`, {});
+      if (generation !== detailGeneration.current) return;
+      setDetail({ ...detail, ...d, unlocked: true });
+      setFlipped(true);
     });
+  const scannedClue = (raw) => {
+    const id = parseClueCode(raw, location.origin);
+    if (!id) throw new Error("这不是本活动的线索二维码，请扫描现场线索卡。");
+    const clue = clueData?.clues.find((c) => c.id === id);
+    if (!clue) throw new Error("该线索编号不存在，请向GM核对。");
+    setScanning(false);
+    openClue(clue);
+  };
   const links = [
     ["identity", "人物档案", FileText],
     ["missions", "私人任务", Compass],
@@ -307,15 +352,25 @@ function Player({ pub, notify }) {
                 {clueData?.clues.length || 0} 已收集
               </Badge>
             </div>
+            <div className="clue-scan-entry">
+              <Button
+                onClick={() => setScanning(true)}
+                disabled={busy || !clueData}
+              >
+                <ScanLine size={19} />
+                扫码开启线索卡
+              </Button>
+              <span>相机扫码 · 图片识别 · 点击翻牌</span>
+            </div>
             <form
               className="scan-form"
               onSubmit={(e) => {
                 e.preventDefault();
-                const id = new FormData(e.currentTarget)
-                  .get("id")
-                  .trim()
-                  .toUpperCase();
-                const clue = clueData.clues.find((c) => c.id === id);
+                const id = parseClueCode(
+                  new FormData(e.currentTarget).get("id"),
+                  location.origin,
+                );
+                const clue = clueData?.clues.find((c) => c.id === id);
                 if (clue) openClue(clue);
                 else notify("未找到该证物编号");
               }}
@@ -455,59 +510,34 @@ function Player({ pub, notify }) {
           </div>
         </Modal>
       )}
+      {scanning && (
+        <ClueScanner
+          onDetected={scannedClue}
+          onClose={() => setScanning(false)}
+        />
+      )}
       {detail && (
-        <Modal title={detail.title} onClose={() => setDetail(null)}>
-          <div className="clue-reveal">
-            <Badge tone="gold">
-              {detail.id} · {detail.area}
-            </Badge>
-            <h3>基础证据</h3>
-            <p>{detail.body}</p>
-            {detail.detail ? (
-              <div className="advanced">
-                <span className="eyebrow">ADVANCED ANALYSIS</span>
-                <p>{detail.detail}</p>
-              </div>
-            ) : (
-              <div className="notice">
-                <Dices size={18} />
-                <span>
-                  额外细节需要{detail.skill}鉴定达到 DC {detail.dc}
-                  。基础证据已永久保存。
-                </span>
-              </div>
-            )}
-            <div className="dice-result">
-              {detail.check ? (
-                <>
-                  <strong>{detail.check.roll}</strong>
-                  <span>
-                    {" "}
-                    D20 + {detail.check.bonus}
-                    <br />
-                    本调查组该区域已完成鉴定
-                  </span>
-                </>
-              ) : (
-                <Button
-                  disabled={busy || pub.settings.phase !== 3}
-                  onClick={() =>
-                    action(async () => {
-                      const check = await api("/check", { clueId: detail.id });
-                      const d = await api("/clues/" + detail.id);
-                      setDetail({ ...detail, ...d, check });
-                    })
-                  }
-                >
-                  <Dices size={19} /> 掷D20 · 小组主要鉴定
-                </Button>
-              )}
-            </div>
-            <small className="muted">
-              每个调查组在每个区域仅有一次主要鉴定，请与组员确认代表。
-            </small>
-          </div>
-        </Modal>
+        <ClueReveal
+          clue={detail}
+          flipped={flipped}
+          busy={busy}
+          blocker={blocker}
+          phase={pub.settings.phase}
+          onClose={() => {
+            detailGeneration.current++;
+            setDetail(null);
+          }}
+          onFlip={flipClue}
+          onCheck={() =>
+            action(async () => {
+              const generation = detailGeneration.current;
+              const check = await api("/check", { clueId: detail.id });
+              const d = await api("/clues/" + detail.id);
+              if (generation === detailGeneration.current)
+                setDetail({ ...detail, ...d, check });
+            })
+          }
+        />
       )}
     </main>
   );
