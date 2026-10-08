@@ -33,6 +33,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { api } from "../api";
+import NpcPortrait from "../components/NpcPortrait";
 import { phases, factions } from "../constants";
 import {
   Icon,
@@ -234,16 +235,7 @@ function Landing({ pub, onRegister, onPlay }) {
         <div className="npc-grid">
           {pub.npcs.map((n, i) => (
             <button className="npc-card" key={n.id} onClick={() => setNpc(n)}>
-              <div className={"npc-portrait portrait-" + i}>
-                <span className="portrait-number">0{i + 1}</span>
-                <span className="portrait-monogram">
-                  {n.english
-                    .split(" ")
-                    .map((s) => s[0])
-                    .join("")}
-                </span>
-                <span className="portrait-label">CHARACTER DOSSIER</span>
-              </div>
+              <NpcPortrait npc={n} number={i + 1} />
               <div className="npc-name">
                 <small>{n.role}</small>
                 <h3>{n.name}</h3>
@@ -269,6 +261,7 @@ function Landing({ pub, onRegister, onPlay }) {
       </section>
       {npc && (
         <Modal title={npc.name} onClose={() => setNpc(null)}>
+          <NpcPortrait key={npc.id} npc={npc} dossier />
           <p className="eyebrow">{npc.english}</p>
           <Badge>{npc.role}</Badge>
           <p className="large-paragraph">{npc.bio}</p>
