@@ -1,0 +1,13 @@
+[Unit]
+Description=Backup Alaska Nights existing PostgreSQL database
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/alsj_booking/backup-postgres.sh
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/backups/alsj_booking

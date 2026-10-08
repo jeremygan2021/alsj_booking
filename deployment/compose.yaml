@@ -1,0 +1,44 @@
+name: alsj-booking
+services:
+  app:
+    image: alsj-booking:${ALSJ_RELEASE:-latest}
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.prebuilt
+      args:
+        NODE_IMAGE: ${ALSJ_NODE_IMAGE:-node:24.21.0-bookworm-slim}
+    container_name: alsj-booking
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:3206:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOST: "0.0.0.0"
+      ENV_FILE: /data/.env
+      COOKIE_SECURE: "true"
+      TRUST_PROXY: "loopback,linklocal,uniquelocal"
+    volumes:
+      - /var/lib/alsj_booking:/data:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - database
+    mem_limit: 256m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  database:
+    external: true
+    name: 1panel-network

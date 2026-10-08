@@ -2,7 +2,7 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { npcs, evidence, lots } from "./content.js";
-export function openDb(path) {
+async function openSqlite(path) {
   if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
@@ -36,5 +36,31 @@ export function openDb(path) {
     "INSERT OR IGNORE INTO lots(id,title,start_price,description,effect) VALUES(?,?,?,?,?)",
     lots.map((l, i) => [i + 1, ...l]),
   );
+  let queue = Promise.resolve();
+  db.transaction = async (fn) => {
+    const previous = queue;
+    let release;
+    queue = new Promise((r) => {
+      release = r;
+    });
+    await previous;
+    db.exec("BEGIN IMMEDIATE");
+    try {
+      const result = await fn();
+      db.exec("COMMIT");
+      return result;
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    } finally {
+      release();
+    }
+  };
   return db;
+}
+
+export async function openDb(path) {
+  if (!/^postgres(?:ql)?:\/\//.test(path || "")) return openSqlite(path);
+  const { openPostgres } = await import("./postgres.js");
+  return openPostgres(path);
 }

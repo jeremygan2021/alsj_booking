@@ -6,41 +6,48 @@ import { join } from "node:path";
 import { createApp } from "../server/app.js";
 import { openDb } from "../server/db.js";
 
-test("数据库重启后保留活动数据，种子不会覆盖GM编辑", () => {
+test("数据库重启后保留活动数据，种子不会覆盖GM编辑", async () => {
   const dir = mkdtempSync(join(tmpdir(), "alaska-persistence-"));
   try {
-    const path = join(dir, "game.sqlite");
-    let db = openDb(path);
-    db.prepare("UPDATE clues SET body=? WHERE id=?").run("GM定稿证据", "E-01");
-    db.prepare("UPDATE settings SET phase=4,capacity=36").run();
-    db.close();
-    db = openDb(path);
+    const path = process.env.TEST_DATABASE_URL || join(dir, "game.sqlite");
+    let db = await openDb(path);
+    await db
+      .prepare("UPDATE clues SET body=? WHERE id=?")
+      .run("GM定稿证据", "E-01");
+    await db.prepare("UPDATE settings SET phase=4,capacity=36").run();
+    await db.close();
+    db = await openDb(path);
     assert.equal(
-      db.prepare("SELECT body FROM clues WHERE id=?").get("E-01").body,
+      (await db.prepare("SELECT body FROM clues WHERE id=?").get("E-01")).body,
       "GM定稿证据",
     );
     assert.equal(
-      db.prepare("SELECT capacity FROM settings").get().capacity,
+      (await db.prepare("SELECT capacity FROM settings").get()).capacity,
       36,
     );
-    assert.equal(db.prepare("SELECT COUNT(*) n FROM clues").get().n, 12);
-    db.close();
+    assert.equal(
+      (await db.prepare("SELECT COUNT(*) n FROM clues").get()).n,
+      12,
+    );
+    await db.prepare("UPDATE settings SET phase=1,capacity=40").run();
+    await db.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 });
 
 test("报名容量、非法来源、退款撤销玩法资格与事务回滚", async (t) => {
-  const { app, db } = createApp({
+  const { app, db } = await createApp({
+    databaseUrl: process.env.TEST_DATABASE_URL,
     dbPath: ":memory:",
     gmPassword: "gm-rule-password",
     npcPassword: "npc-rule-password",
   });
   const server = app.listen(0, "127.0.0.1");
   await new Promise((r) => server.once("listening", r));
-  t.after(() => {
+  t.after(async () => {
     server.close();
-    db.close();
+    await db.close();
   });
   const base = `http://127.0.0.1:${server.address().port}`;
   function client() {
@@ -79,7 +86,7 @@ test("报名容量、非法来源、退款撤销玩法资格与事务回滚", as
   await gm("/staff/phase", { phase: 3 }, 403, {
     origin: "https://evil.example",
   });
-  assert.equal(db.prepare("SELECT phase FROM settings").get().phase, 1);
+  assert.equal((await db.prepare("SELECT phase FROM settings").get()).phase, 1);
   await p("/character", {
     name: "米娅·科尔曼",
     english: "Mia Coleman",

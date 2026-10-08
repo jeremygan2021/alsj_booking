@@ -1,6 +1,6 @@
 # 阿拉斯加之夜：最后的遗嘱
 
-根据用户提供的TRPG策划V2构建的本地全栈首版。React响应式玩家页面 + GM导演后台 + NPC任务页面，Express服务端 + SQLite持久化数据库。当前项目为单场活动。
+根据用户提供的TRPG策划V2构建的本地全栈首版。React响应式玩家页面 + GM导演后台 + NPC任务页面，Express服务端 + PostgreSQL持久化数据库（本地开发可使用SQLite）。当前项目为单场活动。
 
 ## 运行
 
@@ -55,16 +55,23 @@ npm start
 
 **扫码**：使用手机系统/微信扫一扫打开二维码，支持手动输入证物编号，没有内置摄像头扫码器。服务端检查登录、付款、签到、角色批准和剧情阶段。
 
-**运营**：单场活动，本地SQLite数据库在 `data/alaska.sqlite`。广播为轮询，不是WebSocket；无云备份、密码找回、短信验证和多人转账事务。联盟集资先使用GM人工账本调整；正式运营前应添加批量集资流程。
+**运营**：单场活动。生产使用现有 PostgreSQL，按日执行数据库备份；本地未配置 `DATABASE_URL` 时使用 `data/alaska.sqlite`。广播为轮询；无密码找回、短信验证和多人转账事务。联盟集资先使用GM人工账本调整；正式运营前应添加批量集资流程。
 
 ## 部署配置
 
-将项目部署至有持久存储的Node服务器。构建后用 `npm start`，前面配置HTTPS反向代理；设置 `COOKIE_SECURE=true`、`HOST`、`PORT` 和可选 `DB_PATH`。如数据库放在持久卷之外，重新部署会丢失数据。修改GM/NPC主密钥时还应清空sessions表使旧工作人员会话失效。
+生产部署使用 Docker，仅运行应用容器，连接服务器已有的 PostgreSQL，不创建数据库容器。部署、备份、更新和回滚见 [deployment/README.md](deployment/README.md)。
 
-备份须使用SQLite备份API或在停服后复制数据库（在线WAL模式下不要只复制主文件）。保留 `.env` 与数据库，禁止对外暴露目录。
+`.env` 中设置 `DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE` 即可启用 PostgreSQL；不要将真实连接密码提交到代码库。连接池最多 3 个连接。首次启动创建数据表并填充缺失种子，重启不会覆盖 GM 编辑。修改 GM/NPC 主密钥时还应清空 sessions 表，使旧工作人员会话失效。
+
+```sh
+# 在具有创建测试 schema 权限的数据库上运行 PostgreSQL 集成测试
+TEST_DATABASE_URL='postgresql://USER:PASSWORD@localhost:5432/DATABASE' npm run test:postgres
+```
+
+测试在随机独立 schema 中运行，验证完成后删除测试 schema，不写入生产 public 表。覆盖完整玩法、数据持久化、事务回滚以及两个应用实例并发报名、签到和拍卖结算。本地 `npm test` 使用独立 SQLite 数据库。
 
 ## 目录
 
-`src/`：页面、交互与样式。`server/content.js`：NPC/证据/拍品种子。`server/db.js`：数据库结构。`server/app.js`：鉴权与规则引擎。`tests/api.test.js`：独立内存数据库集成测试。`DESIGN.md`：视觉和内容约定。
+`src/`：页面、交互与样式。`server/content.js`：NPC/证据/拍品种子。`server/db.js`：数据库适配入口与本地SQLite结构。`server/postgres.js`：PostgreSQL结构与事务。`server/app.js`：鉴权与规则引擎。`tests/api.test.js`：独立内存数据库集成测试。`DESIGN.md`：视觉和内容约定。
 
 技术资料：[Node SQLite](https://nodejs.org/api/sqlite.html)、[Vite](https://vite.dev/guide/)。

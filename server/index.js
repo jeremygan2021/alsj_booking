@@ -4,7 +4,7 @@ import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const envPath = path.join(root, ".env");
+const envPath = process.env.ENV_FILE || path.join(root, ".env");
 if (!existsSync(envPath))
   writeFileSync(
     envPath,
@@ -18,11 +18,13 @@ for (const line of readFileSync(envPath, "utf8").split("\n")) {
 }
 if (!process.env.GM_PASSWORD || !process.env.NPC_PASSWORD)
   throw new Error("请配置GM_PASSWORD和NPC_PASSWORD");
-const { app } = createApp({
+const { app } = await createApp({
+  databaseUrl: process.env.DATABASE_URL,
   dbPath: process.env.DB_PATH || path.join(root, "data/alaska.sqlite"),
   gmPassword: process.env.GM_PASSWORD,
   npcPassword: process.env.NPC_PASSWORD,
   secure: process.env.COOKIE_SECURE === "true",
+  trustProxy: process.env.TRUST_PROXY || "loopback",
 });
 if (process.env.NODE_ENV === "production") {
   const { default: express } = await import("express");

@@ -2,16 +2,17 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createApp, npcCredential } from "../server/app.js";
 test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流程", async (t) => {
-  const { app, db } = createApp({
+  const { app, db } = await createApp({
+    databaseUrl: process.env.TEST_DATABASE_URL,
     dbPath: ":memory:",
     gmPassword: "gm-test-pass",
     npcPassword: "npc-test-pass",
   });
   const server = app.listen(0, "127.0.0.1");
   await new Promise((r) => server.once("listening", r));
-  t.after(() => {
+  t.after(async () => {
     server.close();
-    db.close();
+    await db.close();
   });
   const base = `http://127.0.0.1:${server.address().port}`;
   function client() {

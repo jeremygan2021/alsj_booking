@@ -2,7 +2,10 @@ import { readFileSync } from "node:fs";
 import { npcCredential } from "../server/app.js";
 import { npcs } from "../server/content.js";
 const env = Object.fromEntries(
-  readFileSync(new URL("../.env", import.meta.url), "utf8")
+  readFileSync(
+    process.env.ENV_FILE || new URL("../.env", import.meta.url),
+    "utf8",
+  )
     .trim()
     .split("\n")
     .map((l) => l.split("=")),
