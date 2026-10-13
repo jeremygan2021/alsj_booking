@@ -14,7 +14,7 @@ sudo chown -R "$(id -un):$(id -gn)" "$release"
 cd "$release"
 ALSJ_NODE_IMAGE=node:24.21.0-bookworm-slim
 if docker image inspect alsj-node:24.21.0 >/dev/null 2>&1; then ALSJ_NODE_IMAGE=alsj-node:24.21.0; fi
-printf 'ALSJ_RELEASE=%s\nALSJ_NODE_IMAGE=%s\n' "$release_id" "$ALSJ_NODE_IMAGE" > deployment/.env
+printf 'ALSJ_RELEASE=%s\nALSJ_NODE_IMAGE=%s\nALSJ_COMMIT=%s\n' "$release_id" "$ALSJ_NODE_IMAGE" "${ALSJ_COMMIT:-unknown}" > deployment/.env
 export BUILDX_BUILDER=default
 docker compose --env-file deployment/.env -f deployment/compose.yaml build
 rollback() {
