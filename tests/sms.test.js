@@ -4,11 +4,19 @@ import { createApp } from "../server/app.js";
 const phone = "13800138000";
 async function setup(
   t,
-  { sender, clock, smsTestPhone, smsTestCode, smsTestExpiresAt } = {},
+  {
+    sender,
+    clock,
+    smsTestPhone,
+    smsTestCode,
+    smsTestExpiresAt,
+    smsDevLogin,
+  } = {},
 ) {
   const sent = [];
   let time = 1700000000000;
   const { app, db } = await createApp({
+    environment: "test",
     databaseUrl: process.env.TEST_DATABASE_URL,
     dbPath: ":memory:",
     gmPassword: "sms-test-gm",
@@ -21,6 +29,7 @@ async function setup(
     smsTestPhone,
     smsTestCode,
     smsTestExpiresAt,
+    smsDevLogin,
   });
   if (process.env.TEST_DATABASE_URL) {
     assert.match(
@@ -29,6 +38,7 @@ async function setup(
     );
     await db.transaction(async () => {
       for (const table of [
+        "npc_phones",
         "votes",
         "inventory",
         "bids",
@@ -244,4 +254,53 @@ test("188888仅对指定测试手机号有效，并受测试期限限制", async
   assert.equal(sent.length, 0);
   advance(60001);
   await p("/auth/sms/login", { phone, code: "188888" }, 400);
+});
+test("开发快捷码对所有玩家/NPC手机号生效，不需要发送短信", async (t) => {
+  const { client, db } = await setup(t, { sender: null, smsDevLogin: true });
+  const first = client(),
+    second = client(),
+    npc = client();
+  assert.equal((await first("/public")).auth.devShortcut, true);
+  assert.equal(
+    (await first("/auth/sms/login", { phone, code: "188888" })).registered,
+    true,
+  );
+  assert.equal(
+    (await second("/auth/sms/login", { phone: "13900139000", code: "188888" }))
+      .registered,
+    true,
+  );
+  assert.equal(
+    (await first("/auth/sms/login", { phone, code: "188888" })).registered,
+    false,
+  );
+  await db
+    .prepare("INSERT INTO npc_phones(npc_id,phone) VALUES(?,?)")
+    .run("host", "13700137000");
+  assert.equal(
+    (await npc("/auth/sms/login", { phone: "13700137000", code: "188888" }))
+      .role,
+    "npc",
+  );
+  await npc("/staff/manage", undefined, 401);
+  assert.equal(
+    (await db.prepare("SELECT COUNT(*) n FROM sms_challenges").get()).n,
+    0,
+  );
+});
+test("生产环境和安全Cookie部署禁止通用开发验证码", async () => {
+  for (const options of [
+    { environment: "production" },
+    { environment: "development", secure: true },
+  ])
+    await assert.rejects(
+      createApp({
+        dbPath: ":memory:",
+        gmPassword: "test",
+        npcPassword: "test",
+        smsDevLogin: true,
+        ...options,
+      }),
+      /生产环境禁止启用/,
+    );
 });

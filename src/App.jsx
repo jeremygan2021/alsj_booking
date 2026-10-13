@@ -139,6 +139,7 @@ function App() {
         {authMode && (
           <Auth
             smsEnabled={Boolean(pub.auth?.sms)}
+            devShortcut={Boolean(pub.auth?.devShortcut)}
             mode={authMode}
             setMode={setAuthMode}
             onSuccess={authSuccess}
@@ -260,6 +261,7 @@ function App() {
       {authMode && (
         <Auth
           smsEnabled={Boolean(pub.auth?.sms)}
+          devShortcut={Boolean(pub.auth?.devShortcut)}
           mode={authMode}
           setMode={setAuthMode}
           onSuccess={authSuccess}
@@ -299,10 +301,15 @@ function Access({ title, text, onLogin, onRegister }) {
     </main>
   );
 }
-function Auth({ mode, setMode, onSuccess, onClose, smsEnabled }) {
+function Auth({ mode, setMode, onSuccess, onClose, smsEnabled, devShortcut }) {
   if (mode !== "staff")
     return (
-      <SmsAuth enabled={smsEnabled} onSuccess={onSuccess} onClose={onClose} />
+      <SmsAuth
+        enabled={smsEnabled}
+        devShortcut={devShortcut}
+        onSuccess={onSuccess}
+        onClose={onClose}
+      />
     );
   return (
     <AdminAuth

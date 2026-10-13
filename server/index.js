@@ -37,6 +37,7 @@ const { app } = await createApp({
   smsTestPhone: process.env.SMS_TEST_PHONE || "",
   smsTestCode: process.env.SMS_TEST_CODE || "",
   smsTestExpiresAt: Number(process.env.SMS_TEST_EXPIRES_AT || 0),
+  smsDevLogin: process.env.SMS_DEV_LOGIN_ENABLED === "true",
 });
 app.get("/ar/target", (req, res) =>
   res.sendFile(

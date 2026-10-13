@@ -2,7 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { ArrowRight, Smartphone } from "lucide-react";
 import { api } from "../api";
 import { Modal, Field, Button } from "./ui";
-export default function SmsAuth({ onSuccess, onClose, enabled = true }) {
+export default function SmsAuth({
+  onSuccess,
+  onClose,
+  enabled = true,
+  devShortcut = false,
+}) {
   const [phone, setPhone] = useState(""),
     [code, setCode] = useState(""),
     [name, setName] = useState(""),
@@ -61,6 +66,11 @@ export default function SmsAuth({ onSuccess, onClose, enabled = true }) {
   };
   return (
     <Modal title="手机号注册 / 登录" onClose={onClose}>
+      {devShortcut && (
+        <div className="notice">
+          开发测试模式：所有手机号可直接输入188888，不发送短信。
+        </div>
+      )}
       <p className="muted">
         首次验证手机号后自动报名，已有账号直接登录，无需设置密码。
       </p>
@@ -106,6 +116,7 @@ export default function SmsAuth({ onSuccess, onClose, enabled = true }) {
                 busy ||
                 seconds > 0 ||
                 !enabled ||
+                devShortcut ||
                 !/^1\d{10}$/.test(phone)
               }
               onClick={send}

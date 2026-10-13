@@ -46,8 +46,12 @@ export async function createApp({
   smsTestPhone = "",
   smsTestCode = "",
   smsTestExpiresAt = 0,
+  smsDevLogin = false,
+  environment = process.env.NODE_ENV || "development",
   allowLegacyRegistration = false,
 }) {
+  if (smsDevLogin && (!["development", "test"].includes(environment) || secure))
+    throw new Error("通用测试验证码只允许用于开发/测试环境，生产环境禁止启用");
   const arCatalog = createSceneCatalog(arScenes, assetBaseUrl);
   const demoCatalog = createSceneCatalog(defaultArScenes, assetBaseUrl);
   const app = express(),
@@ -299,7 +303,12 @@ export async function createApp({
     s.json({
       settings: await setting(),
       site: await contentStore.getSite(),
-      auth: { sms: Boolean(smsSender), expiresIn: 900, retryAfter: 60 },
+      auth: {
+        sms: Boolean(smsSender) || smsDevLogin,
+        devShortcut: smsDevLogin,
+        expiresIn: 900,
+        retryAfter: 60,
+      },
       phases,
       npcs: await all(
         `SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`,
@@ -330,6 +339,7 @@ export async function createApp({
     testPhone: smsTestPhone,
     testCode: smsTestCode,
     testExpiresAt: smsTestExpiresAt,
+    devShortcut: smsDevLogin,
   });
   app.post("/api/auth/sms/send", async (req, res) =>
     res.json(await smsAuth.send(req.body.phone, req.ip)),
