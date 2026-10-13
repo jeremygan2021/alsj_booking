@@ -1,4 +1,5 @@
-import jsQR from "jsqr";
+import { createQrFrameTracker } from "./qr-frame-tracker.js";
+import { createEvidencePresentation } from "./qr-evidence-presentation.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
@@ -21,24 +22,6 @@ export function getCoverProjection(
     aspect: width / height,
     fov: (2 * Math.atan(height / (2 * focalLength * scale)) * 180) / Math.PI,
   };
-}
-
-export function normalizeQrModel(model) {
-  model.updateMatrixWorld(true);
-  const bounds = new THREE.Box3().setFromObject(model);
-  if (bounds.isEmpty()) throw new Error("证物模型暂时无法显示，请重试。");
-  const size = bounds.getSize(new THREE.Vector3());
-  const center = bounds.getCenter(new THREE.Vector3());
-  const scale = 0.8 / Math.max(size.x, size.z, 0.001);
-  const positioned = new THREE.Group();
-  positioned.add(model);
-  model.position.sub(new THREE.Vector3(center.x, bounds.min.y, center.z));
-  positioned.scale.setScalar(scale);
-  const oriented = new THREE.Group();
-  // glTF +Y becomes QR +Z: the base is on the paper/wall, thickness faces out.
-  oriented.rotation.x = Math.PI / 2;
-  oriented.add(positioned);
-  return oriented;
 }
 
 function disposeTree(root) {
@@ -69,6 +52,7 @@ export function createQrSceneRuntime({
   initialClueId,
   onState,
   onClue,
+  onInteraction,
 }) {
   let stopped = false;
   let mediaStream, renderer, environment, camera, scene, anchor, raf;
@@ -88,6 +72,14 @@ export function createQrSceneRuntime({
   let hasLocated = false,
     unavailableId = null;
   let lastNotifiedId = null;
+  let presentation,
+    lastTrackedAt = -Infinity,
+    opacity = 0,
+    lastRenderAt = 0;
+  let reliable = false,
+    pointerStart;
+  const tracker = createQrFrameTracker();
+  const raycaster = new THREE.Raycaster();
   const metadata = new Map();
   const loader = new GLTFLoader();
   const decodeCanvas = document.createElement("canvas");
@@ -112,6 +104,9 @@ export function createQrSceneRuntime({
     }
   };
   const hide = () => {
+    opacity = 0;
+    lastTrackedAt = -Infinity;
+    reliable = false;
     if (anchor) anchor.visible = false;
     polygon.style.display = "none";
     container.dataset.modelVisible = "false";
@@ -121,6 +116,79 @@ export function createQrSceneRuntime({
     delete container.dataset.projectionCorners;
     delete container.dataset.markerCenter;
     delete container.dataset.poseMatrix;
+  };
+  const interact = () => {
+    if (
+      stopped ||
+      !reliable ||
+      !anchor?.visible ||
+      opacity < 0.8 ||
+      modelId !== currentId
+    )
+      return false;
+    const interaction = presentation.toggle();
+    container.dataset.interaction = interaction.opened ? "opened" : "closed";
+    onInteraction?.(interaction);
+    return true;
+  };
+  const pointerDown = (event) => {
+    pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+  };
+  const pointerUp = (event) => {
+    if (
+      !pointerStart ||
+      pointerStart.id !== event.pointerId ||
+      Math.hypot(
+        event.clientX - pointerStart.x,
+        event.clientY - pointerStart.y,
+      ) > 12
+    )
+      return;
+    pointerStart = null;
+    const rect = renderer.domElement.getBoundingClientRect();
+    raycaster.setFromCamera(
+      new THREE.Vector2(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        1 - ((event.clientY - rect.top) / rect.height) * 2,
+      ),
+      camera,
+    );
+    scene.updateMatrixWorld(true);
+    if (anchor.visible && raycaster.intersectObject(anchor, true).length)
+      interact();
+  };
+  const render = (time) => {
+    const age = time - lastTrackedAt;
+    const target = modelId === currentId && age < 140 ? 1 : 0;
+    const dt = Math.min(64, time - lastRenderAt || 16);
+    lastRenderAt = time;
+    opacity = THREE.MathUtils.clamp(
+      opacity + ((target ? 1 : -1) * dt) / (target ? 260 : 130),
+      0,
+      1,
+    );
+    anchor.visible = Boolean(
+      presentation && opacity > 0 && modelId === currentId,
+    );
+    if (presentation) {
+      container.dataset.animationProgress = presentation
+        .update(time, opacity)
+        .toFixed(3);
+      container.dataset.modelKind = presentation.kind;
+    }
+    container.dataset.modelVisible = String(anchor.visible);
+    container.dataset.anchorVisible = String(anchor.visible);
+    container.dataset.interactionReady = String(
+      reliable && opacity > 0.8 && anchor.visible,
+    );
+    container.dataset.modelOpacity = opacity.toFixed(3);
+    if (
+      age >= 140 &&
+      hasLocated &&
+      !["unknown", "loading", "error"].includes(lastState)
+    )
+      state("lost");
+    renderer.render(scene, camera);
   };
   const resize = () => {
     width = Math.max(container.clientWidth, 1);
@@ -143,6 +211,8 @@ export function createQrSceneRuntime({
     hide();
     disposeTree(scene);
     environment?.dispose();
+    renderer?.domElement.removeEventListener("pointerdown", pointerDown);
+    renderer?.domElement.removeEventListener("pointerup", pointerUp);
     renderer?.dispose();
     renderer?.forceContextLoss();
     renderer?.domElement.remove();
@@ -196,12 +266,17 @@ export function createQrSceneRuntime({
         disposeTree(gltf.scene);
         return;
       }
-      const nextModel = normalizeQrModel(gltf.scene);
+      const nextPresentation = createEvidencePresentation(gltf.scene);
+      const nextModel = nextPresentation.root;
       if (model) {
         anchor.remove(model);
         disposeTree(model);
       }
       model = nextModel;
+      presentation = nextPresentation;
+      opacity = 0;
+      container.dataset.interaction = "closed";
+      onInteraction?.(presentation.interaction);
       modelId = id;
       unavailableId = null;
       anchor.add(model);
@@ -221,11 +296,8 @@ export function createQrSceneRuntime({
     if (video.readyState < 2 || !video.videoWidth) return;
     // Decode each new camera frame; do not repeat work at display refresh rate.
     if (video.currentTime === lastFrame) {
-      if (time - lastDecodedAt > 250) {
-        hide();
-        state(hasLocated ? "lost" : "searching");
-      }
-      renderer.render(scene, camera);
+      if (time - lastDecodedAt > 140) reliable = false;
+      render(time);
       return;
     }
     lastFrame = video.currentTime;
@@ -257,22 +329,24 @@ export function createQrSceneRuntime({
       decodeCanvas.height,
     );
     const started = performance.now();
-    const qr = jsQR(pixels.data, pixels.width, pixels.height, {
-      inversionAttempts: "attemptBoth",
-    });
+    const qr = tracker.update(pixels, time);
+    container.dataset.trackingSource = qr?.source || "hold";
+    container.dataset.trackedPoints = String(qr?.points || 0);
     container.dataset.decodeMs = (performance.now() - started).toFixed(1);
     const id = qr && parseClueCode(qr.data, window.location.origin);
     if (!id) {
-      hide();
+      reliable = false;
       if (qr) {
+        hide();
         currentId = null;
         container.dataset.activeClue = "";
         container.dataset.clueId = "";
         requestVersion++;
         requestController?.abort();
         state("unknown");
-      } else state(hasLocated ? "lost" : "searching");
-      renderer.render(scene, camera);
+      } else if (time - lastTrackedAt >= 140)
+        state(hasLocated ? "lost" : "searching");
+      render(time);
       return;
     }
     if (id !== currentId) {
@@ -293,7 +367,7 @@ export function createQrSceneRuntime({
     if (unavailableId === id) {
       hide();
       state("unknown");
-      renderer.render(scene, camera);
+      render(time);
       return;
     }
     if (metadata.has(id) && lastNotifiedId !== id) {
@@ -346,11 +420,13 @@ export function createQrSceneRuntime({
       !pose ||
       pose.reprojectionError > Math.max(videoWidth, videoHeight) * 0.025
     ) {
-      hide();
-      state("searching");
-      renderer.render(scene, camera);
+      reliable = false;
+      if (time - lastTrackedAt >= 140) state(hasLocated ? "lost" : "searching");
+      render(time);
       return;
     }
+    lastTrackedAt = time;
+    reliable = true;
     lastFocalLength = pose.focalLength;
     const projection = getCoverProjection(
       videoWidth,
@@ -372,7 +448,7 @@ export function createQrSceneRuntime({
       "points",
       displayedCorners.map((point) => `${point.x},${point.y}`).join(" "),
     );
-    polygon.style.display = "block";
+    polygon.style.display = "none";
     anchor.visible = modelId === id;
     container.dataset.modelVisible = String(anchor.visible);
     container.dataset.anchorVisible = String(anchor.visible);
@@ -404,7 +480,7 @@ export function createQrSceneRuntime({
     container.dataset.focalLength = pose.focalLength.toFixed(3);
     hasLocated ||= anchor.visible;
     state(anchor.visible ? "located" : "loading");
-    renderer.render(scene, camera);
+    render(time);
   };
 
   const start = async () => {
@@ -438,18 +514,20 @@ export function createQrSceneRuntime({
       renderer.setClearColor(0x000000, 0);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.25;
+      renderer.toneMappingExposure = 1.05;
       renderer.domElement.dataset.testid = "qr-tracking-canvas";
       renderer.domElement.setAttribute("aria-hidden", "true");
       container.appendChild(renderer.domElement);
+      renderer.domElement.addEventListener("pointerdown", pointerDown);
+      renderer.domElement.addEventListener("pointerup", pointerUp);
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(60, 1, 0.005, 100);
       anchor = new THREE.Group();
       anchor.matrixAutoUpdate = false;
       anchor.visible = false;
       scene.add(anchor);
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x594622, 2.1));
-      const light = new THREE.DirectionalLight(0xffefd6, 3);
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x30443e, 1.5));
+      const light = new THREE.DirectionalLight(0xffefd6, 2.5);
       light.position.set(1, 3, 5);
       scene.add(light);
       const room = new RoomEnvironment();
@@ -481,6 +559,7 @@ export function createQrSceneRuntime({
   else void start();
   return {
     cleanup,
+    interact,
     retryModel() {
       if (currentId) {
         unavailableId = null;

@@ -16,8 +16,10 @@
     "test:browser": "npm run build && playwright test"
   },
   "dependencies": {
+    "@alicloud/pop-core": "^1.8.0",
     "@google/model-viewer": "^4.4.0",
     "express": "^5.1.0",
+    "jsfeat": "0.0.8",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.468.0",
     "pg": "^8.23.1",
@@ -26,7 +28,6 @@
     "react-dom": "^19.1.0",
     "sharp": "^0.35.5",
     "three": "^0.183.2",
-    "@alicloud/pop-core": "^1.8.0",
     "three-mindar": "npm:three@0.160.1"
   },
   "devDependencies": {

@@ -27,6 +27,8 @@
 }
 .qr-tracking-scene > canvas {
   z-index: 1;
+  pointer-events: auto;
+  touch-action: none;
 }
 .qr-tracking-marker {
   z-index: 2;
@@ -234,4 +236,34 @@
   .qr-tracking-evidence-toggle svg {
     transition: none;
   }
+}
+
+.qr-tracking-interaction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #d9bd7426;
+  background: linear-gradient(110deg, #37504765, #10171920);
+}
+.qr-tracking-interaction > span {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #dddace;
+}
+.qr-tracking-interaction > button {
+  flex-shrink: 0;
+  border: 1px solid #e8ce91;
+  border-radius: 100px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #ecd9a9, #bca066);
+  color: #182e2b;
+  font-size: 12px;
+  font-weight: 650;
+  box-shadow: 0 3px 14px #0003;
+}
+.qr-tracking-interaction > button:disabled {
+  opacity: 0.4;
+  cursor: default;
 }

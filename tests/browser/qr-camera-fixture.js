@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 // This exercises decoding and the full video-cover -> 3D projection pipeline.
 export async function installQrCamera(context, origin, options = {}) {
   const codes = {};
-  for (const id of ["E-01", "E-06", "E-99"]) {
+  for (const id of ["E-01", "E-02", "E-06", "E-99"]) {
     const qr = QRCode.create(`${origin}/ar?clue=${id}`, {
       errorCorrectionLevel: "M",
     });
@@ -150,6 +150,18 @@ export async function installQrCamera(context, origin, options = {}) {
             image.data[index + 3] = 255;
           }
         ctx.putImageData(image, left, top);
+        if (state.occluded) {
+          const a = point(-0.5, 0.5),
+            b = point(-0.23, 0.5),
+            c = point(-0.23, 0.23),
+            d = point(-0.5, 0.23);
+          ctx.fillStyle = "#bcb6aa";
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          for (const p of [b, c, d]) ctx.lineTo(p.x, p.y);
+          ctx.closePath();
+          ctx.fill();
+        }
         stream?.getVideoTracks()[0]?.requestFrame?.();
       }
       const fakeCamera = {
@@ -205,6 +217,10 @@ export async function installQrCamera(context, origin, options = {}) {
         value: getUserMedia,
       });
     },
-    { codes, delayed: Boolean(options.delayed), configuredFocal: options.focal },
+    {
+      codes,
+      delayed: Boolean(options.delayed),
+      configuredFocal: options.focal,
+    },
   );
 }

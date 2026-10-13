@@ -268,3 +268,92 @@ test("倾斜真实二维码修正不同镜头焦距，切后台停止相机且�
     "ended",
   ]);
 });
+
+test("证物覆盖二维码、真实点击开合与短暂遮挡无闪烁", async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  await installQrCamera(context, baseURL);
+  await context.addInitScript(() => {
+    Object.defineProperty(Element.prototype, "requestFullscreen", {
+      configurable: true,
+      value: undefined,
+    });
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/ar");
+  await page.getByTestId("public-ar-scan").click();
+  const scene = page.getByTestId("qr-tracking-scene");
+  await expect(scene).toHaveAttribute("data-interaction-ready", "true", {
+    timeout: 30000,
+  });
+  await page.evaluate(() =>
+    window.__qrCamera.set({ z: 6, rx: 20, ry: -22, rz: -8 }),
+  );
+  await expect
+    .poll(async () => (await alignment(page))?.maximum ?? 1000)
+    .toBeLessThan(8);
+  await expect(scene).toHaveAttribute("data-model-opacity", "1.000");
+  // Clicking bare wall must not activate an object; clicking its projected body does.
+  await page.mouse.click(25, 300);
+  await expect(scene).toHaveAttribute("data-interaction", "closed");
+  const center = JSON.parse(await scene.getAttribute("data-marker-center"));
+  await page.mouse.click(center.x, center.y);
+  await expect(scene).toHaveAttribute("data-interaction", "opened");
+  await expect(scene).toHaveAttribute("data-animation-progress", "1.000");
+  await page.screenshot({ path: "output/playwright/qr-letter-open.png" });
+  await page.getByTestId("qr-evidence-interact").click();
+  await expect(scene).toHaveAttribute("data-animation-progress", "0.000");
+  // A brief dropped frame never toggles visibility or restarts the appearance.
+  const glitch = await page.evaluate(async () => {
+    const el = document.querySelector('[data-testid="qr-tracking-scene"]');
+    const samples = [];
+    const sample = setInterval(
+      () =>
+        samples.push({
+          visible: el.dataset.modelVisible,
+          opacity: Number(el.dataset.modelOpacity),
+        }),
+      10,
+    );
+    window.__qrCamera.set({ visible: false });
+    await new Promise((resolve) => setTimeout(resolve, 65));
+    window.__qrCamera.set({ visible: true });
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    clearInterval(sample);
+    return samples;
+  });
+  expect(glitch.length).toBeGreaterThan(5);
+  expect(
+    glitch.every((s) => s.visible === "true" && s.opacity > 0.9),
+  ).toBeTruthy();
+  // Occlude one finder and move: optical flow, not a frozen old pose, must follow.
+  await page.evaluate(() => window.__qrCamera.set({ occluded: true, x: 0.05 }));
+  await expect(scene).toHaveAttribute("data-tracking-source", "optical-flow");
+  await expect
+    .poll(async () => (await alignment(page))?.maximum ?? 1000)
+    .toBeLessThan(8);
+  await page.evaluate(() => window.__qrCamera.set({ occluded: false }));
+  await expect(scene).toHaveAttribute("data-interaction-ready", "true");
+  for (const [id, kind, label] of [
+    ["E-02", "terminal", "启动终端"],
+    ["E-06", "case", "打开物证箱"],
+  ]) {
+    await page.evaluate(
+      (id) => window.__qrCamera.set({ id, x: 0, rx: 27, ry: -18, rz: -6 }),
+      id,
+    );
+    await expect(scene).toHaveAttribute("data-model-kind", kind);
+    await expect(scene).toHaveAttribute("data-interaction-ready", "true");
+    await expect(scene).toHaveAttribute("data-model-opacity", "1.000");
+    await page.screenshot({ path: `output/playwright/qr-${kind}-closed.png` });
+    await page.getByRole("button", { name: label, exact: true }).click();
+    await expect(scene).toHaveAttribute("data-animation-progress", "1.000");
+    await page.screenshot({ path: `output/playwright/qr-${kind}-open.png` });
+  }
+  await page.evaluate(() => window.__qrCamera.set({ visible: false }));
+  await expect(scene).toHaveAttribute("data-model-visible", "false");
+  await expect(page.getByTestId("qr-evidence-interact")).toBeDisabled();
+  await page.getByRole("button", { name: "关闭摄像头", exact: true }).click();
+});

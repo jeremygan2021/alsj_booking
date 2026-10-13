@@ -24,7 +24,7 @@ const messages = {
   requesting: "正在打开摄像头…",
   searching: "对准现场二维码",
   loading: "已识别，正在呈现证物…",
-  located: "已定位 · 保持二维码在画面内",
+  located: "证物已浮现 · 轻触查看",
   lost: "二维码离开画面 · 重新对准",
   unknown: "这不是现场证物二维码",
   error: "摄像头暂时不可用",
@@ -44,6 +44,7 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
   const [view, setView] = useState({ status: "requesting", error: null });
   const [clue, setClue] = useState(null);
   const [drawer, setDrawer] = useState(false);
+  const [interaction, setInteraction] = useState(null);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -106,6 +107,7 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
       signal: controller.signal,
       initialClueId: initialHint.current,
       onClue: (id) => callbacks.current.onClue?.(id),
+      onInteraction: setInteraction,
       onState: ({ status, error, clue: nextClue }) => {
         setView({ status, error: error || null });
         if (nextClue) setClue(nextClue);
@@ -188,6 +190,21 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
           className={`qr-tracking-evidence ${drawer ? "is-open" : ""}`}
           data-testid="qr-tracking-evidence"
         >
+          {interaction && (
+            <div className="qr-tracking-interaction">
+              <span aria-live="polite">
+                {identified ? interaction.message : "重新对准二维码，继续查看"}
+              </span>
+              <button
+                type="button"
+                data-testid="qr-evidence-interact"
+                disabled={!identified}
+                onClick={() => runtime.current?.interact()}
+              >
+                {interaction.label}
+              </button>
+            </div>
+          )}
           <button
             type="button"
             className="qr-tracking-evidence-toggle"
