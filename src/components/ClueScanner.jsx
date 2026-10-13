@@ -3,7 +3,11 @@ import { Camera, ImagePlus, ScanLine } from "lucide-react";
 import { Button, Modal } from "./ui";
 import { decodeQrPixels } from "../clue-scan";
 
-export default function ClueScanner({ onDetected, onClose }) {
+export default function ClueScanner({
+  onDetected,
+  onClose,
+  publicView = false,
+}) {
   const [phase, setPhase] = useState("idle"),
     [error, setError] = useState("");
   const video = useRef(null),
@@ -153,7 +157,11 @@ export default function ClueScanner({ onDetected, onClose }) {
   return (
     <Modal title="扫描线索卡" onClose={onClose}>
       <div className="clue-scanner">
-        <p className="muted">对准现场线索卡上的二维码，识别后开启密封证据。</p>
+        <p className="muted">
+          {publicView
+            ? "对准现场线索码，识别后直接查看AR证物和线索。"
+            : "对准现场线索卡上的二维码，识别后开启密封证据。"}
+        </p>
         <div
           className={
             "scanner-preview " + (phase === "scanning" ? "active" : "")

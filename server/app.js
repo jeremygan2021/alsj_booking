@@ -588,6 +588,42 @@ export async function createApp({
       checks,
     });
   });
+  // The standalone scanner exposes only the printed clue's basic evidence.
+  // Advanced information, checks and player records remain in the game flow.
+  app.get("/api/ar/clues/:id", async (r, s) => {
+    const id = r.params.id.toUpperCase();
+    if (!/^E-\d{2}$/.test(id)) fail("证物不存在", 404);
+    const c = await one(
+      "SELECT id,title,area,category,body FROM clues WHERE id=?",
+      id,
+    );
+    if (!c) fail("证物不存在", 404);
+    const model = getEvidenceModel(c.id);
+    s.json({
+      ...c,
+      ...(model
+        ? {
+            model_url: `/api/ar/models/${model.filename}.glb`,
+            model_label: model.label,
+          }
+        : {}),
+    });
+  });
+  app.get("/api/ar/models/:filename", async (r, s) => {
+    const filename = r.params.filename;
+    if (!/^[a-z0-9-]+\.glb$/.test(filename)) fail("模型不存在", 404);
+    const clues = await all("SELECT id FROM clues");
+    if (
+      !clues.some((c) => getEvidenceModel(c.id)?.filename + ".glb" === filename)
+    )
+      fail("模型不存在", 404);
+    s.set({
+      "Content-Type": "model/gltf-binary",
+      "Cache-Control": "public, max-age=3600",
+      "X-Content-Type-Options": "nosniff",
+    });
+    s.sendFile(path.join(modelsRoot, filename));
+  });
   const clueResult = async (p, c) => {
     const check = await one(
       "SELECT * FROM checks WHERE group_id=? AND area=?",

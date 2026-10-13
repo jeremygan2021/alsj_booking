@@ -1,0 +1,296 @@
+.public-ar-page {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 36px 24px 60px;
+  min-height: 70vh;
+}
+.public-ar-title {
+  margin-bottom: 25px;
+}
+.public-ar-title h1 {
+  font-size: 30px;
+  margin: 5px 0 8px;
+}
+.public-ar-title p {
+  font-size: 13px;
+  margin: 0;
+}
+.public-ar-start {
+  padding: 38px;
+  border: 1px solid #78603f;
+  border-radius: 12px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at 50% -15%, #b18b4b32, transparent 65%),
+    linear-gradient(140deg, #292d25, #1c221d);
+}
+.public-ar-scan-symbol {
+  display: grid;
+  place-items: center;
+  width: 95px;
+  height: 95px;
+  margin: 0 auto 24px;
+  border-radius: 22px;
+  border: 1px solid #a484514d;
+  color: var(--gold-light);
+  background: #a887511a;
+  box-shadow: 0 0 45px #b18c4718;
+}
+.public-ar-start h2 {
+  font-size: 26px;
+  margin-bottom: 15px;
+}
+.public-ar-start > p {
+  font-size: 13px;
+  line-height: 1.9;
+  max-width: 470px;
+  margin: 0 auto 24px;
+}
+.public-ar-start > .button {
+  max-width: 380px;
+  min-height: 56px;
+  margin: 0 auto;
+  font-size: 15px;
+  justify-content: center;
+}
+.public-ar-start > small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 20px;
+}
+.public-ar-status {
+  padding-top: 20px;
+}
+.public-ar-status p {
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+.public-ar-error {
+  padding: 16px;
+  color: var(--error);
+  background: #50332b30;
+  border: 1px solid #8e5b4940;
+  border-radius: 6px;
+  font-size: 13px;
+  margin: 18px 0 0;
+  overflow-wrap: anywhere;
+}
+.public-ar-error p {
+  color: var(--error);
+  margin: 0 0 12px;
+}
+.public-ar-error p:last-child {
+  margin-bottom: 0;
+}
+.public-ar-result {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 25px;
+}
+.public-ar-result-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.public-ar-result-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+.public-ar-result-heading h2 {
+  font-size: 25px;
+  margin: 9px 0 0;
+  overflow-wrap: anywhere;
+}
+.public-ar-result-heading h2:focus {
+  outline: none;
+}
+.public-ar-result-heading > .button {
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.public-ar-clue-copy {
+  padding: 22px 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+}
+.public-ar-clue-copy h3 {
+  font-family: var(--serif);
+  font-size: 19px;
+  margin: 7px 0 12px;
+  overflow-wrap: anywhere;
+}
+.public-ar-clue-copy p {
+  font-size: 14px;
+  line-height: 2;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  margin: 0;
+}
+.public-ar-copy-note {
+  font-size: 11px;
+  margin: 20px 0 0;
+  color: var(--muted);
+}
+.public-ar-model-note {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 22px;
+  color: var(--gold);
+}
+.public-ar-model-note svg {
+  margin-top: 3px;
+}
+.public-ar-model-note strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.public-ar-model-note p {
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+.public-ar-manual {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 7px;
+  margin-top: 20px;
+}
+.public-ar-manual > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  list-style: none;
+  padding: 16px 20px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+}
+.public-ar-manual > summary::-webkit-details-marker {
+  display: none;
+}
+.public-ar-manual > summary::after {
+  content: "＋";
+  color: var(--gold);
+  font-size: 18px;
+}
+.public-ar-manual[open] > summary::after {
+  content: "−";
+}
+.public-ar-manual > summary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -4px;
+}
+.public-ar-manual form {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 0 20px 20px;
+}
+.public-ar-manual label {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+.public-ar-manual label > span {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.public-ar-manual input {
+  width: 100%;
+}
+.public-ar-manual form > .button {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.public-ar-access {
+  font-size: 11px;
+  color: var(--gold);
+}
+@media (max-width: 600px) {
+  .public-ar-page {
+    padding: 24px 17px 40px;
+  }
+  .public-ar-title {
+    margin-bottom: 20px;
+  }
+  .public-ar-title h1 {
+    font-size: 25px;
+  }
+  .public-ar-start {
+    padding: 30px 21px;
+  }
+  .public-ar-start h2 {
+    font-size: 23px;
+  }
+  .public-ar-start > p {
+    font-size: 12px;
+  }
+  .public-ar-start > .button {
+    font-size: 14px;
+    padding: 14px 12px;
+    gap: 8px;
+  }
+  .public-ar-scan-symbol {
+    width: 82px;
+    height: 82px;
+    margin-bottom: 20px;
+  }
+  .public-ar-result {
+    padding: 19px 15px;
+  }
+  .public-ar-result-heading {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .public-ar-result-heading h2 {
+    font-size: 21px;
+  }
+  .public-ar-result-heading > .button {
+    padding: 7px 10px;
+    min-height: 36px;
+    font-size: 11px;
+  }
+  .public-ar-clue-copy p {
+    font-size: 13px;
+  }
+  .public-ar-manual > summary {
+    padding: 15px 17px;
+  }
+  .public-ar-manual form {
+    padding: 0 17px 17px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .public-ar-manual label {
+    flex-basis: 100%;
+  }
+  .public-ar-manual form > .button {
+    margin-left: auto;
+  }
+  .public-ar-model-note {
+    padding: 17px;
+    gap: 10px;
+  }
+  .public-ar-model-note strong {
+    font-size: 13px;
+  }
+  .public-ar-result .evidence-model-canvas {
+    min-height: 280px;
+    height: 280px;
+  }
+  .topbar nav button {
+    white-space: nowrap;
+  }
+}

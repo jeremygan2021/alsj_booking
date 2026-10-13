@@ -971,18 +971,18 @@ function Admin({ pub, session, notify }) {
       {qr && (
         <Modal title={qr.id + " · " + qr.title} onClose={() => setQr(null)}>
           <div className="qr-content">
-            <QR value={`${location.origin}/play?clue=${qr.id}`} />
+            <QR value={`${location.origin}/ar?clue=${qr.id}`} />
             <p>场景线索码 · {qr.area}</p>
             <a
               className="text-link"
-              href={"/play?clue=" + qr.id}
+              href={"/ar?clue=" + qr.id}
               target="_blank"
               rel="noreferrer"
             >
               打开线索入口 <ArrowUpRight size={15} />
             </a>
             <small className="muted">
-              二维码定位证物，服务端验证剧情阶段与玩家身份。
+              手机扫码即可查看基础线索与AR证物，无需登录。
             </small>
           </div>
         </Modal>

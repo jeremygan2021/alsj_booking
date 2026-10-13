@@ -9,10 +9,13 @@ test("现场线索码解析支持编号与站内链接，拒绝其他站点及�
     " e-04 ",
     origin + "/play?clue=E-04",
     "/play?clue=e-04",
+    origin + "/ar?clue=E-04",
+    "/ar/?clue=e-04",
   ])
     assert.equal(parseClueCode(raw, origin), "E-04");
   for (const raw of [
     "https://evil.example/play?clue=E-04",
+    "https://evil.example/ar?clue=E-04",
     "javascript:alert(1)",
     origin + "/admin?clue=E-04",
     origin + "/play?identity=player",

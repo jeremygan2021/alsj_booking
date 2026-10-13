@@ -37,25 +37,39 @@ import { Icon, Button, Badge, Empty, Field, Modal } from "./components/ui";
 import Landing from "./pages/Landing";
 import Player from "./pages/Player";
 import Admin from "./pages/Admin";
-function App() {
-  const [view, setView] = useState(
-    location.pathname.startsWith("/admin")
+import PublicAR from "./pages/PublicAR";
+import { parseClueCode } from "./clue-scan";
+const viewFromPath = () =>
+  ["/ar", "/ar/"].includes(location.pathname)
+    ? "ar"
+    : location.pathname.startsWith("/admin")
       ? "admin"
       : location.pathname.startsWith("/play")
         ? "play"
-        : "home",
-  );
+        : "home";
+function App() {
+  const [view, setView] = useState(viewFromPath);
   const [session, setSession] = useState(null),
+    [sessionLoaded, setSessionLoaded] = useState(false),
     [pub, setPub] = useState(null),
     [authMode, setAuthMode] = useState(null),
     [toast, setToast] = useState(""),
     [error, setError] = useState("");
   const load = useCallback(async () => {
     try {
-      const [a, b] = await Promise.all([api("/session"), api("/public")]);
-      setSession(a);
-      setPub(b);
-      setError("");
+      const results = await Promise.allSettled([
+        api("/session").then((value) => {
+          setSession(value);
+          setSessionLoaded(true);
+          return value;
+        }),
+        api("/public").then((value) => {
+          setPub(value);
+          return value;
+        }),
+      ]);
+      const failure = results.find((result) => result.status === "rejected");
+      setError(failure ? failure.reason.message : "");
     } catch (e) {
       setError(e.message);
     }
@@ -63,20 +77,22 @@ function App() {
   useEffect(() => {
     load();
     const timer = setInterval(load, 12000);
-    const pop = () =>
-      setView(
-        location.pathname.startsWith("/admin")
-          ? "admin"
-          : location.pathname.startsWith("/play")
-            ? "play"
-            : "home",
-      );
+    const pop = () => setView(viewFromPath());
     addEventListener("popstate", pop);
     return () => {
       clearInterval(timer);
       removeEventListener("popstate", pop);
     };
   }, [load]);
+  useEffect(() => {
+    if (view !== "play" || !sessionLoaded || session !== null) return;
+    const raw = new URLSearchParams(location.search).get("clue");
+    const id = parseClueCode(raw, location.origin);
+    if (!id) return;
+    history.replaceState({}, "", `/ar?clue=${id}`);
+    setView("ar");
+    setAuthMode(null);
+  }, [view, sessionLoaded, session]);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 5000);
@@ -86,7 +102,13 @@ function App() {
     history.pushState(
       {},
       "",
-      v === "home" ? "/" : v === "play" ? "/play" : "/admin",
+      v === "home"
+        ? "/"
+        : v === "play"
+          ? "/play"
+          : v === "ar"
+            ? "/ar"
+            : "/admin",
     );
     setView(v);
     window.scrollTo({ top: 0 });
@@ -112,7 +134,7 @@ function App() {
       if (params.size) history.replaceState({}, "", "/play?" + params);
     }
   };
-  if (error && !pub)
+  if (view !== "ar" && error && !pub)
     return (
       <div className="boot">
         <h1>连接庄园失败</h1>
@@ -120,7 +142,7 @@ function App() {
         <Button onClick={load}>重新连接</Button>
       </div>
     );
-  if (!pub)
+  if (view !== "ar" && !pub)
     return (
       <div className="boot">
         <span className="seal small">A</span>
@@ -153,6 +175,12 @@ function App() {
             活动介绍
           </button>
           <button
+            className={view === "ar" ? "selected" : ""}
+            onClick={() => navigate("ar")}
+          >
+            AR搜证
+          </button>
+          <button
             className={view === "play" ? "selected" : ""}
             onClick={() => navigate("play")}
           >
@@ -169,7 +197,9 @@ function App() {
         </nav>
         <div className="header-actions">
           <span className="header-date">31 OCT · 2026</span>
-          {session ? (
+          {view === "ar" ? (
+            <span className="public-ar-access">免登录搜证</span>
+          ) : session ? (
             <button
               className="icon-button"
               aria-label="退出登录"
@@ -189,7 +219,9 @@ function App() {
           )}
         </div>
       </header>
-      {view === "home" ? (
+      {view === "ar" ? (
+        <PublicAR />
+      ) : view === "home" ? (
         <Landing
           pub={pub}
           onRegister={() =>

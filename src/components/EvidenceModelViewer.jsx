@@ -43,7 +43,7 @@ export function useXrSupport(mode, enabled = true) {
 }
 
 // Both entry dialogs use the same viewer without nesting dialogs in the gallery.
-export function EvidenceModelStage({ clue, mode = "ar" }) {
+export function EvidenceModelStage({ clue, mode = "ar", publicView = false }) {
   const viewer = useRef(null);
   const stage = useRef(null);
   const [ready, setReady] = useState(false);
@@ -88,7 +88,9 @@ export function EvidenceModelStage({ clue, mode = "ar" }) {
     const onError = () => {
       setLoaded(false);
       setError(
-        "模型暂时无法打开。请确认仍已登录、这条线索已解锁，然后重试。您仍可阅读证据文字。 ",
+        publicView
+          ? "证物模型暂时无法打开，请检查网络后重试。下方的线索文字仍可查看。"
+          : "模型暂时无法打开。请确认仍已登录、这条线索已解锁，然后重试。您仍可阅读证据文字。 ",
       );
     };
     const onArStatus = (event) => {
@@ -107,7 +109,7 @@ export function EvidenceModelStage({ clue, mode = "ar" }) {
       element.removeEventListener("error", onError);
       element.removeEventListener("ar-status", onArStatus);
     };
-  }, [ready, source, retry]);
+  }, [ready, source, retry, publicView]);
 
   useEffect(() => {
     if (!loaded || !xrSupported || mode !== "ar") return;
