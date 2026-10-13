@@ -1,6 +1,6 @@
 # Docker 部署
 
-线上地址 https://alsj.luna.ski ，玩家 `/play`，GM/NPC `/admin`。
+线上地址 https://alsj.luna.ski ，玩家 `/play`，免登录 AR 搜证 `/ar`，GM/NPC `/admin`。
 
 仅运行 `alsj-booking` 应用容器，连接现有 `pg` 容器中的 `alsj` 数据库，加入现有 `1panel-network`。Compose 不管理 PostgreSQL 的生命周期。应用限制 256 MB，连接池最多 3 个连接，使用轮询更新。
 
@@ -22,7 +22,7 @@
 
 本地 `npm ci && npm test && npm run build` 后，打包 `package.json package-lock.json server scripts src/evidence-models.js public/models dist deployment README.md Dockerfile .dockerignore` 上传到服务器 `/tmp/alsj-booking-release.tar.gz`，通过 SSH 执行 `deployment/install-docker.sh`。脚本生成工作人员随机口令（若已有配置则保留）、构建应用、检查接口、配置域名证书、启用备份。
 
-`public/models` 必须随版本带上，不能把该目录直接映射为 Nginx 静态目录；模型经 `/api/models` 检查登录和证据解锁后返回。头像存入数据库，现有只读容器无需新增文件写入卷。Nginx 请求体限制为 3 MiB，以容纳最多 2 MiB 头像的 base64 JSON。模型服务的 `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 在持久化 `.env` 中配置，修改后重启应用；详情见 `docs/ROLE-STORY-AND-XR.md`。
+`public/models` 必须随版本带上，不能把整个目录直接映射为 Nginx 静态目录；独立扫码入口通过 `/api/ar/models` 公开三类白名单示例模型，游戏内 `/api/models` 仍检查登录和证据解锁。头像存入数据库，现有只读容器无需新增文件写入卷。Nginx 请求体限制为 3 MiB，以容纳最多 2 MiB 头像的 base64 JSON。模型服务的 `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 在持久化 `.env` 中配置，修改后重启应用；详情见 `docs/ROLE-STORY-AND-XR.md`。
 
 使用官方 `node:24.21.0-bookworm-slim` 作为运行镜像，复用构建缓存。
 

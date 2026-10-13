@@ -4,7 +4,10 @@ export function parseClueCode(value, origin) {
   if (/^E-\d{2}$/i.test(raw)) return raw.toUpperCase();
   try {
     const url = new URL(raw, origin);
-    if (url.origin !== origin || !["/play", "/play/"].includes(url.pathname))
+    if (
+      url.origin !== origin ||
+      !["/play", "/play/", "/ar", "/ar/"].includes(url.pathname)
+    )
       return null;
     const id = url.searchParams.get("clue");
     return /^E-\d{2}$/i.test(id || "") ? id.toUpperCase() : null;

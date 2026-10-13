@@ -1,0 +1,294 @@
+.clue-scanner.scanner-forensic {
+  --scanner-gold: #c6a574;
+  --scanner-cyan: #8ac9c0;
+}
+
+.scanner-forensic .scanner-preview {
+  isolation: isolate;
+  border-color: #c6a57460;
+  background:
+    radial-gradient(ellipse at 50% 42%, #24443d40, transparent 65%),
+    linear-gradient(145deg, #19221f, #101512);
+}
+
+.scanner-forensic .scanner-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(#8ac9c057 0.8px, transparent 0.8px);
+  background-size: 15px 15px;
+  opacity: 0.48;
+  mask-image: radial-gradient(ellipse, #000, transparent 76%);
+}
+
+.scanner-forensic .scanner-camera-state {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #e7e7db;
+  font-size: 11px;
+  line-height: 1.5;
+  text-shadow: 0 1px 4px #000;
+}
+
+.scanner-forensic .scanner-camera-light {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a0aaa3;
+}
+
+.scanner-forensic[data-phase="scanning"] .scanner-camera-light {
+  background: var(--scanner-cyan);
+  box-shadow: 0 0 8px #8ac9c059;
+}
+
+.scanner-forensic .scanner-view-label {
+  position: absolute;
+  top: 18px;
+  right: 16px;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: #c6a574b3;
+  text-shadow: 0 1px 4px #000;
+}
+
+.scanner-forensic .scanner-target {
+  inset: 20% 17% 24%;
+  display: block;
+  border: 0;
+  box-shadow: 0 0 0 100vmax #0b110f51;
+}
+
+.scanner-forensic .scanner-preview.active .scanner-target::after {
+  content: none;
+}
+
+.scanner-forensic .scanner-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--scanner-gold);
+  border-style: solid;
+  opacity: 0.85;
+}
+
+.scanner-forensic .scanner-corner.top-left {
+  top: 0;
+  left: 0;
+  border-width: 1.5px 0 0 1.5px;
+}
+
+.scanner-forensic .scanner-corner.top-right {
+  top: 0;
+  right: 0;
+  border-width: 1.5px 1.5px 0 0;
+}
+
+.scanner-forensic .scanner-corner.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 1.5px 1.5px;
+}
+
+.scanner-forensic .scanner-corner.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-width: 0 1.5px 1.5px 0;
+}
+
+.scanner-forensic .scanner-scene-text {
+  position: absolute;
+  inset: 12px 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  text-align: center;
+  color: #f0e9dc;
+  text-shadow:
+    0 2px 12px #06100ddd,
+    0 1px 3px #000;
+}
+
+.scanner-forensic .scanner-scene-kicker {
+  color: #dac299;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+}
+
+.scanner-forensic .scanner-scene-text strong {
+  font-family: "Noto Serif SC", "Songti SC", SimSun, serif;
+  font-size: clamp(27px, 7vw, 40px);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  padding-left: 0.18em;
+  line-height: 1.4;
+}
+
+.scanner-forensic .scanner-scene-hint {
+  color: #e7e7db;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.scanner-forensic .scanner-focus-mark {
+  position: absolute;
+  left: calc(50% - 11px);
+  bottom: 14px;
+  color: #c6a57480;
+}
+
+.scanner-forensic .scanner-frame-axis {
+  position: absolute;
+  background: #8ac9c032;
+}
+
+.scanner-forensic .scanner-frame-axis.horizontal {
+  width: 11px;
+  height: 1px;
+  left: calc(50% - 5.5px);
+  bottom: -8px;
+}
+
+.scanner-forensic .scanner-frame-axis.vertical {
+  width: 1px;
+  height: 11px;
+  right: -8px;
+  top: calc(50% - 5.5px);
+}
+
+.scanner-forensic .scanner-beam {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #8ac9c0, transparent);
+  box-shadow: 0 -8px 22px 3px #8ac9c015;
+  animation: forensic-scan-beam 2.8s ease-in-out infinite;
+}
+
+.scanner-forensic .scanner-beam::before {
+  content: "";
+  position: absolute;
+  inset: -30px 0 0;
+  background: linear-gradient(0deg, #8ac9c018, transparent);
+}
+
+.scanner-forensic .scanner-status {
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  display: grid;
+  gap: 10px;
+  color: #e7e7db;
+  font-size: 11px;
+  line-height: 1.5;
+  text-shadow: 0 1px 4px #000;
+}
+
+.scanner-forensic .scanner-activity {
+  width: 112px;
+  height: 2px;
+  margin: auto;
+  background: #c6a57426;
+  overflow: hidden;
+}
+
+.scanner-forensic .scanner-activity i {
+  display: none;
+  width: 38%;
+  height: 100%;
+  background: var(--scanner-cyan);
+}
+
+.scanner-forensic .scanner-activity.is-active i {
+  display: block;
+  animation: forensic-scan-activity 1.8s ease-in-out infinite;
+}
+
+.scanner-forensic .scanner-actions .button {
+  min-height: 44px;
+  flex: 1;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.scanner-forensic .scanner-file.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.scanner-forensic .scanner-file.is-disabled input {
+  cursor: not-allowed;
+}
+
+.scanner-forensic .scanner-privacy {
+  padding-left: 10px;
+  border-left: 1px solid #c6a57450;
+}
+
+@keyframes forensic-scan-beam {
+  0%,
+  100% {
+    top: 12%;
+    opacity: 0.4;
+  }
+  50% {
+    top: 86%;
+    opacity: 0.85;
+  }
+}
+
+@keyframes forensic-scan-activity {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(365%);
+  }
+}
+
+@media (max-width: 420px) {
+  .scanner-forensic .scanner-preview {
+    aspect-ratio: 1.12;
+  }
+
+  .scanner-forensic .scanner-target {
+    inset: 22% 13% 24%;
+  }
+
+  .scanner-forensic .scanner-view-label {
+    top: 38px;
+    left: 16px;
+    right: auto;
+  }
+
+  .scanner-forensic .scanner-actions {
+    gap: 8px;
+  }
+
+  .scanner-forensic .scanner-actions .button {
+    padding: 12px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanner-forensic .scanner-beam,
+  .scanner-forensic .scanner-activity.is-active i {
+    animation: none;
+  }
+
+  .scanner-forensic .scanner-beam {
+    top: 50%;
+  }
+
+  .scanner-forensic .scanner-activity.is-active i {
+    width: 100%;
+    opacity: 0.6;
+  }
+}

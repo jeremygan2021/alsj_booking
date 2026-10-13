@@ -1,5 +1,5 @@
-// Only return model metadata for a clue the server has already authorized.
-// Clients receive an authenticated /api/models URL from the clue detail API.
+// Shared mapping for the game viewer and the standalone public AR scanner.
+// Each API chooses its own model URL and the clue fields it may return.
 const letter = Object.freeze({
   filename: "sealed-letter",
   label: "封蜡信件 · 剧情示例模型",

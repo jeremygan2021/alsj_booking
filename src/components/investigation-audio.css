@@ -1,0 +1,187 @@
+.investigation-audio {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  max-width: 100%;
+  border: 1px solid #bc9b5d42;
+  border-radius: 999px;
+  color: #c4b084;
+  background: #101b18ba;
+  box-shadow: inset 0 1px 0 #f3dfa210;
+  backdrop-filter: blur(12px);
+}
+.investigation-audio button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  touch-action: manipulation;
+}
+.investigation-audio-toggle {
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 11px 0 13px;
+  border-radius: 999px 0 0 999px;
+}
+.investigation-audio-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+.investigation-audio-symbol {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  width: 16px;
+  height: 18px;
+}
+.investigation-audio-action {
+  display: flex;
+  opacity: 0.65;
+}
+.investigation-audio-expand {
+  min-height: 40px;
+  width: 30px;
+  border-radius: 0 999px 999px 0;
+  border-left: 1px solid #bc9b5d26 !important;
+}
+.investigation-audio-expand svg {
+  transition: transform 180ms ease;
+}
+.investigation-audio-expand[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+.investigation-audio.is-playing {
+  color: #edcf90;
+  border-color: #bc9b5d65;
+}
+.investigation-audio button:hover {
+  color: #ffe2a6;
+  background: #bc9b5d12;
+}
+.investigation-audio button:focus-visible {
+  outline: 2px solid #e2bd77;
+  outline-offset: 3px;
+}
+.investigation-audio-equalizer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 18px;
+}
+.investigation-audio-equalizer i {
+  display: block;
+  width: 2px;
+  height: 12px;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: center;
+  animation: investigation-audio-wave 1.15s ease-in-out infinite alternate;
+}
+.investigation-audio-equalizer i:nth-child(2) {
+  animation-delay: -0.55s;
+  height: 16px;
+}
+.investigation-audio-equalizer i:nth-child(3) {
+  animation-delay: -0.25s;
+  height: 10px;
+}
+.investigation-audio-equalizer i:nth-child(4) {
+  animation-delay: -0.8s;
+  height: 14px;
+}
+.investigation-audio-volume {
+  position: absolute;
+  z-index: 15;
+  top: calc(100% + 9px);
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 210px;
+  padding: 13px 14px;
+  border: 1px solid #bc9b5d4d;
+  border-radius: 10px;
+  background: #11201cf5;
+  box-shadow: 0 10px 24px #0005;
+  backdrop-filter: blur(18px);
+}
+.investigation-audio-volume[hidden] {
+  display: none;
+}
+.investigation-audio-volume label {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+.investigation-audio-volume input {
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  accent-color: #d9b774;
+  cursor: pointer;
+}
+.investigation-audio-volume input:focus-visible {
+  outline: 2px solid #e2bd77;
+  outline-offset: 3px;
+}
+.investigation-audio-percentage {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  min-width: 29px;
+  text-align: right;
+}
+.investigation-audio-error {
+  position: absolute;
+  z-index: 16;
+  right: 0;
+  top: calc(100% + 9px);
+  width: max-content;
+  max-width: 220px;
+  padding: 9px 12px;
+  border: 1px solid #bc9b5d4d;
+  border-radius: 8px;
+  background: #11201cf5;
+  color: #edcf90;
+  font-size: 11px;
+}
+.investigation-audio:has(.investigation-audio-volume:not([hidden]))
+  .investigation-audio-error {
+  top: calc(100% + 66px);
+}
+.investigation-audio-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@keyframes investigation-audio-wave {
+  from {
+    transform: scaleY(0.35);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .investigation-audio-equalizer i {
+    animation: none;
+  }
+  .investigation-audio-expand svg {
+    transition: none;
+  }
+}

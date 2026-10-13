@@ -18,6 +18,7 @@ try {
         "tests/rules.test.js",
         "tests/concurrency.test.js",
         "tests/content.test.js",
+        "tests/public-ar.test.js",
         "tests/character-generation.test.js",
       ]) {
     const schema = "alsj_test_" + randomBytes(8).toString("hex");

@@ -39,7 +39,10 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
   };
   for (const [name, value] of Object.entries(fields))
     await page.locator(`[name="${name}"]`).fill(value);
-  await page.getByRole("button", { name: "AR搜证", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "玩家入口" })
+    .getByRole("button", { name: "AR搜证", exact: true })
+    .click();
   await page.getByRole("button", { name: "我的角色", exact: true }).click();
   await expect(page.locator('[name="story"]')).toHaveValue(fields.story);
   await expect(page.locator(".avatar-upload img")).toHaveAttribute(
@@ -114,7 +117,10 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
   await page.reload();
   const inaccessible = await page.request.get("/api/models/sealed-letter.glb");
   expect(inaccessible.status()).toBe(403);
-  await page.getByRole("button", { name: "AR搜证", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "玩家入口" })
+    .getByRole("button", { name: "AR搜证", exact: true })
+    .click();
   await page.getByRole("button", { name: "扫描线索，查看AR证物" }).click();
   const code = await QRCode.toBuffer(`${baseURL}/play?clue=E-01`, {
     width: 512,
@@ -129,6 +135,10 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
   await expect(page.getByTestId("model-loaded")).toBeVisible({
     timeout: 30000,
   });
+  await expect(page.locator("model-viewer")).toHaveAttribute(
+    "ar-modes",
+    "webxr",
+  );
   await page.getByTestId("model-detail-options").locator("summary").click();
   await page.getByRole("button", { name: "自动旋转", exact: true }).click();
   await expect(page.getByRole("button", { name: "暂停旋转" })).toHaveAttribute(
