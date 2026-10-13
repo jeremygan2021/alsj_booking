@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+const testPort = Number(process.env.ALSJ_BROWSER_TEST_PORT || 3301);
 
 export default defineConfig({
   testDir: "./tests/browser",
@@ -8,7 +9,7 @@ export default defineConfig({
   expect: { timeout: 15000 },
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:3301",
+    baseURL: `http://127.0.0.1:${testPort}`,
     viewport: { width: 1280, height: 900 },
     trace: "retain-on-failure",
     launchOptions: {
@@ -20,7 +21,7 @@ export default defineConfig({
   },
   webServer: {
     command: "node tests/browser/server.js",
-    url: "http://127.0.0.1:3301/api/public",
+    url: `http://127.0.0.1:${testPort}/api/public`,
     reuseExistingServer: false,
   },
 });

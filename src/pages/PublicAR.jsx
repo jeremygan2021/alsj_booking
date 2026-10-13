@@ -1,13 +1,26 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, Box, RefreshCw, ScanLine } from "lucide-react";
+import {
+  ArrowRight,
+  Box,
+  Crosshair,
+  MapPin,
+  RefreshCw,
+  ScanLine,
+} from "lucide-react";
 import { api } from "../api";
 import { parseClueCode } from "../clue-scan";
-import { Badge, Button } from "../components/ui";
+import { Button } from "../components/ui";
 import ClueScanner from "../components/ClueScanner";
 import { EvidenceModelStage } from "../components/EvidenceModelViewer";
+import InvestigationAudio, {
+  useInvestigationAudio,
+} from "../components/InvestigationAudio";
 import "./public-ar.css";
 
 export default function PublicAR() {
+  const audio = useInvestigationAudio();
+  const discoveryAudio = useRef(audio.playDiscovery);
+  discoveryAudio.current = audio.playDiscovery;
   const [scanning, setScanning] = useState(false);
   const [state, setState] = useState({
     clue: null,
@@ -71,8 +84,15 @@ export default function PublicAR() {
     };
   }, [loadClue]);
   useEffect(() => {
-    if (state.clue) resultHeading.current?.focus();
+    if (state.clue) {
+      resultHeading.current?.focus({ preventScroll: true });
+      discoveryAudio.current?.();
+    }
   }, [state.clue]);
+  const startScanning = () => {
+    audio.playFromGesture();
+    setScanning(true);
+  };
   const detected = (raw) => {
     const id = parseClueCode(raw, location.origin);
     if (!id) throw new Error("这不是本活动的线索码，请扫描现场二维码。");
@@ -86,11 +106,16 @@ export default function PublicAR() {
   };
   return (
     <main className="public-ar-page">
-      <div className="public-ar-title">
-        <span className="eyebrow">阿拉斯加之夜 · 现场搜证</span>
-        <h1>AR搜证</h1>
-        <p>无需登录，扫一扫现场线索码即可查看。</p>
-      </div>
+      <header className="public-ar-title">
+        <div>
+          <span className="eyebrow">ALASKA NIGHTS / FIELD INVESTIGATION</span>
+          <div className="public-ar-mission-name">
+            <h1>AR搜证</h1>
+            <span>追踪被藏起的真相</span>
+          </div>
+        </div>
+        <InvestigationAudio audio={audio} />
+      </header>
       {state.clue ? (
         <section
           className="public-ar-result"
@@ -98,52 +123,74 @@ export default function PublicAR() {
           data-testid="public-ar-clue"
         >
           <div className="public-ar-result-heading">
-            <div>
-              <Badge tone="gold">
-                {state.clue.id}
-                {state.clue.area ? ` · ${state.clue.area}` : ""}
-              </Badge>
-              <h2 tabIndex={-1} ref={resultHeading}>
-                {state.clue.title}
-              </h2>
-            </div>
-            <Button kind="ghost compact" onClick={() => setScanning(true)}>
+            <span className="public-ar-location">
+              <MapPin size={14} />
+              {state.clue.area || "庄园现场"}
+              <span> / {state.clue.id}</span>
+            </span>
+            <Button kind="ghost compact" onClick={startScanning}>
               <ScanLine size={16} /> 继续扫描
             </Button>
           </div>
           {state.clue.model_url ? (
-            <EvidenceModelStage clue={state.clue} publicView />
+            <EvidenceModelStage
+              clue={state.clue}
+              publicView
+              sceneHeadingRef={resultHeading}
+              onInvestigate={audio.playFromGesture}
+              sceneAudioControls={<InvestigationAudio audio={audio} />}
+            />
           ) : (
             <div className="public-ar-model-note" role="status">
               <Box size={25} />
               <div>
+                <h2 tabIndex={-1} ref={resultHeading}>
+                  {state.clue.title}
+                </h2>
                 <strong>这件证物暂未提供AR模型</strong>
                 <p>可以继续阅读线索文字，或向现场GM询问。</p>
               </div>
             </div>
           )}
-          <div className="public-ar-clue-copy">
-            <span className="eyebrow">线索内容</span>
-            <h3>{state.clue.title}</h3>
+          <article className="public-ar-clue-copy">
+            <div className="public-ar-copy-label">
+              <span className="public-ar-evidence-number">{state.clue.id}</span>
+              <h3>现场记录</h3>
+              <span>线索内容</span>
+            </div>
             <p>{state.clue.body}</p>
-          </div>
+          </article>
           <p className="public-ar-copy-note">
             线索以文字内容为准，现场玩法与判定请听从GM指引。
           </p>
         </section>
       ) : (
-        <section className="public-ar-start">
+        <section className="public-ar-start" aria-label="开始现场搜证">
+          <div className="public-ar-start-grid" aria-hidden="true" />
+          <span className="public-ar-scene-coordinate" aria-hidden="true">
+            AN / 31.10
+            <br />
+            EVIDENCE ARCHIVE
+          </span>
           <div className="public-ar-scan-symbol" aria-hidden="true">
-            <ScanLine size={48} strokeWidth={1.3} />
+            <span className="public-ar-orbit public-ar-orbit-one" />
+            <span className="public-ar-orbit public-ar-orbit-two" />
+            <span className="public-ar-target-mark">
+              <Crosshair size={54} strokeWidth={1} />
+            </span>
+            <span className="public-ar-symbol-beam" />
           </div>
-          <h2>现场证物，就在眼前</h2>
+          <span className="public-ar-scene-kicker">让证物浮现，让秘密显形</span>
+          <h2>
+            真相<span>，就在眼前。</span>
+          </h2>
           <p>
-            扫描线索卡上的二维码，打开证物模型和线索文字。支持的手机还可以把证物放进现实空间。
+            对准现场线索码，唤出证物。环绕观察每一处细节，再将证物与标题一起放进现实空间。
           </p>
           <Button
             data-testid="public-ar-scan"
             kind="full"
-            onClick={() => setScanning(true)}
+            onClick={startScanning}
             disabled={state.busy}
           >
             <ScanLine size={21} /> 扫描现场线索码 <ArrowRight size={18} />
@@ -167,6 +214,17 @@ export default function PublicAR() {
             </div>
           )}
           <small>相机画面在你的设备上识别，不上传。</small>
+          <div className="public-ar-investigation-steps" aria-label="搜证步骤">
+            <span>
+              <b>01</b> 扫描线索
+            </span>
+            <span>
+              <b>02</b> 空间观察
+            </span>
+            <span>
+              <b>03</b> 阅读记录
+            </span>
+          </div>
         </section>
       )}
       <details className="public-ar-manual">
@@ -186,6 +244,7 @@ export default function PublicAR() {
               manualInput.current?.focus();
               return;
             }
+            audio.playFromGesture();
             loadClue(id);
           }}
         >

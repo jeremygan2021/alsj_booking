@@ -52,6 +52,10 @@ LLM_RESPONSE_FORMAT=json_schema
 
 原生 AR 模式参考 [model-viewer 官方示例](https://modelviewer.dev/examples/augmentedreality/) 与 [Scene Viewer 文档](https://developers.google.com/ar/develop/scene-viewer)。原生查看器使用公开 HTTPS 模型地址，不依赖玩家 Cookie；浏览器能力模拟验证不代表真实手机相机放置已验收。
 
+「沉浸搜证」提供可环绕观察的独立场景，标题、编号和地点均绘制为 3D 场景文字；定位环、扫描光带与粒子在模型旁显示。支持 WebXR 的手机可在场景内点击「进入现实 AR」，寻找平面后放置模型和文字。Android/iPhone 原生查看器继续通过「放到现实中」打开模型，不包含自定义场景文字。等待 AR 授权时切后台会取消这次启动并恢复可重试状态；关闭场景会中止加载、结束 XR 并释放画布资源。
+
+音乐由浏览器本地合成，在用户操作后启动，可暂停和调节音量；切后台暂停，离开页面释放。GM 在 `/admin` 的「证据与二维码」可下载全部线索 PNG 的 ZIP 和 A4 可打印清单，或单张 PNG。下载仅包含编号、标题、地点和公开线索链接，不打包进阶正文。
+
 玩家页只保留「我的角色」「AR搜证」「证据册」三个常用入口；提交后直接看到等待GM确认的摘要，现场签到后按当前幕次给下一步提示。拍卖、庭审和完整关系详情收在次要区域。
 
 点击「AR 搜证」→ 后置相机扫码，也可识别二维码图片或输入现场编号 → 服务端检查票务、签到、角色批准和证据开放阶段 → 解锁证据并打开对应 3D 模型 → 在支持 WebXR AR 的设备上点击进入 AR，把模型放置在真实环境中。
@@ -76,6 +80,6 @@ LLM_RESPONSE_FORMAT=json_schema
 
 数据库迁移是增量迁移：保留旧角色、金币、任务、竞拍、证据与工作人员编辑；旧角色的已有 NPC 联系人迁入关系表。头像被服务端解码、限制尺寸并重新编码为 WebP，存入数据库；仅本人、GM 和已获批准关系的对应 NPC 能读取。
 
-运行 `npm test` 和 `npm run build` 验证规则、生成请求与构建。`npm run test:browser` 使用独立内存数据库和 3301 端口，验证上传、角色草稿、GM审核、NPC关系、二维码图片识别和三个模型的切换，不写入日常开发数据。需要 Playwright Chromium；若使用已安装的 Chrome，可设置 `CHROMIUM_EXECUTABLE_PATH=/path/to/chrome`。
+运行 `npm test` 和 `npm run build` 验证规则、生成请求与构建。`npm run test:browser` 使用独立内存数据库和默认 3301 端口（可用 `ALSJ_BROWSER_TEST_PORT` 调整），验证上传、角色草稿、GM审核、NPC关系、匿名二维码识别、音乐、场景加载/清理/重试、AR 授权恢复与下载包，不写入日常开发数据。需要 Playwright Chromium；若使用已安装的 Chrome，可设置 `CHROMIUM_EXECUTABLE_PATH=/path/to/chrome`。
 
 正式举办前还要用目标 Android 手机 / VR 头显的实际浏览器测试安全域名、扫码、AR 放置、VR 进入退出和模型性能。桌面 3D 预览通过不代表真机 WebXR 验证通过。当前大模型测试使用模拟兼容服务验证协议、结构校验与错误恢复，真实服务验证需要自己的模型名、接口地址及密钥；PostgreSQL 集成测试需要独立配置 `TEST_DATABASE_URL`，运行器与角色测试各自使用随机独立 schema，完成后清理，不读写生产 public 表。

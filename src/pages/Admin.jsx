@@ -31,8 +31,15 @@ import {
   Activity,
   Plus,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import { api } from "../api";
+import {
+  createClueQrArchive,
+  createClueQrPng,
+  publicClueUrl,
+  saveClueQrDownload,
+} from "../clue-qr-download";
 import { phases, factions, formatTime } from "../constants";
 import { Audit, PlayerReview, ContentEditor } from "../components/StaffForms";
 import { RelationCards } from "../components/CharacterProfile";
@@ -54,7 +61,8 @@ function Admin({ pub, session, notify }) {
     [detail, setDetail] = useState(null),
     [qr, setQr] = useState(null),
     [edit, setEdit] = useState(null),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [qrDownload, setQrDownload] = useState(null);
   const gm = session.role === "gm";
   const action = async (fn) => {
     setBusy(true);
@@ -69,6 +77,27 @@ function Admin({ pub, session, notify }) {
   };
   const inspect = (id) =>
     action(async () => setDetail(await api("/staff/players/" + id)));
+  const downloadQr = async (clue) => {
+    if (qrDownload) return;
+    setQrDownload({ kind: clue ? "single" : "all", complete: 0 });
+    try {
+      const file = clue
+        ? await createClueQrPng(clue, location.origin)
+        : await createClueQrArchive(data.clues, location.origin, (complete) =>
+            setQrDownload({ kind: "all", complete }),
+          );
+      saveClueQrDownload(file);
+      notify(
+        clue
+          ? "证据二维码图片已下载"
+          : "全部证据二维码已打包下载，解压后打开 index.html 即可打印",
+      );
+    } catch (error) {
+      notify(error.message || "二维码下载失败，请重试");
+    } finally {
+      setQrDownload(null);
+    }
+  };
   if (!data) return <div className="boot">正在连接导演控制台…</div>;
   const links = gm
     ? [
@@ -531,7 +560,23 @@ function Admin({ pub, session, notify }) {
             <div className="notice">
               <Lock size={19} />
               <span>
-                此页包含全部证据背面，只有GM可见。打印现场二维码时请使用部署后的真实域名，当前二维码使用本机地址。
+                此页包含全部证据背面，只有GM可见。下载包只包含证据编号、标题、地点与公开搜证入口，二维码使用当前访问地址：
+                {location.origin}。
+              </span>
+            </div>
+            <div className="table-toolbar">
+              <Button
+                data-testid="download-all-clue-qr"
+                disabled={Boolean(qrDownload) || !data.clues.length}
+                onClick={() => downloadQr()}
+              >
+                <Download size={17} />
+                {qrDownload?.kind === "all"
+                  ? `正在生成 ${qrDownload.complete}/${data.clues.length}…`
+                  : "下载全部证据二维码"}
+              </Button>
+              <span className="muted" role="status">
+                {data.clues.length} 条证据 · PNG 图片与可打印清单（ZIP）
               </span>
             </div>
             <div className="evidence-grid">
@@ -971,11 +1016,21 @@ function Admin({ pub, session, notify }) {
       {qr && (
         <Modal title={qr.id + " · " + qr.title} onClose={() => setQr(null)}>
           <div className="qr-content">
-            <QR value={`${location.origin}/ar?clue=${qr.id}`} />
+            <QR value={publicClueUrl(qr.id, location.origin)} />
             <p>场景线索码 · {qr.area}</p>
+            <Button
+              data-testid="download-clue-qr"
+              disabled={Boolean(qrDownload)}
+              onClick={() => downloadQr(qr)}
+            >
+              <Download size={16} />
+              {qrDownload?.kind === "single"
+                ? "正在生成图片…"
+                : "下载此二维码 PNG"}
+            </Button>
             <a
               className="text-link"
-              href={"/ar?clue=" + qr.id}
+              href={publicClueUrl(qr.id, location.origin)}
               target="_blank"
               rel="noreferrer"
             >

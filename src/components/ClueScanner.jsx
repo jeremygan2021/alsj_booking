@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Camera, ImagePlus, ScanLine } from "lucide-react";
 import { Button, Modal } from "./ui";
 import { decodeQrPixels } from "../clue-scan";
+import "./clue-scanner.css";
 
 export default function ClueScanner({
   onDetected,
@@ -154,9 +155,24 @@ export default function ClueScanner({
       if (alive.current && generation.current === version) setPhase("idle");
     }
   };
+  const active = phase === "scanning" || phase === "reading";
+  const cameraLabel =
+    phase === "scanning"
+      ? "相机已开启"
+      : phase === "requesting"
+        ? "等待相机授权"
+        : phase === "reading"
+          ? "相机已停止 · 图片识别"
+          : "相机未开启";
+  const sceneTitle =
+    phase === "scanning"
+      ? "正在锁定"
+      : phase === "reading"
+        ? "读取线索"
+        : "寻找线索";
   return (
     <Modal title="扫描线索卡" onClose={onClose}>
-      <div className="clue-scanner">
+      <div className="clue-scanner scanner-forensic" data-phase={phase}>
         <p className="muted">
           {publicView
             ? "对准现场线索码，识别后直接查看AR证物和线索。"
@@ -168,10 +184,42 @@ export default function ClueScanner({
           }
         >
           <video ref={video} muted playsInline aria-label="线索卡相机预览" />
+          <div className="scanner-grid" aria-hidden="true" />
+          <div className="scanner-camera-state">
+            <span className="scanner-camera-light" aria-hidden="true" />
+            {cameraLabel}
+          </div>
+          <span className="scanner-view-label" aria-hidden="true">
+            ALASKA / EVIDENCE
+          </span>
           <div className="scanner-target" aria-hidden="true">
-            <ScanLine size={44} />
+            <i className="scanner-corner top-left" />
+            <i className="scanner-corner top-right" />
+            <i className="scanner-corner bottom-left" />
+            <i className="scanner-corner bottom-right" />
+            <div className="scanner-scene-text">
+              <span className="scanner-scene-kicker">线索搜证</span>
+              <strong>{sceneTitle}</strong>
+              <span className="scanner-scene-hint">
+                {phase === "reading"
+                  ? "检查图片中的线索二维码"
+                  : phase === "scanning"
+                    ? "将二维码完整放入取景框"
+                    : "开启相机 · 对准现场线索码"}
+              </span>
+            </div>
+            <ScanLine className="scanner-focus-mark" size={22} />
+            {phase === "scanning" && <span className="scanner-beam" />}
+            <span className="scanner-frame-axis horizontal" />
+            <span className="scanner-frame-axis vertical" />
           </div>
           <span className="scanner-status" role="status">
+            <span
+              className={"scanner-activity " + (active ? "is-active" : "")}
+              aria-hidden="true"
+            >
+              <i />
+            </span>
             {phase === "requesting"
               ? "等待相机授权…"
               : phase === "scanning"
@@ -194,13 +242,21 @@ export default function ClueScanner({
             <Camera size={18} />
             {phase === "scanning" ? "重新开启相机" : "开启后置相机"}
           </Button>
-          <label className="button ghost scanner-file">
+          <label
+            className={
+              "button ghost scanner-file " +
+              (phase === "requesting" || phase === "reading"
+                ? "is-disabled"
+                : "")
+            }
+          >
             <ImagePlus size={18} />
             从图片识别
             <input
               type="file"
               accept="image/*"
               onChange={readImage}
+              aria-label="从图片识别二维码"
               disabled={phase === "requesting" || phase === "reading"}
             />
           </label>
