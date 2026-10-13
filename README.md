@@ -78,4 +78,4 @@ TEST_DATABASE_URL='postgresql://USER:PASSWORD@localhost:5432/DATABASE' npm run t
 
 ## AR / VR
 
-顶部「AR搜证」打开免登录独立页面 `/ar`；扫码后直接显示基础线索和模型。玩家页面保留「我的角色 / AR搜证 / 证据册」三个游戏入口；「360°查看证物」放在证据册中，头显入口默认折叠。首次建角色只需头像、Cos角色、来源和故事，其他设定可选。支持设备可进入 WebXR AR；鉴赏入口提供已解锁模型的旋转、缩放、全屏与可选头显 VR。HTTPS、浏览器和实际设备能力决定 AR / VR 是否可进入，不支持时保留普通 3D 浏览。当前为三类证物示例，不含真实庄园全景或多人虚拟空间。资源替换、权限与设备验证见 [docs/ROLE-STORY-AND-XR.md](docs/ROLE-STORY-AND-XR.md)；历史评估见 [docs/WEB-VR-ASSESSMENT.md](docs/WEB-VR-ASSESSMENT.md)。
+顶部「AR搜证」打开免登录独立页面 `/ar`；扫码后直接显示基础线索和模型，可通过 WebXR、Android Scene Viewer 或 iOS Quick Look 放到现实中。玩家页面保留「我的角色 / AR搜证 / 证据册」三个游戏入口；「360°查看证物」放在证据册中，头显入口默认折叠。首次建角色只需头像、Cos角色、来源和故事，其他设定可选。游戏内私有模型使用 WebXR；鉴赏入口提供已解锁模型的旋转、缩放、全屏与可选头显 VR。HTTPS、浏览器和实际设备能力决定 AR / VR 是否可进入，不支持时保留普通 3D 浏览。当前为三类证物示例，不含真实庄园全景或多人虚拟空间。资源替换、权限与设备验证见 [docs/ROLE-STORY-AND-XR.md](docs/ROLE-STORY-AND-XR.md)；历史评估见 [docs/WEB-VR-ASSESSMENT.md](docs/WEB-VR-ASSESSMENT.md)。

@@ -97,3 +97,34 @@ test("独立AR页不依赖报名及会话接口加载", async ({ page }) => {
     timeout: 30000,
   });
 });
+
+test("匿名Android原生AR入口不被WebXR检测挡住", async ({ browser, baseURL }) => {
+  const context = await browser.newContext({
+    userAgent:
+      "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    viewport: { width: 390, height: 844 },
+  });
+  try {
+    await context.addInitScript(() => {
+      Object.defineProperty(navigator, "xr", {
+        value: undefined,
+        configurable: true,
+      });
+    });
+    const page = await context.newPage();
+    await page.goto(baseURL + "/ar?clue=E-01");
+    await expect(page.getByTestId("model-loaded")).toBeVisible({
+      timeout: 30000,
+    });
+    await expect(page.locator("model-viewer")).toHaveAttribute(
+      "ar-modes",
+      "webxr scene-viewer quick-look",
+    );
+    await expect(
+      page.getByRole("button", { name: "放到现实中", exact: true }),
+    ).toBeEnabled();
+    expect(await context.cookies()).toEqual([]);
+  } finally {
+    await context.close();
+  }
+});

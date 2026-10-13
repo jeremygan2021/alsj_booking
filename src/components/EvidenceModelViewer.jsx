@@ -55,7 +55,10 @@ export function EvidenceModelStage({ clue, mode = "ar", publicView = false }) {
   const [retry, setRetry] = useState(0);
   const [autoRotate, setAutoRotate] = useState(false);
   const [zoom, setZoom] = useState(30);
-  const xrSupported = useXrSupport("immersive-ar", mode === "ar");
+  const xrSupported = useXrSupport(
+    "immersive-ar",
+    mode === "ar" && !publicView,
+  );
   const hintId = useId();
   const source = clue?.model_url;
 
@@ -65,6 +68,7 @@ export function EvidenceModelStage({ clue, mode = "ar", publicView = false }) {
     setLoaded(false);
     setError("");
     setArError("");
+    setArActive(false);
     setArReady(false);
     setAutoRotate(false);
     setZoom(30);
@@ -75,7 +79,7 @@ export function EvidenceModelStage({ clue, mode = "ar", publicView = false }) {
     return () => {
       active = false;
     };
-  }, [source, retry]);
+  }, [source, retry, publicView, mode]);
 
   useEffect(() => {
     const element = viewer.current;
@@ -112,24 +116,47 @@ export function EvidenceModelStage({ clue, mode = "ar", publicView = false }) {
   }, [ready, source, retry, publicView]);
 
   useEffect(() => {
-    if (!loaded || !xrSupported || mode !== "ar") return;
-    // The library's asynchronous WebXR capability check can finish after load.
+    if (!loaded || mode !== "ar" || (!publicView && !xrSupported)) return;
+    // canActivateAR covers the library's selected WebXR or native AR mode.
+    // Native viewers do not depend on navigator.xr. Keep checking on return
+    // from a native app because the library may have changed its fallback mode.
+    let active = true;
     let timer;
     const check = () => {
-      const canActivate = Boolean(viewer.current?.canActivateAR);
-      setArReady(canActivate);
-      if (!canActivate) timer = setTimeout(check, 500);
+      if (!active) return;
+      setArReady(Boolean(viewer.current?.canActivateAR));
+      if (!document.hidden) timer = setTimeout(check, 500);
+    };
+    const refresh = () => {
+      clearTimeout(timer);
+      check();
     };
     check();
-    return () => clearTimeout(timer);
-  }, [loaded, xrSupported, mode, retry]);
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("pageshow", refresh);
+    navigator.xr?.addEventListener("devicechange", refresh);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("pageshow", refresh);
+      navigator.xr?.removeEventListener("devicechange", refresh);
+    };
+  }, [loaded, xrSupported, publicView, mode, source, retry]);
 
   async function activateAr() {
+    const element = viewer.current;
+    if (!element?.canActivateAR || (!publicView && !xrSupported)) {
+      setArReady(false);
+      return;
+    }
     setArError("");
     try {
-      await viewer.current?.activateAR();
+      // Call before any await: native AR viewers require the click gesture.
+      await element.activateAR();
     } catch {
-      setArError("暂时无法放置证物，请允许相机访问，也可在上方拖动查看。");
+      if (viewer.current === element)
+        setArError("暂时无法放置证物，请允许相机访问，也可在上方拖动查看。");
     }
   }
   function reset() {
@@ -149,7 +176,8 @@ export function EvidenceModelStage({ clue, mode = "ar", publicView = false }) {
       setArError("此浏览器暂不支持全屏；仍可直接缩放与旋转模型。");
     }
   }
-  const canAr = mode === "ar" && xrSupported && arReady && loaded && !error;
+  const canAr =
+    mode === "ar" && (publicView || xrSupported) && arReady && loaded && !error;
 
   return (
     <section
@@ -170,7 +198,7 @@ export function EvidenceModelStage({ clue, mode = "ar", publicView = false }) {
       >
         {source && ready && (
           <model-viewer
-            key={`${source}:${retry}`}
+            key={`${source}:${retry}:${publicView ? "public" : "private"}:${mode}`}
             ref={viewer}
             src={source}
             alt={`${clue?.title || "物证"}的剧情示例模型。拖动旋转，双指或滚轮缩放。`}
@@ -185,11 +213,11 @@ export function EvidenceModelStage({ clue, mode = "ar", publicView = false }) {
             shadow-intensity="0.7"
             exposure="1"
             environment-image="neutral"
-            with-credentials=""
+            with-credentials={publicView ? undefined : ""}
             loading="eager"
             reveal="auto"
             ar={mode === "ar"}
-            ar-modes="webxr"
+            ar-modes={publicView ? "webxr scene-viewer quick-look" : "webxr"}
             ar-placement="floor"
             ar-scale="auto"
             interaction-prompt="none"

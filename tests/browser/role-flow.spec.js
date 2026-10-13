@@ -136,6 +136,10 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
   await expect(page.getByTestId("model-loaded")).toBeVisible({
     timeout: 30000,
   });
+  await expect(page.locator("model-viewer")).toHaveAttribute(
+    "ar-modes",
+    "webxr",
+  );
   await page.getByTestId("model-detail-options").locator("summary").click();
   await page.getByRole("button", { name: "自动旋转", exact: true }).click();
   await expect(page.getByRole("button", { name: "暂停旋转" })).toHaveAttribute(
