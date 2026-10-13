@@ -36,6 +36,7 @@ import { api } from "../api";
 import { phases, factions, formatTime } from "../constants";
 import { Audit, PlayerReview, ContentEditor } from "../components/StaffForms";
 import { RelationCards } from "../components/CharacterProfile";
+import ContentManager from "../components/ContentManager";
 import {
   Icon,
   Button,
@@ -73,6 +74,7 @@ function Admin({ pub, session, notify }) {
   const links = gm
     ? [
         ["overview", "总览", LayoutDashboard],
+        ["content", "内容管理中心", FileText],
         ["players", "宾客与角色", Users],
         ["relations", "剧情关系", Compass],
         ["npcs", "NPC档案", Briefcase],
@@ -459,6 +461,13 @@ function Admin({ pub, session, notify }) {
               <Audit rows={data.audit} />
             </section>
           </>
+        )}
+        {tab === "content" && gm && (
+          <ContentManager
+            notify={notify}
+            onChanged={refresh}
+            onInspect={inspect}
+          />
         )}
         {tab === "players" && (
           <section className="panel">{playerTable}</section>
@@ -918,7 +927,7 @@ function Admin({ pub, session, notify }) {
                 本场为2026年10月31日的万圣节活动。地点以线下正式通知为准。角色剧情支持大模型生成与GM审核，票务采用人工核验；NPC演绎说明、最终主持台本及完整证据链应在活动前由策划确认。
               </p>
               <p>
-                数据库使用本地SQLite。正式部署时配置真实域名与HTTPS，修改工作人员密码，并定期备份数据库。NPC账号有各自的登录口令，GM与NPC权限分开。
+                线上使用Docker与PostgreSQL，定期备份数据库。管理员账号admin兼容原GM密码；NPC账号有各自的登录口令，管理员与NPC权限分开。内容管理中心支持完整内容编辑和AR场景发布。
               </p>
               <a
                 className="text-link"

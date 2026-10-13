@@ -55,17 +55,17 @@ function Landing({ pub, onRegister, onPlay }) {
             <span className="tiny-star">✦</span> A PRIVATE INVITATION{" "}
             <span className="line" />
           </div>
-          <Badge tone="gold">2026 万圣节特别企划</Badge>
+          <Badge tone="gold">{pub.site?.badge || "2026 万圣节特别企划"}</Badge>
           <h1>
-            阿拉斯加之夜<span>最后的遗嘱</span>
+            {pub.site?.title || "阿拉斯加之夜"}
+            <span>{pub.site?.subtitle || "最后的遗嘱"}</span>
           </h1>
-          <p className="english-title">THE LAST TESTAMENT</p>
-          <p className="hero-description">
-            黄金时代的最后一场舞会。
-            <br />
-            一封邀请，一场盛宴，
-            <br />
-            和一个不该被说出的秘密。
+          <p className="english-title">
+            {pub.site?.englishTitle || "THE LAST TESTAMENT"}
+          </p>
+          <p className="hero-description" style={{ whiteSpace: "pre-line" }}>
+            {pub.site?.description ||
+              "黄金时代的最后一场舞会。\n一封邀请，一场盛宴，\n和一个不该被说出的秘密。"}
           </p>
           <div className="hero-buttons">
             <Button onClick={onRegister}>
@@ -77,7 +77,8 @@ function Landing({ pub, onRegister, onPlay }) {
           </div>
           <div className="hero-foot">
             <span>
-              <Clock size={14} /> 10月31日 · 19:00—23:00
+              <Clock size={14} />{" "}
+              {pub.site?.schedule || "10月31日 · 19:00—23:00"}
             </span>
             <span>
               <Users size={14} /> 限定 {pub.settings.capacity} 位宾客

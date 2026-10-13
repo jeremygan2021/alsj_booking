@@ -39,6 +39,7 @@ test("数据库重启后保留活动数据，种子不会覆盖GM编辑", async 
 
 test("报名容量、非法来源、退款撤销玩法资格与事务回滚", async (t) => {
   const { app, db } = await createApp({
+    allowLegacyRegistration: true,
     databaseUrl: process.env.TEST_DATABASE_URL,
     dbPath: ":memory:",
     gmPassword: "gm-rule-password",

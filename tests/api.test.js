@@ -1,9 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createApp, npcCredential } from "../server/app.js";
+import { createApp } from "../server/app.js";
 import { avatarData, cosplay } from "./profile-fixture.js";
 test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流程", async (t) => {
+  const sent = [];
   const { app, db } = await createApp({
+    allowLegacyRegistration: true,
+    smsSender: async (payload) => sent.push(payload),
     databaseUrl: process.env.TEST_DATABASE_URL,
     dbPath: ":memory:",
     gmPassword: "gm-test-pass",
@@ -73,9 +76,13 @@ test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流�
   });
   assert.equal((await other("/me")).character, undefined);
   await other(`/staff/players/${registered.id}`, null, 401);
-  await npc("/login", {
-    account: "npc:detective",
-    password: npcCredential("npc-test-pass", "detective"),
+  await db
+    .prepare("INSERT INTO npc_phones(npc_id,phone) VALUES(?,?)")
+    .run("detective", "13500000001");
+  await npc("/auth/sms/send", { phone: "13500000001" });
+  await npc("/auth/sms/login", {
+    phone: "13500000001",
+    code: sent.at(-1).code,
   });
   const ns = await npc("/staff");
   assert.ok(ns.players.every((p) => !("faction" in p)));

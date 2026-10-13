@@ -1,0 +1,31 @@
+[
+  {
+    "id": "wall-study",
+    "title": "书房墙面搜证",
+    "mode": "wall",
+    "phase": 3,
+    "tracking": {
+      "kind": "image",
+      "targetKey": "targets/study-wall-v1.mind",
+      "targetIndex": 0,
+      "physicalWidthMeters": 0.3
+    },
+    "models": [
+      {
+        "id": "cabinet",
+        "assetKey": "models/study-cabinet-v1.glb",
+        "position": [0, -1, 0.2],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      }
+    ],
+    "hotspots": [
+      {
+        "id": "drawer",
+        "clueId": "E-01",
+        "position": [0, -1, 0.4],
+        "radius": 0.12
+      }
+    ]
+  }
+]

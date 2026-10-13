@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
 import QRCode from "qrcode";
 import { avatarData } from "../profile-fixture.js";
-import { npcCredential } from "../../server/app.js";
 
 test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360模型鉴赏", async ({
   page,
@@ -59,10 +58,10 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
   ).toBeTruthy();
 
   const npcContext = await browser.newContext({ baseURL });
-  await npcContext.request.post("/api/login", {
+  await npcContext.request.post("/api/auth/sms/login", {
     data: {
-      account: "npc:detective",
-      password: npcCredential("browser-npc-password", "detective"),
+      phone: "13500000001",
+      code: "188888",
     },
   });
   expect(

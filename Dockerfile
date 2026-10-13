@@ -4,6 +4,8 @@ COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
 COPY index.html vite.config.js ./
 COPY src ./src
+COPY public/ar-assets ./public/ar-assets
+COPY public/ar-target.html public/favicon.svg ./public/
 RUN npm run build
 
 FROM node:24.21.0-bookworm-slim AS runtime

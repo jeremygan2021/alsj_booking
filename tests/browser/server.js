@@ -5,11 +5,19 @@ import { createApp } from "../../server/app.js";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const { app, db } = await createApp({
+  allowLegacyRegistration: true,
+  smsSender: async () => {},
+  smsTestPhone: "13500000001",
+  smsTestCode: "188888",
+  smsTestExpiresAt: Date.now() + 3600000,
   dbPath: ":memory:",
   gmPassword: "browser-gm-password",
   npcPassword: "browser-npc-password",
   llm: { baseUrl: "", apiKey: "", model: "" },
 });
+await db
+  .prepare("INSERT INTO npc_phones(npc_id,phone) VALUES(?,?)")
+  .run("detective", "13500000001");
 app.use(express.static(path.join(root, "dist")));
 app.get("/{*path}", (request, response) =>
   response.sendFile(path.join(root, "dist/index.html")),

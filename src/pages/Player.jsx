@@ -3,6 +3,7 @@ import {
   ArrowUpRight,
   ArrowRight,
   FileText,
+  KeyRound,
   Coins,
   ScanLine,
   BookOpen,
@@ -482,6 +483,18 @@ function Player({ pub, notify }) {
         )}
         {tab === "ar" && (
           <>
+            <div className="notice">
+              <Box size={18} />
+              <span>
+                <a className="text-link" href="/ar/wall-study">
+                  进入墙面定位 AR 搜证 →
+                </a>
+                　
+                <a className="text-link" href="/ar/demo">
+                  公开体验
+                </a>
+              </span>
+            </div>
             <ARSearchCard
               blocker={arBlocker}
               busy={busy || !clueData}
@@ -540,6 +553,19 @@ function Player({ pub, notify }) {
         )}
         {tab === "evidence" && (
           <>
+            <div className="notice">
+              <Box size={18} />
+              <span>
+                墙面 3D 搜证已开放：对准现场定位海报，点击模型热点。
+                <a className="text-link" href="/ar/wall-study">
+                  进入正式搜证 →
+                </a>
+                　
+                <a className="text-link" href="/ar/demo">
+                  先体验 3D →
+                </a>
+              </span>
+            </div>
             <div className="section-description evidence-toolbar">
               <p>你收集到的证据会保存在这里，点击卡片重新查看。</p>
               <Badge>

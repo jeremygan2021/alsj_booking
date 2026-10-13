@@ -24,7 +24,12 @@ async function openSqlite(path) {
  CREATE TABLE IF NOT EXISTS inventory(id INTEGER PRIMARY KEY,player_id TEXT REFERENCES players(id),lot_id INTEGER UNIQUE REFERENCES lots(id),used INTEGER DEFAULT 0);
  CREATE TABLE IF NOT EXISTS votes(player_id TEXT PRIMARY KEY REFERENCES players(id),suspect TEXT,motive TEXT,means TEXT,opportunity TEXT,decision TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP);
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,title TEXT,body TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP);
- CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY,actor TEXT,action TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP);`);
+ CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY,actor TEXT,action TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+ CREATE TABLE IF NOT EXISTS managed_content(kind TEXT NOT NULL,id TEXT NOT NULL,body TEXT NOT NULL,PRIMARY KEY(kind,id));
+ CREATE TABLE IF NOT EXISTS sms_challenges(id TEXT PRIMARY KEY,phone TEXT NOT NULL,ip_hash TEXT NOT NULL,code_hash TEXT NOT NULL,created_at INTEGER NOT NULL,expires_at INTEGER NOT NULL,attempts INTEGER DEFAULT 0,status TEXT NOT NULL);
+ CREATE INDEX IF NOT EXISTS sms_phone_created ON sms_challenges(phone,created_at);
+ CREATE INDEX IF NOT EXISTS sms_ip_created ON sms_challenges(ip_hash,created_at);
+ CREATE TABLE IF NOT EXISTS npc_phones(npc_id TEXT PRIMARY KEY REFERENCES npcs(id),phone TEXT UNIQUE NOT NULL);`);
   const seed = (sql, rows) => {
     const s = db.prepare(sql);
     rows.forEach((row) => s.run(...row));

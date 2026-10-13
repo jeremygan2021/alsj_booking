@@ -1,4 +1,7 @@
 import { createApp } from "./app.js";
+import express from "express";
+import { defaultArScenes } from "./ar/scenes.js";
+import { createAliyunSmsSender } from "./auth/aliyun-sms.js";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -25,12 +28,35 @@ const { app } = await createApp({
   npcPassword: process.env.NPC_PASSWORD,
   secure: process.env.COOKIE_SECURE === "true",
   trustProxy: process.env.TRUST_PROXY || "loopback",
+  arScenes: process.env.AR_SCENES_FILE
+    ? JSON.parse(readFileSync(process.env.AR_SCENES_FILE, "utf8"))
+    : defaultArScenes,
+  assetBaseUrl: process.env.AR_ASSET_BASE_URL || "/ar-assets/",
+  smsSender: createAliyunSmsSender(process.env),
+  smsSecret: process.env.SMS_CODE_SECRET || process.env.GM_PASSWORD,
+  smsTestPhone: process.env.SMS_TEST_PHONE || "",
+  smsTestCode: process.env.SMS_TEST_CODE || "",
+  smsTestExpiresAt: Number(process.env.SMS_TEST_EXPIRES_AT || 0),
 });
+app.get("/ar/target", (req, res) =>
+  res.sendFile(
+    path.join(
+      root,
+      process.env.NODE_ENV === "production"
+        ? "dist/ar-target.html"
+        : "public/ar-target.html",
+    ),
+  ),
+);
 if (process.env.NODE_ENV === "production") {
   const { default: express } = await import("express");
   app.use(express.static(path.join(root, "dist")));
   app.get("/{*path}", (r, s) => s.sendFile(path.join(root, "dist/index.html")));
 } else {
+  app.use("/ar-assets", express.static(path.join(root, "public/ar-assets")));
+  app.get("/favicon.svg", (req, res) =>
+    res.sendFile(path.join(root, "public/favicon.svg")),
+  );
   const { createServer } = await import("vite");
   const vite = await createServer({
     server: { middlewareMode: true },

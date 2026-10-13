@@ -4,6 +4,7 @@ import { createApp } from "../server/app.js";
 import { avatarData, cosplay } from "./profile-fixture.js";
 test("并发报名不超额，重复签到及落槌只结算一次", async (t) => {
   const options = {
+    allowLegacyRegistration: true,
     databaseUrl: process.env.TEST_DATABASE_URL,
     dbPath: ":memory:",
     gmPassword: "gm-concurrency-password",

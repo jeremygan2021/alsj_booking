@@ -2,13 +2,15 @@ import express from "express";
 import sharp from "sharp";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import {
-  randomBytes,
-  randomInt,
-  scryptSync,
-  timingSafeEqual,
-  createHmac,
-} from "node:crypto";
+import { createEvidenceService } from "./evidence/service.js";
+import { mountEvidenceRoutes } from "./evidence/routes.js";
+import { createSceneCatalog } from "./ar/catalog.js";
+import { mountArRoutes } from "./ar/routes.js";
+import { defaultArScenes, demoEvidence } from "./ar/scenes.js";
+import { createContentStore } from "./admin/content-store.js";
+import { mountManagementRoutes } from "./admin/routes.js";
+import { createSmsAuth } from "./auth/sms.js";
+import { randomBytes, scryptSync, createHmac } from "node:crypto";
 import { openDb } from "./db.js";
 import { phases, npcOrder } from "./content.js";
 import { getEvidenceModel } from "../src/evidence-models.js";
@@ -28,14 +30,6 @@ export function hashPassword(p) {
 }
 export const npcCredential = (master, id) =>
   createHmac("sha256", master).update(id).digest("base64url").slice(0, 20);
-const verify = (p, h) => {
-  try {
-    const [s, k] = h.split(":");
-    return timingSafeEqual(Buffer.from(k, "hex"), scryptSync(p, s, 64));
-  } catch {
-    return false;
-  }
-};
 export async function createApp({
   dbPath,
   databaseUrl,
@@ -44,7 +38,18 @@ export async function createApp({
   secure = false,
   trustProxy = "loopback",
   llm = {},
+  arScenes = [],
+  assetBaseUrl = "/ar-assets/",
+  smsSender = null,
+  smsSecret = gmPassword,
+  smsNow = Date.now,
+  smsTestPhone = "",
+  smsTestCode = "",
+  smsTestExpiresAt = 0,
+  allowLegacyRegistration = false,
 }) {
+  const arCatalog = createSceneCatalog(arScenes, assetBaseUrl);
+  const demoCatalog = createSceneCatalog(defaultArScenes, assetBaseUrl);
   const app = express(),
     db = await openDb(databaseUrl || dbPath);
   app.disable("x-powered-by");
@@ -193,6 +198,13 @@ export async function createApp({
       action,
     );
   const setting = async () => await one("SELECT * FROM settings");
+  const contentStore = createContentStore({
+    one,
+    all,
+    run,
+    baseScenes: arScenes,
+    assetBaseUrl,
+  });
   const player = async (r) => {
     const p = await one("SELECT * FROM players WHERE id=?", r.auth.user_id);
     if (!p) fail("玩家不存在", 404);
@@ -286,6 +298,8 @@ export async function createApp({
   app.get("/api/public", async (r, s) =>
     s.json({
       settings: await setting(),
+      site: await contentStore.getSite(),
+      auth: { sms: Boolean(smsSender), expiresIn: 900, retryAfter: 60 },
       phases,
       npcs: await all(
         `SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`,
@@ -305,7 +319,62 @@ export async function createApp({
         : null,
     ),
   );
+  const smsAuth = createSmsAuth({
+    one,
+    run,
+    tx,
+    fail,
+    sender: smsSender,
+    secret: smsSecret,
+    now: smsNow,
+    testPhone: smsTestPhone,
+    testCode: smsTestCode,
+    testExpiresAt: smsTestExpiresAt,
+  });
+  app.post("/api/auth/sms/send", async (req, res) =>
+    res.json(await smsAuth.send(req.body.phone, req.ip)),
+  );
+  app.post("/api/auth/sms/login", async (req, res) => {
+    const result = await smsAuth.verify(
+      req.body.phone,
+      req.body.code,
+      async (phone) => {
+        const npc = await one(
+          "SELECT npc_id FROM npc_phones WHERE phone=?",
+          phone,
+        );
+        if (npc) {
+          await session(res, "npc", npc.npc_id);
+          return { id: npc.npc_id, role: "npc", registered: false };
+        }
+        let p = await one("SELECT id FROM players WHERE contact=?", phone),
+          registered = false;
+        if (!p) {
+          const count = (await one("SELECT COUNT(*) n FROM players")).n;
+          if (count >= (await setting()).capacity)
+            fail("本场报名已满，已有玩家仍可登录");
+          const name = req.body.name
+            ? required(req.body.name, "称呼", 40)
+            : `宾客${phone.slice(-4)}`;
+          p = { id: token() };
+          registered = true;
+          await run(
+            "INSERT INTO players(id,name,contact,password,group_id) VALUES(?,?,?,?,?)",
+            p.id,
+            name,
+            phone,
+            "!sms-only!",
+            (count % 6) + 1,
+          );
+        }
+        await session(res, "player", p.id);
+        return { id: p.id, role: "player", registered };
+      },
+    );
+    res.json(result);
+  });
   app.post("/api/register", async (r, s) => {
+    if (!allowLegacyRegistration) fail("请使用手机号验证码完成首次注册");
     const name = required(r.body.name, "称呼", 40),
       contact = required(r.body.contact, "手机号或邮箱", 100),
       password = required(r.body.password, "密码", 128);
@@ -338,28 +407,13 @@ export async function createApp({
   app.post("/api/login", async (r, s) => {
     const account = required(r.body.account, "账号", 100),
       password = required(r.body.password, "密码", 128);
-    if (account === "gm" && password === gmPassword) {
+    if (["gm", "admin"].includes(account) && password === gmPassword) {
       await session(s, "gm", "gm");
       return s.json({
         role: "gm",
       });
     }
-    if (
-      account.startsWith("npc:") &&
-      password === npcCredential(npcPassword, account.slice(4)) &&
-      (await one("SELECT id FROM npcs WHERE id=?", account.slice(4)))
-    ) {
-      await session(s, "npc", account.slice(4));
-      return s.json({
-        role: "npc",
-      });
-    }
-    const p = await one("SELECT * FROM players WHERE contact=?", account);
-    if (!p || !verify(password, p.password)) fail("账号或密码不正确", 401);
-    await session(s, "player", p.id);
-    s.json({
-      role: "player",
-    });
+    fail("仅管理员可使用密码登录，其他用户请使用手机号验证码", 401);
   });
   app.post("/api/logout", async (r, s) => {
     if (r.auth) await run("DELETE FROM sessions WHERE token=?", r.auth.token);
@@ -577,41 +631,18 @@ export async function createApp({
     });
     s.json(await completeGeneration(p.id, draft.revision, draft.lock, draft.c));
   });
-  app.get("/api/clues", auth("player"), async (r, s) => {
-    const p = await player(r),
-      checks = await all("SELECT * FROM checks WHERE group_id=?", p.group_id);
-    s.json({
-      clues: await all(
-        "SELECT c.id,c.title,c.area,c.skill,c.dc,c.phase,c.category,u.created_at unlocked FROM clues c LEFT JOIN unlocks u ON u.clue_id=c.id AND u.player_id=?",
-        p.id,
-      ),
-      checks,
+  const evidence = createEvidenceService({ one, all, run, tx, fail, setting });
+  app.get("/api/ar/demo", (req, res) => {
+    const manifest = demoCatalog.manifest(demoCatalog.get("wall-study"));
+    res.json({
+      ...manifest,
+      demo: true,
+      hotspots: manifest.hotspots.map((hotspot) => ({
+        ...hotspot,
+        ...demoEvidence[hotspot.id],
+      })),
     });
   });
-  const clueResult = async (p, c) => {
-    const check = await one(
-      "SELECT * FROM checks WHERE group_id=? AND area=?",
-      p.group_id,
-      c.area,
-    );
-    const model = getEvidenceModel(c.id);
-    return {
-      id: c.id,
-      title: c.title,
-      body: c.body,
-      detail:
-        check && (check.roll === 20 || check.roll + check.bonus >= c.dc)
-          ? c.detail
-          : null,
-      check,
-      ...(model
-        ? {
-            model_url: `/api/models/${model.filename}.glb`,
-            model_label: model.label,
-          }
-        : {}),
-    };
-  };
   app.get("/api/models/:filename", auth("player", "gm"), async (r, s) => {
     const filename = r.params.filename;
     if (!/^[a-z0-9-]+\.glb$/.test(filename)) fail("模型不存在", 404);
@@ -635,66 +666,14 @@ export async function createApp({
     });
     s.sendFile(path.join(modelsRoot, filename));
   });
-  app.get("/api/clues/:id", auth("player"), async (r, s) => {
-    const { p } = await playable(r),
-      c = await one("SELECT * FROM clues WHERE id=?", r.params.id);
-    if (!c) fail("证物不存在", 404);
-    if (
-      !(await one(
-        "SELECT 1 FROM unlocks WHERE player_id=? AND clue_id=?",
-        p.id,
-        c.id,
-      ))
-    )
-      fail("请先翻开证物", 403);
-    s.json(await clueResult(p, c));
-  });
-  app.post("/api/clues/:id/unlock", auth("player"), async (r, s) => {
-    const { p } = await playable(r),
-      c = await one("SELECT * FROM clues WHERE id=?", r.params.id);
-    if (!c) fail("证物不存在", 404);
-    if ((await setting()).phase < c.phase)
-      fail(`该证物将在第${c.phase}幕开放`, 403);
-    await run(
-      "INSERT OR IGNORE INTO unlocks(player_id,clue_id) VALUES(?,?)",
-      p.id,
-      c.id,
-    );
-    s.json(await clueResult(p, c));
-  });
-  app.post("/api/check", auth("player"), async (r, s) => {
-    const { p, c } = await playable(r),
-      e = await one("SELECT * FROM clues WHERE id=?", r.body.clueId);
-    if (!e || (await setting()).phase !== 3) fail("请在第三幕选择有效调查区");
-    if (
-      !(await one(
-        "SELECT 1 FROM unlocks WHERE player_id=? AND clue_id=?",
-        p.id,
-        e.id,
-      ))
-    )
-      fail("请先取得基础证据");
-    const check = await tx(async () => {
-      const old = await one(
-        "SELECT * FROM checks WHERE group_id=? AND area=?",
-        p.group_id,
-        e.area,
-      );
-      if (old) return old;
-      await run(
-        "INSERT INTO checks(group_id,area,roll,bonus) VALUES(?,?,?,?)",
-        p.group_id,
-        e.area,
-        randomInt(1, 21),
-        c.skill === e.skill ? 2 : 0,
-      );
-      return await one(
-        "SELECT * FROM checks WHERE group_id=? AND area=?",
-        p.group_id,
-        e.area,
-      );
-    });
-    s.json(check);
+  mountEvidenceRoutes(app, { auth, player, playable, evidence });
+  mountArRoutes(app, {
+    auth,
+    playable,
+    evidence,
+    fail,
+    setting,
+    catalog: { get: contentStore.getScene, manifest: arCatalog.manifest },
   });
   app.get("/api/lots", auth("player"), async (r, s) =>
     s.json(
@@ -1117,6 +1096,19 @@ export async function createApp({
     s.json({
       ok: true,
     });
+  });
+  mountManagementRoutes(app, {
+    auth,
+    one,
+    all,
+    run,
+    tx,
+    fail,
+    required,
+    audit,
+    token,
+    store: contentStore,
+    assetBaseUrl,
   });
   app.use("/api", (r, s) =>
     s.status(404).json({

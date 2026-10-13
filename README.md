@@ -17,7 +17,7 @@ npm run dev
 node scripts/credentials.js
 ```
 
-这个命令仅在本机显示GM及六NPC各自的账号密码。GM账号为 `gm`，NPC账号为 `npc:host`、`npc:detective`、`npc:security`、`npc:singer`、`npc:scientist`、`npc:attorney`。账号标识保留兼容：`host` 对应盖茨比、`singer` 对应黛西、`attorney` 对应维拉、`detective` 对应FBI探员、`security` 对应保镖、`scientist` 对应AI研究员。只将对应NPC口令发给对应工作人员；`.env`不提交版本控制。
+这个命令仅在可信终端显示管理员口令及NPC手机号绑定状态。管理员账号为 `admin`（兼容 `gm`）；NPC登录手机号由管理员在内容管理中心绑定，不再使用密码。`.env`不提交版本控制。
 
 ```sh
 npm test
@@ -30,7 +30,7 @@ npm start
 ## 已实现
 
 - 公开活动首页、四幕介绍、六NPC公开档案、40人报名容量限制，GM可调整容量与门票参考价。
-- 手机号/邮箱与密码报名登录、随机会话、密码scrypt哈希、7天会话有效期、登录限频、同源写入检查。
+- 玩家手机号验证码注册/登录，首次验证自动报名；NPC由后台绑定手机号后验证码登录，仅管理员保留密码。验证码15分钟有效、一次使用、发送限频及错误锁定，7天HttpOnly会话。
 - 报名后专属邀请二维码；扫码仍要求登录对应玩家账号，二维码不承担永久鉴权。
 - 万圣节 Cos 角色、原作来源、玩家故事与头像填写；OpenAI 兼容大模型生成庄园背景、2–3 位 NPC 的双向关系和分幕互动目标，未配置时明确使用模板草稿；GM 批准后对应 NPC 可查看关联玩家。隐藏同伙最多3人，不随机分配。
 - GM人工核验票务、幂等签到并发放3枚初始金币、调查组分配。
@@ -79,3 +79,18 @@ TEST_DATABASE_URL='postgresql://USER:PASSWORD@localhost:5432/DATABASE' npm run t
 ## AR / VR
 
 玩家页面简化为「我的角色 / AR搜证 / 证据册」三个入口。AR扫码是主要搜证操作；「360°查看证物」放在证据册中，头显入口默认折叠。首次建角色只需头像、Cos角色、来源和故事，其他设定可选。扫码解锁后展示证物模型，支持设备可进入 WebXR AR；鉴赏入口提供已解锁模型的旋转、缩放、全屏与可选头显 VR。HTTPS、浏览器和实际设备能力决定 AR / VR 是否可进入，不支持时保留普通 3D 浏览。当前为三类证物示例，不含真实庄园全景或多人虚拟空间。资源替换、权限与设备验证见 [docs/ROLE-STORY-AND-XR.md](docs/ROLE-STORY-AND-XR.md)；历史评估见 [docs/WEB-VR-ASSESSMENT.md](docs/WEB-VR-ASSESSMENT.md)。
+## Web AR 搜证重构
+
+管理员入口 `/admin` 支持账号 `admin`（兼容 `gm`，使用原GM密码）。新增内容管理中心，覆盖报名资料与名单导出、完整角色卡、线索、NPC、委托、拍品、广播、AR场景及首页文案。配置持久化到数据库，AR配置保存后即时生效。功能及权限边界见 [后台操作说明](docs/ADMIN-OPERATIONS.md)。
+
+新增独立证据领域模块和 AR 场景/热点 API，复用现有玩家资格、剧情幕数及证据册。纸页、墙面和区域图像锚点采用同一场景配置，资源域名可在同源、OSS和CDN之间切换。当前已接入摄像头图像定位、真实GLB证物柜、热点点击、3D预览及打印海报；正式房间模型与现场标定需按实际布景制作。墙面定位、空间跟踪边界、OSS/CDN性能与后续实施见 [Web AR 架构方案](docs/WEB-AR-ARCHITECTURE.md)，场景配置见 [示例JSON](docs/ar-scenes.example.json)。
+
+默认提供 `/ar/demo` 公开体验、`/ar/wall-study` 正式搜证及 `/ar/target` 定位海报。可设置 `AR_SCENES_FILE` 覆盖正式场景，`AR_ASSET_BASE_URL` 切换资源域名。现场操作、测试与发布见 [AR操作说明](docs/AR-OPERATIONS.md)。
+
+## VR 评估（原方案）
+
+当前现场玩法优先使用手机扫码与翻牌。若增加远程搜证，可先做360°全景网页；头显WebXR暂不列入必需功能。方案对比与实施条件见 [docs/WEB-VR-ASSESSMENT.md](docs/WEB-VR-ASSESSMENT.md)。
+
+## 手机验证码登录
+
+使用阿里云模板 `SMS_493295002` 和“叠加态科技云南”签名。账号凭据仅配置在服务端，普通用户不提供密码登录。NPC手机号在内容管理中心的NPC编辑页设置。配置与测试说明见 [短信登录说明](docs/SMS-LOGIN.md)。

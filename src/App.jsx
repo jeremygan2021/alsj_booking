@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -37,14 +37,18 @@ import { Icon, Button, Badge, Empty, Field, Modal } from "./components/ui";
 import Landing from "./pages/Landing";
 import Player from "./pages/Player";
 import Admin from "./pages/Admin";
-function App() {
-  const [view, setView] = useState(
-    location.pathname.startsWith("/admin")
+import SmsAuth from "./components/SmsAuth";
+const ArPage = lazy(() => import("./pages/ArPage"));
+const currentView = () =>
+  location.pathname.startsWith("/ar")
+    ? "ar"
+    : location.pathname.startsWith("/admin")
       ? "admin"
       : location.pathname.startsWith("/play")
         ? "play"
-        : "home",
-  );
+        : "home";
+function App() {
+  const [view, setView] = useState(currentView);
   const [session, setSession] = useState(null),
     [pub, setPub] = useState(null),
     [authMode, setAuthMode] = useState(null),
@@ -63,14 +67,7 @@ function App() {
   useEffect(() => {
     load();
     const timer = setInterval(load, 12000);
-    const pop = () =>
-      setView(
-        location.pathname.startsWith("/admin")
-          ? "admin"
-          : location.pathname.startsWith("/play")
-            ? "play"
-            : "home",
-      );
+    const pop = () => setView(currentView());
     addEventListener("popstate", pop);
     return () => {
       clearInterval(timer);
@@ -99,11 +96,17 @@ function App() {
       setToast(e.message);
     }
   };
-  const authSuccess = async (role) => {
-    const welcome = authMode === "register";
+  const authSuccess = async (role, registered) => {
+    const pendingAr = view === "ar" ? location.pathname : null;
+    const welcome = registered ?? authMode === "register";
     const pendingClue = new URLSearchParams(location.search).get("clue");
     setAuthMode(null);
     await load();
+    if (pendingAr && role === "player") {
+      history.replaceState({}, "", pendingAr);
+      setView("ar");
+      return;
+    }
     navigate(role === "player" ? "play" : "admin");
     if (role === "player") {
       const params = new URLSearchParams();
@@ -126,6 +129,23 @@ function App() {
         <span className="seal small">A</span>
         <p>正在开启庄园大门…</p>
       </div>
+    );
+  if (view === "ar")
+    return (
+      <>
+        <Suspense fallback={<div className="boot">正在准备 3D 搜证…</div>}>
+          <ArPage session={session} onLogin={() => setAuthMode("login")} />
+        </Suspense>
+        {authMode && (
+          <Auth
+            smsEnabled={Boolean(pub.auth?.sms)}
+            mode={authMode}
+            setMode={setAuthMode}
+            onSuccess={authSuccess}
+            onClose={() => setAuthMode(null)}
+          />
+        )}
+      </>
     );
   return (
     <>
@@ -163,7 +183,7 @@ function App() {
               className={view === "admin" ? "selected" : ""}
               onClick={() => navigate("admin")}
             >
-              工作人员
+              管理后台
             </button>
           )}
         </nav>
@@ -214,8 +234,8 @@ function App() {
         <Admin pub={pub} session={session} notify={setToast} />
       ) : (
         <Access
-          title="导演控制台"
-          text="GM与NPC工作人员请使用分配的专属账号登录。"
+          title="管理后台"
+          text="管理员使用密码登录；NPC使用后台绑定的手机号验证码登录。"
           onLogin={() => setAuthMode("staff")}
         />
       )}
@@ -239,6 +259,7 @@ function App() {
       </footer>
       {authMode && (
         <Auth
+          smsEnabled={Boolean(pub.auth?.sms)}
           mode={authMode}
           setMode={setAuthMode}
           onSuccess={authSuccess}
@@ -278,98 +299,73 @@ function Access({ title, text, onLogin, onRegister }) {
     </main>
   );
 }
-function Auth({ mode, setMode, onSuccess, onClose }) {
+function Auth({ mode, setMode, onSuccess, onClose, smsEnabled }) {
+  if (mode !== "staff")
+    return (
+      <SmsAuth enabled={smsEnabled} onSuccess={onSuccess} onClose={onClose} />
+    );
+  return (
+    <AdminAuth
+      onSuccess={onSuccess}
+      onClose={onClose}
+      onPhone={() => setMode("login")}
+    />
+  );
+}
+function AdminAuth({ onSuccess, onClose, onPhone }) {
   const [busy, setBusy] = useState(false),
-    [err, setErr] = useState("");
-  const register = mode === "register",
-    staff = mode === "staff";
-  const submit = async (e) => {
-    e.preventDefault();
+    [error, setError] = useState("");
+  const submit = async (event) => {
+    event.preventDefault();
     setBusy(true);
-    setErr("");
-    const d = Object.fromEntries(new FormData(e.currentTarget));
+    setError("");
     try {
-      const r = await api(register ? "/register" : "/login", d);
-      await onSuccess(register ? "player" : r.role);
-    } catch (e) {
-      setErr(e.message);
+      const data = Object.fromEntries(new FormData(event.currentTarget));
+      const result = await api("/login", data);
+      await onSuccess(result.role, false);
+    } catch (failure) {
+      setError(failure.message);
     } finally {
       setBusy(false);
     }
   };
   return (
-    <Modal
-      title={
-        register ? "接受庄园邀请" : staff ? "工作人员登录" : "欢迎回来，宾客"
-      }
-      onClose={onClose}
-    >
+    <Modal title="管理员登录" onClose={onClose}>
       <p className="muted">
-        {register
-          ? "报名后领取专属二维码，再建立你的宴会身份。"
-          : staff
-            ? "GM账号为 gm；NPC使用 npc:角色标识。"
-            : "使用报名时的手机号或邮箱登录。"}
+        仅管理员 admin（兼容 gm）可以密码登录。NPC请使用后台绑定的手机号验证。
       </p>
       <form onSubmit={submit}>
-        {register && (
-          <Field label="你的称呼">
-            <input
-              name="name"
-              required
-              maxLength={40}
-              placeholder="我们该如何称呼你"
-              autoFocus
-            />
-          </Field>
-        )}
-        <Field label={staff ? "工作人员账号" : "手机号或邮箱"}>
+        <Field label="工作人员账号">
           <input
-            name={register ? "contact" : "account"}
             required
-            placeholder={staff ? "gm / npc:host" : "手机号或邮箱"}
+            name="account"
             autoComplete="username"
+            defaultValue="admin"
+            placeholder="admin / gm"
           />
         </Field>
-        <Field label={register ? "设置登录密码（至少8位）" : "密码"}>
+        <Field label="密码">
           <input
+            required
             name="password"
             type="password"
-            minLength={register ? 8 : 1}
             maxLength={128}
-            required
-            autoComplete={register ? "new-password" : "current-password"}
+            autoComplete="current-password"
           />
         </Field>
-        {register && (
-          <div className="notice">
-            <Ticket size={17} />
-            <span>
-              提交后票务状态为「待核验」。请联系活动工作人员完成付款核验；网页不收取支付。
-            </span>
-          </div>
-        )}
-        {err && (
-          <p className="form-error" role="alert">
-            {err}
+        {error && (
+          <p role="alert" className="form-error">
+            {error}
           </p>
         )}
-        <Button type="submit" disabled={busy} kind="full">
-          {busy ? "正在处理…" : register ? "确认报名，领取邀请函" : "登录"}
+        <Button kind="full" type="submit" disabled={busy}>
+          {busy ? "正在处理…" : "登录"}
           <ArrowRight size={17} />
         </Button>
       </form>
-      {!staff && (
-        <button
-          className="switch-auth"
-          onClick={() => {
-            setErr("");
-            setMode(register ? "login" : "register");
-          }}
-        >
-          {register ? "已经报名？登录私人档案" : "还没有邀请函？立即报名"}
-        </button>
-      )}
+      <button className="switch-auth" onClick={onPhone}>
+        NPC手机号登录
+      </button>
     </Modal>
   );
 }

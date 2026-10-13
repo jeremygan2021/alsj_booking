@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import sharp from "sharp";
 import pg from "pg";
 import { randomBytes } from "node:crypto";
-import { createApp, npcCredential } from "../server/app.js";
+import { createApp } from "../server/app.js";
 import { validateGeneratedStory } from "../server/story-generation.js";
 import { npcs } from "../server/content.js";
 import { avatarData, cosplay } from "./profile-fixture.js";
@@ -49,7 +49,10 @@ const llmOptions = (fetch) => ({
 });
 
 async function setup(t, llm = { baseUrl: "", apiKey: "", model: "" }) {
+  const sent = [];
   const options = {
+    allowLegacyRegistration: true,
+    smsSender: async (payload) => sent.push(payload),
     dbPath: ":memory:",
     gmPassword: "gm-generation-password",
     npcPassword: "npc-generation-password",
@@ -151,13 +154,21 @@ async function setup(t, llm = { baseUrl: "", apiKey: "", model: "" }) {
     contact: "generation@example.com",
     password: "player-generation-password",
   });
-  await npc("/login", {
-    account: "npc:detective",
-    password: npcCredential(options.npcPassword, "detective"),
+  await db
+    .prepare("INSERT INTO npc_phones(npc_id,phone) VALUES(?,?)")
+    .run("detective", "13500000011");
+  await db
+    .prepare("INSERT INTO npc_phones(npc_id,phone) VALUES(?,?)")
+    .run("security", "13500000012");
+  await npc("/auth/sms/send", { phone: "13500000011" });
+  await npc("/auth/sms/login", {
+    phone: "13500000011",
+    code: sent.at(-1).code,
   });
-  await outsider("/login", {
-    account: "npc:security",
-    password: npcCredential(options.npcPassword, "security"),
+  await outsider("/auth/sms/send", { phone: "13500000012" });
+  await outsider("/auth/sms/login", {
+    phone: "13500000012",
+    code: sent.at(-1).code,
   });
   return { options, client, gm, p, npc, outsider, id, db };
 }

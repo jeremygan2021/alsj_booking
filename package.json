@@ -24,7 +24,9 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "sharp": "^0.35.5",
-    "three": "^0.183.2"
+    "three": "^0.183.2",
+    "@alicloud/pop-core": "^1.8.0",
+    "three-mindar": "npm:three@0.160.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
