@@ -8,3 +8,5 @@ test-results/
 output/playwright/
 .playwright-cli/
 output/models/
+output/releases/
+output/transcribe/
