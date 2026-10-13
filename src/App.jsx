@@ -40,16 +40,21 @@ import Admin from "./pages/Admin";
 import PublicAR from "./pages/PublicAR";
 import SmsAuth from "./components/SmsAuth";
 import { parseClueCode } from "./clue-scan";
+const ArScenePage = lazy(() => import("./pages/ArPage"));
 const viewFromPath = () =>
   ["/ar", "/ar/"].includes(location.pathname)
     ? "ar"
-    : location.pathname.startsWith("/admin")
-      ? "admin"
-      : location.pathname.startsWith("/play")
-        ? "play"
-        : "home";
+    : /^\/ar\/[^/]+\/?$/.test(location.pathname)
+      ? "ar-scene"
+      : location.pathname.startsWith("/admin")
+        ? "admin"
+        : location.pathname.startsWith("/play")
+          ? "play"
+          : "home";
 function App() {
   const [view, setView] = useState(viewFromPath);
+  const [scenePath, setScenePath] = useState(location.pathname);
+  const isArView = view === "ar" || view === "ar-scene";
   const [session, setSession] = useState(null),
     [sessionLoaded, setSessionLoaded] = useState(false),
     [pub, setPub] = useState(null),
@@ -78,7 +83,10 @@ function App() {
   useEffect(() => {
     load();
     const timer = setInterval(load, 12000);
-const pop = () => setView(viewFromPath());
+    const pop = () => {
+      setView(viewFromPath());
+      setScenePath(location.pathname);
+    };
     addEventListener("popstate", pop);
     return () => {
       clearInterval(timer);
@@ -123,14 +131,14 @@ const pop = () => setView(viewFromPath());
     }
   };
   const authSuccess = async (role, registered) => {
-    const pendingAr = view === "ar" ? location.pathname : null;
+    const pendingAr = isArView ? location.pathname + location.search : null;
     const welcome = registered ?? authMode === "register";
     const pendingClue = new URLSearchParams(location.search).get("clue");
     setAuthMode(null);
     await load();
     if (pendingAr && role === "player") {
       history.replaceState({}, "", pendingAr);
-      setView("ar");
+      setView(viewFromPath());
       return;
     }
     navigate(role === "player" ? "play" : "admin");
@@ -141,7 +149,7 @@ const pop = () => setView(viewFromPath());
       if (params.size) history.replaceState({}, "", "/play?" + params);
     }
   };
-  if (view !== "ar" && error && !pub)
+  if (!isArView && error && !pub)
     return (
       <div className="boot">
         <h1>连接庄园失败</h1>
@@ -149,30 +157,12 @@ const pop = () => setView(viewFromPath());
         <Button onClick={load}>重新连接</Button>
       </div>
     );
-  if (view !== "ar" && !pub)
+  if (!isArView && !pub)
     return (
       <div className="boot">
         <span className="seal small">A</span>
         <p>正在开启庄园大门…</p>
       </div>
-    );
-  if (view === "ar")
-    return (
-      <>
-        <Suspense fallback={<div className="boot">正在准备 3D 搜证…</div>}>
-          <ArPage session={session} onLogin={() => setAuthMode("login")} />
-        </Suspense>
-        {authMode && (
-          <Auth
-            smsEnabled={Boolean(pub.auth?.sms)}
-            devShortcut={Boolean(pub.auth?.devShortcut)}
-            mode={authMode}
-            setMode={setAuthMode}
-            onSuccess={authSuccess}
-            onClose={() => setAuthMode(null)}
-          />
-        )}
-      </>
     );
   return (
     <>
@@ -200,7 +190,7 @@ const pop = () => setView(viewFromPath());
             活动介绍
           </button>
           <button
-            className={view === "ar" ? "selected" : ""}
+            className={isArView ? "selected" : ""}
             onClick={() => navigate("ar")}
           >
             AR搜证
@@ -246,6 +236,14 @@ const pop = () => setView(viewFromPath());
       </header>
       {view === "ar" ? (
         <PublicAR />
+      ) : view === "ar-scene" ? (
+        <Suspense fallback={<div className="boot">正在准备 3D 搜证…</div>}>
+          <ArScenePage
+            key={scenePath}
+            session={session}
+            onLogin={() => setAuthMode("login")}
+          />
+        </Suspense>
       ) : view === "home" ? (
         <Landing
           pub={pub}
@@ -296,8 +294,8 @@ const pop = () => setView(viewFromPath());
       </footer>
       {authMode && (
         <Auth
-          smsEnabled={Boolean(pub.auth?.sms)}
-          devShortcut={Boolean(pub.auth?.devShortcut)}
+          smsEnabled={Boolean(pub?.auth?.sms)}
+          devShortcut={Boolean(pub?.auth?.devShortcut)}
           mode={authMode}
           setMode={setAuthMode}
           onSuccess={authSuccess}
