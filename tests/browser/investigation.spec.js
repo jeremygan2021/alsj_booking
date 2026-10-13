@@ -76,7 +76,7 @@ async function installAudioProbe(context) {
 }
 
 async function enterManualClue(page, id) {
-  const manual = page.locator(".public-ar-manual");
+  const manual = page.locator(".public-ar-manual:not(.public-ar-preview)");
   if (!(await manual.evaluate((details) => details.open)))
     await manual.locator("summary").click();
   await page.getByLabel("线索编号或现场链接").fill(id);
@@ -86,6 +86,8 @@ async function enterManualClue(page, id) {
 
 async function loadModel(page, id = "E-01") {
   await page.goto(`/ar?clue=${id}`);
+  await expect(page.getByTestId("public-ar-clue")).toContainText(id);
+  await page.getByTestId("public-ar-preview").locator("summary").click();
   await expect(page.getByTestId("model-loaded")).toBeVisible({
     timeout: 30000,
   });
@@ -148,7 +150,9 @@ test("扫描手势开启音乐，主动暂停后切换线索及刷新保持暂�
   await installAudioProbe(context);
   await page.goto("/ar");
   await page.getByTestId("public-ar-scan").click();
-  await expect(page.getByRole("dialog", { name: "扫描线索卡" })).toBeVisible();
+  await expect(
+    page.getByRole("dialog", { name: "现场扫码搜证" }),
+  ).toBeVisible();
   await expect(page.getByTestId("investigation-music")).toHaveAttribute(
     "data-playing",
     "true",
@@ -156,7 +160,11 @@ test("扫描手势开启音乐，主动暂停后切换线索及刷新保持暂�
   const buffer = await QRCode.toBuffer(`${baseURL}/ar?clue=E-06`, {
     width: 512,
   });
-  await page.locator(".scanner-file input").setInputFiles({
+  await page.getByRole("button", { name: "关闭摄像头", exact: true }).click();
+  await page
+    .locator(".public-ar-manual:not(.public-ar-preview) summary")
+    .click();
+  await page.getByTestId("clue-image-input").setInputFiles({
     name: "E-06.png",
     mimeType: "image/png",
     buffer,
@@ -177,12 +185,14 @@ test("扫描手势开启音乐，主动暂停后切换线索及刷新保持暂�
     "data-playing",
     "false",
   );
-  await page.getByRole("button", { name: "继续扫描", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "扫描线索卡" })).toBeVisible();
+  await page.getByTestId("public-ar-scan").click();
+  await expect(
+    page.getByRole("dialog", { name: "现场扫码搜证" }),
+  ).toBeVisible();
   expect(
     await page.evaluate(() => window.investigationAudioProbe.resumes),
   ).toBe(resumes);
-  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "关闭摄像头", exact: true }).click();
   await page.reload();
   await expect(page.getByTestId("public-ar-clue")).toContainText("E-02");
   await expect(

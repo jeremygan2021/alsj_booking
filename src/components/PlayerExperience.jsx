@@ -48,7 +48,7 @@ export function ARSearchCard({ blocker, busy, onScan, compact = false }) {
       <span className="eyebrow">现场搜证</span>
       <h2>扫一扫，证物就在眼前</h2>
       <p>
-        扫描现场线索码，打开证物模型。支持的手机可把它放进现实空间，所有设备都能旋转观察。
+        开启全屏相机，对准现场二维码。证物会跟随二维码的位置、方向和大小，墙面证物贴在二维码所在墙面。
       </p>
       <Button onClick={onScan} disabled={busy}>
         <ScanLine size={21} /> 扫描线索，查看AR证物 <ArrowRight size={18} />
@@ -63,7 +63,7 @@ export function ARSearchCard({ blocker, busy, onScan, compact = false }) {
             <b>1</b>扫描现场线索码
           </span>
           <span>
-            <b>2</b>观察AR证物
+            <b>2</b>保持二维码在画面内
           </span>
           <span>
             <b>3</b>保存到证据册

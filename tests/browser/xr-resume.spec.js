@@ -31,6 +31,8 @@ test("AR授权等待期间切到后台后可重新进入，不会卡在正在启
     });
   });
   await page.goto("/ar?clue=E-01");
+  await expect(page.getByTestId("public-ar-clue")).toContainText("E-01");
+  await page.getByTestId("public-ar-preview").locator("summary").click();
   await expect(page.getByTestId("model-loaded")).toBeVisible({
     timeout: 30000,
   });

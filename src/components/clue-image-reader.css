@@ -1,0 +1,32 @@
+.clue-image-reader {
+  padding: 0 0 20px;
+}
+.clue-image-reader .clue-image-picker {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  width: auto;
+  overflow: hidden;
+  cursor: pointer;
+}
+.clue-image-picker input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.clue-image-picker:focus-within {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.clue-image-picker:has(input:disabled) {
+  opacity: 0.5;
+  cursor: wait;
+}
+.clue-image-reader > p {
+  color: var(--error);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}

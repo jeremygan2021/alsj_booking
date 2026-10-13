@@ -206,6 +206,24 @@
 }
 .public-ar-result {
   animation: ar-reveal 0.7s ease-out both;
+  margin-top: 26px;
+}
+.public-ar-start-ready {
+  padding: 28px 30px;
+}
+.public-ar-start-ready h2 {
+  font-size: clamp(24px, 3vw, 34px);
+}
+.public-ar-clue-title {
+  font-size: 24px;
+  margin: 18px 0;
+  overflow-wrap: anywhere;
+}
+.public-ar-clue-title:focus {
+  outline: none;
+}
+.public-ar-preview .evidence-model {
+  margin-bottom: 20px;
 }
 .public-ar-result-heading {
   display: flex;
@@ -412,6 +430,9 @@
   }
   .public-ar-start {
     padding: 40px 22px 0;
+  }
+  .public-ar-start-ready {
+    padding: 25px 20px;
   }
   .public-ar-scene-coordinate {
     left: 22px;

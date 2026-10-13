@@ -10,7 +10,10 @@ import {
 import { api } from "../api";
 import { parseClueCode } from "../clue-scan";
 import { Button } from "../components/ui";
-import ClueScanner from "../components/ClueScanner";
+import ClueImageReader from "../components/ClueImageReader";
+import QrTrackingScene, {
+  requestQrFullscreen,
+} from "../features/ar/QrTrackingScene";
 import { EvidenceModelStage } from "../components/EvidenceModelViewer";
 import InvestigationAudio, {
   useInvestigationAudio,
@@ -22,6 +25,8 @@ export default function PublicAR() {
   const discoveryAudio = useRef(audio.playDiscovery);
   discoveryAudio.current = audio.playDiscovery;
   const [scanning, setScanning] = useState(false);
+  const [scanClueId, setScanClueId] = useState(undefined);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [state, setState] = useState({
     clue: null,
     busy: false,
@@ -33,6 +38,7 @@ export default function PublicAR() {
   const manualInput = useRef(null);
   const loadClue = useCallback(async (id) => {
     const version = ++requestVersion.current;
+    setPreviewOpen(false);
     setState({ clue: null, busy: true, error: "", id });
     const params = new URLSearchParams(location.search);
     params.set("clue", id);
@@ -85,19 +91,22 @@ export default function PublicAR() {
   }, [loadClue]);
   useEffect(() => {
     if (state.clue) {
-      resultHeading.current?.focus({ preventScroll: true });
+      if (!scanning) resultHeading.current?.focus({ preventScroll: true });
       discoveryAudio.current?.();
     }
   }, [state.clue]);
   const startScanning = () => {
+    requestQrFullscreen();
     audio.playFromGesture();
+    setPreviewOpen(false);
+    setScanClueId(state.clue?.id);
     setScanning(true);
   };
   const detected = (raw) => {
     const id = parseClueCode(raw, location.origin);
     if (!id) throw new Error("这不是本活动的线索码，请扫描现场二维码。");
-    setScanning(false);
-    loadClue(id);
+    audio.playFromGesture();
+    return loadClue(id);
   };
   const cancel = () => {
     requestVersion.current++;
@@ -116,6 +125,67 @@ export default function PublicAR() {
         </div>
         <InvestigationAudio audio={audio} />
       </header>
+      <section
+        className={`public-ar-start${state.clue ? " public-ar-start-ready" : ""}`}
+        aria-label="开始现场搜证"
+      >
+        <div className="public-ar-start-grid" aria-hidden="true" />
+        {!state.clue && (
+          <div className="public-ar-scan-symbol" aria-hidden="true">
+            <span className="public-ar-orbit public-ar-orbit-one" />
+            <span className="public-ar-orbit public-ar-orbit-two" />
+            <span className="public-ar-target-mark">
+              <Crosshair size={54} strokeWidth={1} />
+            </span>
+            <span className="public-ar-symbol-beam" />
+          </div>
+        )}
+        <span className="public-ar-scene-kicker">把镜头对准现场二维码</span>
+        <h2>{state.clue ? "回到现场，继续搜证" : "证物，就在眼前。"}</h2>
+        <p>
+          开启全屏相机，证物会跟随二维码的位置、方向和大小。
+          墙面证物贴在二维码所在墙面，保持二维码在画面内即可观察。
+        </p>
+        <Button
+          data-testid="public-ar-scan"
+          kind="full"
+          onClick={startScanning}
+        >
+          <ScanLine size={21} /> 开启相机搜证 <ArrowRight size={18} />
+        </Button>
+        <small>无需登录。相机画面在你的设备上识别，不上传。</small>
+        {!state.clue && (
+          <div className="public-ar-investigation-steps" aria-label="搜证步骤">
+            <span>
+              <b>01</b> 开启相机
+            </span>
+            <span>
+              <b>02</b> 对准二维码
+            </span>
+            <span>
+              <b>03</b> 观察证物
+            </span>
+          </div>
+        )}
+      </section>
+      {state.busy && (
+        <div className="public-ar-status" role="status">
+          <p>正在查找{state.id}的线索…</p>
+          <Button kind="ghost compact" onClick={cancel}>
+            取消查看
+          </Button>
+        </div>
+      )}
+      {state.error && (
+        <div className="public-ar-error" role="alert">
+          <p>{state.error}</p>
+          {state.id && (
+            <Button kind="ghost compact" onClick={() => loadClue(state.id)}>
+              <RefreshCw size={16} /> 重新查看
+            </Button>
+          )}
+        </div>
+      )}
       {state.clue ? (
         <section
           className="public-ar-result"
@@ -128,25 +198,19 @@ export default function PublicAR() {
               {state.clue.area || "庄园现场"}
               <span> / {state.clue.id}</span>
             </span>
-            <Button kind="ghost compact" onClick={startScanning}>
-              <ScanLine size={16} /> 继续扫描
-            </Button>
+            <span className="public-ar-access">现场记录</span>
           </div>
-          {state.clue.model_url ? (
-            <EvidenceModelStage
-              clue={state.clue}
-              publicView
-              sceneHeadingRef={resultHeading}
-              onInvestigate={audio.playFromGesture}
-              sceneAudioControls={<InvestigationAudio audio={audio} />}
-            />
-          ) : (
+          <h2
+            className="public-ar-clue-title"
+            tabIndex={-1}
+            ref={resultHeading}
+          >
+            {state.clue.title}
+          </h2>
+          {!state.clue.model_url && (
             <div className="public-ar-model-note" role="status">
               <Box size={25} />
               <div>
-                <h2 tabIndex={-1} ref={resultHeading}>
-                  {state.clue.title}
-                </h2>
                 <strong>这件证物暂未提供AR模型</strong>
                 <p>可以继续阅读线索文字，或向现场GM询问。</p>
               </div>
@@ -163,72 +227,29 @@ export default function PublicAR() {
           <p className="public-ar-copy-note">
             线索以文字内容为准，现场玩法与判定请听从GM指引。
           </p>
-        </section>
-      ) : (
-        <section className="public-ar-start" aria-label="开始现场搜证">
-          <div className="public-ar-start-grid" aria-hidden="true" />
-          <span className="public-ar-scene-coordinate" aria-hidden="true">
-            AN / 31.10
-            <br />
-            EVIDENCE ARCHIVE
-          </span>
-          <div className="public-ar-scan-symbol" aria-hidden="true">
-            <span className="public-ar-orbit public-ar-orbit-one" />
-            <span className="public-ar-orbit public-ar-orbit-two" />
-            <span className="public-ar-target-mark">
-              <Crosshair size={54} strokeWidth={1} />
-            </span>
-            <span className="public-ar-symbol-beam" />
-          </div>
-          <span className="public-ar-scene-kicker">让证物浮现，让秘密显形</span>
-          <h2>
-            真相<span>，就在眼前。</span>
-          </h2>
-          <p>
-            对准现场线索码，唤出证物。环绕观察每一处细节，再将证物与标题一起放进现实空间。
-          </p>
-          <Button
-            data-testid="public-ar-scan"
-            kind="full"
-            onClick={startScanning}
-            disabled={state.busy}
-          >
-            <ScanLine size={21} /> 扫描现场线索码 <ArrowRight size={18} />
-          </Button>
-          {state.busy && (
-            <div className="public-ar-status" role="status">
-              <p>正在查找{state.id}的证物…</p>
-              <Button kind="ghost compact" onClick={cancel}>
-                取消查看
-              </Button>
-            </div>
-          )}
-          {state.error && (
-            <div className="public-ar-error" role="alert">
-              <p>{state.error}</p>
-              {state.id && (
-                <Button kind="ghost compact" onClick={() => loadClue(state.id)}>
-                  <RefreshCw size={16} /> 重新查看
-                </Button>
+          {state.clue.model_url && (
+            <details
+              className="public-ar-manual public-ar-preview"
+              data-testid="public-ar-preview"
+              open={previewOpen}
+              onToggle={(event) => setPreviewOpen(event.currentTarget.open)}
+            >
+              <summary>360°预览与沉浸观察</summary>
+              {previewOpen && (
+                <EvidenceModelStage
+                  key={state.clue.id}
+                  clue={state.clue}
+                  publicView
+                  onInvestigate={audio.playFromGesture}
+                  sceneAudioControls={<InvestigationAudio audio={audio} />}
+                />
               )}
-            </div>
+            </details>
           )}
-          <small>相机画面在你的设备上识别，不上传。</small>
-          <div className="public-ar-investigation-steps" aria-label="搜证步骤">
-            <span>
-              <b>01</b> 扫描线索
-            </span>
-            <span>
-              <b>02</b> 空间观察
-            </span>
-            <span>
-              <b>03</b> 阅读记录
-            </span>
-          </div>
         </section>
-      )}
+      ) : null}
       <details className="public-ar-manual">
-        <summary>没有相机？输入线索编号</summary>
+        <summary>无法开启相机？从图片或编号阅读线索</summary>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -264,16 +285,12 @@ export default function PublicAR() {
             查看线索
           </Button>
         </form>
+        <ClueImageReader onDetected={detected} disabled={state.busy} />
       </details>
-      {state.clue && state.error && (
-        <p className="public-ar-error" role="alert">
-          {state.error}
-        </p>
-      )}
       {scanning && (
-        <ClueScanner
-          publicView
-          onDetected={detected}
+        <QrTrackingScene
+          initialClueId={scanClueId}
+          onClue={loadClue}
           onClose={() => setScanning(false)}
         />
       )}

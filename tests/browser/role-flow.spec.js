@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import QRCode from "qrcode";
 import { avatarData } from "../profile-fixture.js";
+import { installQrCamera } from "./qr-camera-fixture.js";
 
 test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360模型鉴赏", async ({
   page,
@@ -114,6 +115,7 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
     data: { phase: 3 },
   });
   expect(gmPhase.ok()).toBeTruthy();
+  await installQrCamera(page.context(), baseURL);
   await page.reload();
   const inaccessible = await page.request.get("/api/models/sealed-letter.glb");
   expect(inaccessible.status()).toBe(403);
@@ -122,12 +124,37 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
     .getByRole("button", { name: "AR搜证", exact: true })
     .click();
   await page.getByRole("button", { name: "扫描线索，查看AR证物" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "现场扫码搜证" }),
+  ).toBeVisible();
+  await expect(page.getByTestId("qr-tracking-scene")).toHaveAttribute(
+    "data-model-visible",
+    "true",
+    { timeout: 30000 },
+  );
+  await expect
+    .poll(async () => {
+      const response = await page.request.get("/api/clues");
+      const data = await response.json();
+      return Boolean(data.clues.find((clue) => clue.id === "E-01")?.unlocked);
+    })
+    .toBe(true);
+  await expect(page.getByRole("dialog")).toHaveCount(1);
+  await page.getByRole("button", { name: "关闭摄像头", exact: true }).click();
+  expect(await page.evaluate(() => window.__qrCamera.tracks)).toEqual([
+    "ended",
+  ]);
+  await page
+    .getByText("无法开启相机？从图片或编号阅读线索", { exact: true })
+    .click();
   const code = await QRCode.toBuffer(`${baseURL}/play?clue=E-01`, {
     width: 512,
   });
   await page
-    .locator(".scanner-file input")
+    .getByTestId("clue-image-input")
     .setInputFiles({ name: "E-01.png", mimeType: "image/png", buffer: code });
+  await expect(page.getByRole("dialog")).toContainText("基础证据");
+  await page.getByRole("button", { name: "查看AR证物模型" }).click();
   await expect(page.getByRole("dialog")).toHaveAttribute(
     "aria-label",
     "AR 搜证 · E-01",

@@ -17,7 +17,10 @@ import {
 import { api } from "../api";
 import { phases, factions } from "../constants";
 import { Button, Badge, Field, Modal, QR, useResource } from "../components/ui";
-import ClueScanner from "../components/ClueScanner";
+import ClueImageReader from "../components/ClueImageReader";
+import QrTrackingScene, {
+  requestQrFullscreen,
+} from "../features/ar/QrTrackingScene";
 import ClueReveal from "../components/ClueReveal";
 import CharacterForm, {
   CharacterAvatar,
@@ -41,6 +44,7 @@ function Player({ pub, notify }) {
     [detail, setDetail] = useState(null),
     [flipped, setFlipped] = useState(false),
     [scanning, setScanning] = useState(false),
+    [scanClueId, setScanClueId] = useState(undefined),
     [model, setModel] = useState(null),
     [gallery, setGallery] = useState(null),
     [characterFormState, setCharacterFormState] = useState(null),
@@ -49,7 +53,8 @@ function Player({ pub, notify }) {
   const handledClue = useRef(null),
     detailGeneration = useRef(0),
     galleryGeneration = useRef(0),
-    showModelOnUnlock = useRef(false);
+    showModelOnUnlock = useRef(false),
+    trackedClues = useRef(new Set());
   const openClue = (clue, ar = false) => {
     detailGeneration.current++;
     showModelOnUnlock.current = ar;
@@ -69,9 +74,8 @@ function Player({ pub, notify }) {
       setBusy(false);
     }
   };
-  const scannedEvidence = (clue) => {
-    setScanning(false);
-    openClue(clue, true);
+  const readEvidence = (clue) => {
+    openClue(clue);
     const player = data?.player,
       character = data?.character;
     if (
@@ -90,9 +94,39 @@ function Player({ pub, notify }) {
       const unlocked = { ...clue, ...result, unlocked: true };
       showModelOnUnlock.current = false;
       setFlipped(true);
-      setDetail(null);
-      setModel({ clue: unlocked, mode: "ar" });
+      setDetail(unlocked);
     });
+  };
+  const startScanning = () => {
+    requestQrFullscreen();
+    setScanClueId(
+      parseClueCode(
+        new URLSearchParams(location.search).get("clue"),
+        location.origin,
+      ) || undefined,
+    );
+    setScanning(true);
+  };
+  const saveTrackedClue = async (id) => {
+    const clue = clueData?.clues.find((item) => item.id === id);
+    if (
+      !clue ||
+      clue.unlocked ||
+      trackedClues.current.has(id) ||
+      data?.player?.payment !== "paid" ||
+      !data.player.checked_in ||
+      data?.character?.status !== "approved" ||
+      pub.settings.phase < clue.phase
+    )
+      return;
+    trackedClues.current.add(id);
+    try {
+      await api(`/clues/${id}/unlock`, {});
+      await Promise.all([refresh(), refreshClues()]);
+    } catch (error) {
+      trackedClues.current.delete(id);
+      notify(error.message);
+    }
   };
   const openGallery = async () => {
     const generation = ++galleryGeneration.current;
@@ -139,7 +173,7 @@ function Player({ pub, notify }) {
     const id = parseClueCode(raw, location.origin);
     const clue = clueData.clues.find((c) => c.id === id);
     if (clue) {
-      scannedEvidence(clue);
+      readEvidence(clue);
     } else notify("未找到该线索卡，请扫描现场二维码或输入有效编号");
   }, [clueData, data, notify]);
   useEffect(() => {
@@ -193,7 +227,7 @@ function Player({ pub, notify }) {
     if (!id) throw new Error("这不是本活动的线索二维码，请扫描现场线索卡。");
     const clue = clueData?.clues.find((c) => c.id === id);
     if (!clue) throw new Error("该线索编号不存在，请向GM核对。");
-    scannedEvidence(clue);
+    readEvidence(clue);
   };
   const links = [
     ["identity", "我的角色", FileText],
@@ -316,7 +350,7 @@ function Player({ pub, notify }) {
                       busy={busy || !clueData}
                       onScan={() => {
                         setTab("ar");
-                        setScanning(true);
+                        startScanning();
                       }}
                     />
                   )}
@@ -483,25 +517,13 @@ function Player({ pub, notify }) {
         )}
         {tab === "ar" && (
           <>
-            <div className="notice">
-              <Box size={18} />
-              <span>
-                <a className="text-link" href="/ar/wall-study">
-                  进入墙面定位 AR 搜证 →
-                </a>
-                　
-                <a className="text-link" href="/ar/demo">
-                  公开体验
-                </a>
-              </span>
-            </div>
             <ARSearchCard
               blocker={arBlocker}
               busy={busy || !clueData}
-              onScan={() => setScanning(true)}
+              onScan={startScanning}
             />
             <details className="player-fold">
-              <summary>没有相机？输入证物编号</summary>
+              <summary>无法开启相机？从图片或编号阅读线索</summary>
               <div className="player-fold-content">
                 <form
                   className="scan-form"
@@ -512,7 +534,7 @@ function Player({ pub, notify }) {
                       location.origin,
                     );
                     const clue = clueData?.clues.find((item) => item.id === id);
-                    if (clue) scannedEvidence(clue);
+                    if (clue) readEvidence(clue);
                     else notify("未找到该证物编号");
                   }}
                 >
@@ -530,9 +552,13 @@ function Player({ pub, notify }) {
                     kind="ghost compact"
                     disabled={busy || !clueData}
                   >
-                    打开证物
+                    阅读线索
                   </Button>
                 </form>
+                <ClueImageReader
+                  onDetected={scannedClue}
+                  disabled={busy || !clueData}
+                />
               </div>
             </details>
             <details className="player-fold">
@@ -542,10 +568,10 @@ function Player({ pub, notify }) {
                   GM确认人物档案、核验票务并现场签到后，可在第三幕开始解锁现场证物。提前扫码可以查看开放提示。
                 </p>
                 <p>
-                  扫描只识别线索编号，证物由系统验证后打开。基础证据会保存到你的证据册；每组每个区域只有一次主要鉴定机会。
+                  相机中会显示公开的基础证物。满足开放条件后，扫码会将线索保存到你的证据册；私人内容和鉴定仍按剧情进度开放。
                 </p>
                 <p>
-                  相机画面在你的手机上识别。设备暂不支持AR放置时，仍能旋转、放大查看证物。
+                  相机画面在你的手机上识别。保持现场二维码在镜头内，证物会跟随二维码；墙面证物贴在二维码所在墙面。
                 </p>
               </div>
             </details>
@@ -703,8 +729,9 @@ function Player({ pub, notify }) {
         </Modal>
       )}
       {scanning && (
-        <ClueScanner
-          onDetected={scannedClue}
+        <QrTrackingScene
+          initialClueId={scanClueId}
+          onClue={saveTrackedClue}
           onClose={() => setScanning(false)}
         />
       )}
