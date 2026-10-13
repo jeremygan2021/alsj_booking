@@ -1,66 +1,58 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
-  Menu,
-  X,
-  Compass,
-  Users,
-  Ticket,
-  Clock,
-  Shield,
   FileText,
-  KeyRound,
   Coins,
   ScanLine,
   BookOpen,
-  LayoutDashboard,
-  Layers,
   Radio,
   Gavel,
-  Dices,
-  Check,
-  LogOut,
-  ChevronRight,
-  Search,
   Lock,
-  MapPin,
   CheckCircle2,
-  Briefcase,
-  Wallet,
-  Activity,
-  Plus,
   RefreshCw,
+  Box,
 } from "lucide-react";
 import { api } from "../api";
 import { phases, factions } from "../constants";
-import {
-  Icon,
-  Button,
-  Badge,
-  Empty,
-  Field,
-  Modal,
-  QR,
-  useResource,
-} from "../components/ui";
+import { Button, Badge, Field, Modal, QR, useResource } from "../components/ui";
 import ClueScanner from "../components/ClueScanner";
 import ClueReveal from "../components/ClueReveal";
+import CharacterForm, {
+  CharacterAvatar,
+  GenerationStatus,
+  RelationCards,
+} from "../components/CharacterProfile";
+import EvidenceModelViewer from "../components/EvidenceModelViewer";
+import ImmersiveGallery from "../components/ImmersiveGallery";
 import { parseClueCode } from "../clue-scan";
+import {
+  ARSearchCard,
+  CharacterSummary,
+  CurrentStoryStep,
+} from "../components/PlayerExperience";
 function Player({ pub, notify }) {
   const [data, refresh] = useResource("/me", notify),
     [tab, setTab] = useState("identity"),
     [clueData, refreshClues] = useResource("/clues", notify),
     [lots, refreshLots] = useResource("/lots", notify),
-    [qr, setQr] = useState(new URLSearchParams(location.search).has("welcome")),
+    [qr, setQr] = useState(false),
     [detail, setDetail] = useState(null),
     [flipped, setFlipped] = useState(false),
     [scanning, setScanning] = useState(false),
+    [model, setModel] = useState(null),
+    [gallery, setGallery] = useState(null),
+    [characterFormState, setCharacterFormState] = useState(null),
+    [editingCharacter, setEditingCharacter] = useState(false),
     [busy, setBusy] = useState(false);
   const handledClue = useRef(null),
-    detailGeneration = useRef(0);
-  const openClue = (clue) => {
+    detailGeneration = useRef(0),
+    galleryGeneration = useRef(0),
+    showModelOnUnlock = useRef(false);
+  const openClue = (clue, ar = false) => {
     detailGeneration.current++;
+    showModelOnUnlock.current = ar;
+    setModel(null);
     setDetail(clue);
     setFlipped(false);
     setTab("evidence");
@@ -75,6 +67,56 @@ function Player({ pub, notify }) {
     } finally {
       setBusy(false);
     }
+  };
+  const scannedEvidence = (clue) => {
+    setScanning(false);
+    openClue(clue, true);
+    const player = data?.player,
+      character = data?.character;
+    if (
+      player?.payment !== "paid" ||
+      !player.checked_in ||
+      character?.status !== "approved" ||
+      (!clue.unlocked && pub.settings.phase < clue.phase)
+    )
+      return;
+    const generation = detailGeneration.current;
+    action(async () => {
+      const result = clue.unlocked
+        ? await api(`/clues/${clue.id}`)
+        : await api(`/clues/${clue.id}/unlock`, {});
+      if (generation !== detailGeneration.current) return;
+      const unlocked = { ...clue, ...result, unlocked: true };
+      showModelOnUnlock.current = false;
+      setFlipped(true);
+      setDetail(null);
+      setModel({ clue: unlocked, mode: "ar" });
+    });
+  };
+  const openGallery = async () => {
+    const generation = ++galleryGeneration.current;
+    setGallery({ loading: true, clues: [], error: "" });
+    const unlocked = clueData?.clues.filter((clue) => clue.unlocked) || [];
+    const results = await Promise.allSettled(
+      unlocked.map((clue) =>
+        api(`/clues/${clue.id}`).then((detail) => ({
+          ...clue,
+          ...detail,
+          unlocked: true,
+        })),
+      ),
+    );
+    if (generation !== galleryGeneration.current) return;
+    const errors = results.filter((result) => result.status === "rejected");
+    setGallery({
+      loading: false,
+      clues: results
+        .filter((result) => result.status === "fulfilled")
+        .map((result) => result.value),
+      error: errors.length
+        ? `${errors.length}件证物加载失败：${errors[0].reason.message}。请关闭后重试。`
+        : "",
+    });
   };
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -96,11 +138,15 @@ function Player({ pub, notify }) {
     const id = parseClueCode(raw, location.origin);
     const clue = clueData.clues.find((c) => c.id === id);
     if (clue) {
-      setDetail(clue);
-      setFlipped(false);
-      setTab("evidence");
+      scannedEvidence(clue);
     } else notify("未找到该线索卡，请扫描现场二维码或输入有效编号");
   }, [clueData, data, notify]);
+  useEffect(() => {
+    if (data?.character?.status === "approved") {
+      setCharacterFormState(null);
+      setEditingCharacter(false);
+    }
+  }, [data]);
   if (!data) return <div className="boot">正在调取私人档案…</div>;
   const { player: p, character: c } = data;
   const identity = new URLSearchParams(location.search).get("identity");
@@ -133,7 +179,12 @@ function Player({ pub, notify }) {
         ? await api(`/clues/${detail.id}`)
         : await api(`/clues/${detail.id}/unlock`, {});
       if (generation !== detailGeneration.current) return;
-      setDetail({ ...detail, ...d, unlocked: true });
+      const unlocked = { ...detail, ...d, unlocked: true };
+      if (showModelOnUnlock.current) {
+        showModelOnUnlock.current = false;
+        setDetail(null);
+        setModel({ clue: unlocked, mode: "ar" });
+      } else setDetail(unlocked);
       setFlipped(true);
     });
   const scannedClue = (raw) => {
@@ -141,68 +192,74 @@ function Player({ pub, notify }) {
     if (!id) throw new Error("这不是本活动的线索二维码，请扫描现场线索卡。");
     const clue = clueData?.clues.find((c) => c.id === id);
     if (!clue) throw new Error("该线索编号不存在，请向GM核对。");
-    setScanning(false);
-    openClue(clue);
+    scannedEvidence(clue);
   };
   const links = [
-    ["identity", "人物档案", FileText],
-    ["missions", "私人任务", Compass],
+    ["identity", "我的角色", FileText],
+    ["ar", "AR搜证", ScanLine],
     ["evidence", "证据册", BookOpen],
-    ["auction", "命运拍卖", Coins],
-    ["court", "模拟庭审", Gavel],
   ];
+  const arBlocker = !c
+    ? "先建立你的角色。GM确认、现场签到后，第三幕可解锁证物。"
+    : c.status !== "approved"
+      ? "角色正在等待GM确认。确认并现场签到后，第三幕可解锁证物。"
+      : p.payment !== "paid" || !p.checked_in
+        ? "请先到现场核验票务，并出示身份码完成签到。"
+        : pub.settings.phase < 3
+          ? "搜证将在第三幕开始；现在可以先熟悉扫码入口。"
+          : "";
+  const title =
+    links.find((link) => link[0] === tab)?.[1] ||
+    (tab === "auction" ? "现场拍卖" : "最终庭审");
   return (
-    <main className="player-layout">
-      <aside className="player-sidebar">
-        <span className="eyebrow">YOUR PRIVATE DOSSIER</span>
-        <div className="avatar-monogram">{c?.english?.[0] || p.name[0]}</div>
-        <h2>{c?.name || p.name}</h2>
-        <p>{c?.english || "身份尚待建立"}</p>
-        <Badge tone={c?.status === "approved" ? "green" : "gold"}>
-          {c?.status === "approved"
-            ? "角色已确认"
-            : c
-              ? "档案待审核"
-              : "等待建立角色"}
-        </Badge>
-        <div className="wallet">
-          <Coins size={22} />
-          <strong>{p.coins}</strong>
-          <span>
-            极光金币<small>仅限游戏使用</small>
-          </span>
+    <main className="player-layout player-simple">
+      <header className="player-mini-header">
+        <CharacterAvatar
+          src={c?.avatar_url || characterFormState?.preview}
+          name={c?.name || p.name}
+        />
+        <div className="player-mini-identity">
+          <strong>{c?.name || p.name}</strong>
+          <small>
+            {c?.status === "approved"
+              ? p.checked_in
+                ? `已签到 · 第${p.group_id}调查组`
+                : "角色已确认 · 等待现场签到"
+              : c
+                ? "角色已提交 · 等GM确认"
+                : "欢迎来到阿拉斯加之夜"}
+          </small>
         </div>
-        <div className="player-nav">
-          {links.map(([id, title, I]) => (
-            <button
-              className={tab === id ? "active" : ""}
-              key={id}
-              onClick={() => setTab(id)}
-            >
-              <Icon as={I} />
-              {title}
-              <ChevronRight size={15} />
-            </button>
-          ))}
-        </div>
-        <Button kind="ghost full" onClick={() => setQr(true)}>
-          <ScanLine size={17} /> 我的身份码
-        </Button>
-        <span className="sidebar-note">
-          调查组 {p.group_id} · 票务{p.payment === "paid" ? "已核验" : "待核验"}
-        </span>
-      </aside>
+        {c?.status === "approved" && <Badge tone="green">已确认</Badge>}
+      </header>
+      <nav className="player-simple-nav" aria-label="玩家入口">
+        {links.map(([id, label, I]) => (
+          <button
+            key={id}
+            className={tab === id ? "active" : ""}
+            onClick={() => setTab(id)}
+            aria-current={tab === id ? "page" : undefined}
+          >
+            <I size={18} />
+            {label}
+          </button>
+        ))}
+      </nav>
       <div className="player-main">
         <div className="page-heading">
-          <div>
-            <span className="eyebrow">ALASKA NIGHTS / PLAYER TERMINAL</span>
-            <h1>{links.find((l) => l[0] === tab)[1]}</h1>
-          </div>
+          <h1>{title}</h1>
           <Badge tone="green">
-            <span className="pulse" /> 第{pub.settings.phase}幕 ·{" "}
-            {phases[pub.settings.phase - 1]}
+            第{pub.settings.phase}幕 · {phases[pub.settings.phase - 1]}
           </Badge>
         </div>
+        {(tab === "auction" || tab === "court") && (
+          <Button
+            kind="ghost compact player-back-button"
+            onClick={() => setTab("identity")}
+          >
+            <ArrowRight size={15} /> 回到我的角色
+          </Button>
+        )}
         {pub.events[0] && (
           <div className="event-banner">
             <Radio size={19} />
@@ -214,180 +271,289 @@ function Player({ pub, notify }) {
         )}
         {tab === "identity" && (
           <>
-            {!c || c.status !== "approved" ? (
-              <CharacterForm
-                character={c}
-                onSubmit={(d) =>
-                  action(async () => {
-                    await api("/character", d);
-                    notify("档案已保存，等待GM审核。当前使用受控模板生成。");
-                  })
-                }
-                busy={busy}
-              />
+            {!c || (editingCharacter && c.status !== "approved") ? (
+              <>
+                <CharacterForm
+                  character={c}
+                  playerName={p.name}
+                  formState={characterFormState}
+                  onFormStateChange={setCharacterFormState}
+                  busy={busy}
+                  onSubmit={(draft) =>
+                    action(async () => {
+                      const result = await api("/character", draft);
+                      setEditingCharacter(false);
+                      notify(
+                        result.stale
+                          ? "故事已在另一处更新，请查看当前故事。"
+                          : result.generation_status === "error"
+                            ? "故事已保存，可稍后重试或请GM协助。"
+                            : "角色已提交，等GM确认。",
+                      );
+                    })
+                  }
+                />
+                {c && (
+                  <Button
+                    kind="ghost compact"
+                    disabled={busy}
+                    onClick={() => setEditingCharacter(false)}
+                  >
+                    返回已提交的故事
+                  </Button>
+                )}
+              </>
             ) : (
               <>
-                <div className="identity-card">
-                  <div className="identity-heading">
-                    <span className="eyebrow">
-                      OFFICIAL INVITATION / {p.id.slice(0, 8).toUpperCase()}
-                    </span>
-                    <Shield size={25} />
+                {c.status === "approved" &&
+                  p.payment === "paid" &&
+                  Boolean(p.checked_in) &&
+                  pub.settings.phase >= 3 && (
+                    <ARSearchCard
+                      compact
+                      blocker={arBlocker}
+                      busy={busy || !clueData}
+                      onScan={() => {
+                        setTab("ar");
+                        setScanning(true);
+                      }}
+                    />
+                  )}
+                <CharacterSummary
+                  character={c}
+                  player={p}
+                  busy={busy}
+                  onEdit={() => setEditingCharacter(true)}
+                />
+                {c.status !== "approved" && (
+                  <GenerationStatus
+                    character={c}
+                    audience="player"
+                    configured={pub.generation?.configured}
+                    busy={busy}
+                    onRetry={() =>
+                      action(async () => {
+                        const result = await api("/character/generate", {});
+                        notify(
+                          result.stale
+                            ? "故事已在另一处更新，请查看当前故事。"
+                            : result.generation_status === "error"
+                              ? "故事已保存，暂时未准备好，请稍后重试或找GM。"
+                              : "故事草稿已准备，等GM确认。",
+                        );
+                      })
+                    }
+                  />
+                )}
+                {c.status === "approved" &&
+                  (p.payment !== "paid" || !p.checked_in) && (
+                    <section className="player-next-step">
+                      <span className="eyebrow">下一步 · 现场签到</span>
+                      <h3>到现场，把身份码出示给GM</h3>
+                      <p>
+                        {p.payment !== "paid"
+                          ? "工作人员会核验票务并为你签到。签到后，找到与你有关的NPC开始对话。"
+                          : "你的票务已核验，出示身份码完成签到，就能开始今晚的故事。"}
+                      </p>
+                      <Button onClick={() => setQr(true)}>
+                        <ScanLine size={18} /> 出示签到身份码
+                      </Button>
+                    </section>
+                  )}
+                {c.status === "approved" &&
+                  p.payment === "paid" &&
+                  Boolean(p.checked_in) && (
+                    <>
+                      <CurrentStoryStep
+                        relations={data.relations || []}
+                        missions={data.missions || []}
+                        phase={pub.settings.phase}
+                      />
+                    </>
+                  )}
+                <details className="player-fold">
+                  <summary>
+                    {c.status === "approved"
+                      ? "我的故事与人物关系"
+                      : "查看我的故事草稿"}
+                  </summary>
+                  <div className="player-fold-content">
+                    <h3>我的原始故事</h3>
+                    <p className="character-original-story">{c.story}</p>
+                    {c.adaptation && (
+                      <div className="character-adaptation">
+                        <h4>我在ECHO世界的身份</h4>
+                        <p>{c.adaptation}</p>
+                      </div>
+                    )}
+                    {c.status === "approved" && (
+                      <>
+                        <h3>只有你知道的身份</h3>
+                        <Badge tone="gold">{factions[c.faction]}</Badge>
+                        <p>{c.secret}</p>
+                      </>
+                    )}
+                    <h3>与你有关的人</h3>
+                    {c.status !== "approved" && (
+                      <p>
+                        这是你的个人草稿，GM确认后，对应NPC才会看到与你有关的故事。
+                      </p>
+                    )}
+                    <RelationCards
+                      relations={data.relations || []}
+                      approved={c.status === "approved"}
+                      phase={pub.settings.phase}
+                    />
                   </div>
-                  <h2>{c.name}</h2>
-                  <p className="english-name">{c.english}</p>
-                  <div className="identity-meta">
-                    <Badge>{c.profession}</Badge>
-                    <Badge>{c.skill} +2</Badge>
-                    <Badge>第{p.group_id}调查组</Badge>
-                  </div>
-                  <p>{c.story}</p>
-                  <div className="identity-bottom">
-                    <span>赴宴理由</span>
-                    <strong>{c.motive}</strong>
-                    <span className="stamp">ADMITTED</span>
-                  </div>
-                </div>
-                <div className="two-grid">
-                  <section className="panel">
-                    <span className="eyebrow">FOR YOUR EYES ONLY</span>
-                    <h3>
-                      <Lock size={17} /> 秘密身份
-                    </h3>
-                    <Badge tone="gold">{factions[c.faction]}</Badge>
-                    <p>{c.secret}</p>
-                  </section>
-                  <section className="panel">
-                    <span className="eyebrow">YOUR CONNECTION</span>
-                    <h3>你的NPC联系人</h3>
-                    <p className="connection-name">
-                      {pub.npcs.find((n) => n.id === c.npc_id)?.name}
-                    </p>
-                    <p>
-                      这位联系人认识你的过去。找到对方，开启今晚的第一段对话。
-                    </p>
-                  </section>
-                </div>
+                </details>
+                {c.status === "approved" && (
+                  <details className="player-fold">
+                    <summary>现场玩法 · 第{pub.settings.phase}幕</summary>
+                    <div className="player-fold-content">
+                      <div className="player-play-balance">
+                        <Coins size={17} /> {p.coins} 极光金币{" "}
+                        <small>仅限游戏使用</small>
+                      </div>
+                      {pub.settings.phase === 2 ? (
+                        <>
+                          <p>跟随GM参加现场拍卖，使用金币竞拍道具。</p>
+                          <Button
+                            kind="ghost"
+                            onClick={() => setTab("auction")}
+                          >
+                            进入拍卖 <Gavel size={16} />
+                          </Button>
+                        </>
+                      ) : pub.settings.phase === 4 ? (
+                        <>
+                          <p>
+                            与组员整理证据，听取现场质询。GM开放投票后，提交最终指控。
+                          </p>
+                          <Button kind="ghost" onClick={() => setTab("court")}>
+                            进入最终庭审 <Gavel size={16} />
+                          </Button>
+                        </>
+                      ) : (
+                        <p>
+                          {pub.settings.phase === 1
+                            ? "现场完成NPC委托，由NPC确认奖励。第一幕累计奖励上限10枚，包含签到金币。"
+                            : "每组每区可进行一次主要鉴定。先和组员商量，再派代表掷D20。"}
+                        </p>
+                      )}
+                      {data.missions.length > 0 && (
+                        <>
+                          <h3>NPC委托</h3>
+                          {data.missions.map((mission) => (
+                            <div className="ledger-row" key={mission.id}>
+                              <span>{mission.title}</span>
+                              <Badge
+                                tone={
+                                  mission.status === "done" ? "green" : "gold"
+                                }
+                              >
+                                {mission.status === "done"
+                                  ? "已完成"
+                                  : `+${mission.reward}`}
+                              </Badge>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                      {data.ledger.length > 0 && (
+                        <>
+                          <h3>金币记录</h3>
+                          {data.ledger.map((row) => (
+                            <div className="ledger-row" key={row.id}>
+                              <span>{row.reason}</span>
+                              <strong>
+                                {row.amount > 0 ? "+" : ""}
+                                {row.amount}
+                              </strong>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </details>
+                )}
               </>
             )}
-            <section className="panel">
-              <h3>邀请函状态</h3>
-              <div className="status-track">
-                <span>
-                  <CheckCircle2 size={17} /> 报名完成
-                </span>
-                <span className={p.payment === "paid" ? "" : "muted"}>
-                  <Ticket size={17} /> 票务
-                  {p.payment === "paid" ? "已核验" : "待核验"}
-                </span>
-                <span className={p.checked_in ? "" : "muted"}>
-                  <ScanLine size={17} />{" "}
-                  {p.checked_in ? "已签到" : "等待现场签到"}
-                </span>
-              </div>
-              <p className="muted">
-                身份二维码指向你的档案入口，查看私人信息需要登录本人账号。现场由工作人员核对并签到。
-              </p>
-            </section>
           </>
         )}
-        {tab === "missions" && (
+        {tab === "ar" && (
           <>
-            <p className="section-description">
-              与NPC互动，完成委托。金币由对应NPC现场确认发放，第一幕累计奖励上限10枚（含签到）。
-            </p>
-            {data.missions.length ? (
-              data.missions.map((m) => (
-                <div className="mission-row" key={m.id}>
-                  <div
-                    className={
-                      "mission-icon " + (m.status === "done" ? "done" : "")
+            <ARSearchCard
+              blocker={arBlocker}
+              busy={busy || !clueData}
+              onScan={() => setScanning(true)}
+            />
+            <details className="player-fold">
+              <summary>没有相机？输入证物编号</summary>
+              <div className="player-fold-content">
+                <form
+                  className="scan-form"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const id = parseClueCode(
+                      new FormData(event.currentTarget).get("id"),
+                      location.origin,
+                    );
+                    const clue = clueData?.clues.find((item) => item.id === id);
+                    if (clue) scannedEvidence(clue);
+                    else notify("未找到该证物编号");
+                  }}
+                >
+                  <ScanLine size={18} />
+                  <input
+                    name="id"
+                    aria-label="证物编号"
+                    placeholder="例如：E-04"
+                    defaultValue={
+                      new URLSearchParams(location.search).get("clue") || ""
                     }
+                  />
+                  <Button
+                    type="submit"
+                    kind="ghost compact"
+                    disabled={busy || !clueData}
                   >
-                    <Icon as={m.status === "done" ? Check : Compass} />
-                  </div>
-                  <div>
-                    <small>
-                      {pub.npcs.find((n) => n.id === m.npc_id)?.name}
-                    </small>
-                    <h3>{m.title}</h3>
-                  </div>
-                  <Badge tone={m.status === "done" ? "green" : "gold"}>
-                    {m.status === "done" ? "已完成" : `+${m.reward} 金币`}
-                  </Badge>
-                </div>
-              ))
-            ) : (
-              <Empty
-                title="私人委托尚未解锁"
-                text="GM批准角色后，你的NPC联系人将为你安排委托。"
-              />
-            )}
-            <section className="panel">
-              <h3>金币流水</h3>
-              {data.ledger.length ? (
-                data.ledger.map((l) => (
-                  <div className="ledger-row" key={l.id}>
-                    <span>{l.reason}</span>
-                    <strong>
-                      {l.amount > 0 ? "+" : ""}
-                      {l.amount}
-                    </strong>
-                  </div>
-                ))
-              ) : (
-                <p className="muted">签到后获得3枚初始金币。</p>
-              )}
-            </section>
+                    打开证物
+                  </Button>
+                </form>
+              </div>
+            </details>
+            <details className="player-fold">
+              <summary>搜证规则</summary>
+              <div className="player-fold-content">
+                <p>
+                  GM确认人物档案、核验票务并现场签到后，可在第三幕开始解锁现场证物。提前扫码可以查看开放提示。
+                </p>
+                <p>
+                  扫描只识别线索编号，证物由系统验证后打开。基础证据会保存到你的证据册；每组每个区域只有一次主要鉴定机会。
+                </p>
+                <p>
+                  相机画面在你的手机上识别。设备暂不支持AR放置时，仍能旋转、放大查看证物。
+                </p>
+              </div>
+            </details>
           </>
         )}
         {tab === "evidence" && (
           <>
             <div className="section-description evidence-toolbar">
-              <p>
-                基础证据不依赖运气。每组每区可进行一次主要鉴定，成功后获得进阶信息。
-              </p>
+              <p>你收集到的证据会保存在这里，点击卡片重新查看。</p>
               <Badge>
                 {clueData?.clues.filter((c) => c.unlocked).length || 0} /{" "}
                 {clueData?.clues.length || 0} 已收集
               </Badge>
-            </div>
-            <div className="clue-scan-entry">
               <Button
-                onClick={() => setScanning(true)}
+                kind="ghost compact"
                 disabled={busy || !clueData}
+                onClick={openGallery}
               >
-                <ScanLine size={19} />
-                扫码开启线索卡
+                <Box size={16} /> 360°查看证物
               </Button>
-              <span>相机扫码 · 图片识别 · 点击翻牌</span>
             </div>
-            <form
-              className="scan-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const id = parseClueCode(
-                  new FormData(e.currentTarget).get("id"),
-                  location.origin,
-                );
-                const clue = clueData?.clues.find((c) => c.id === id);
-                if (clue) openClue(clue);
-                else notify("未找到该证物编号");
-              }}
-            >
-              <ScanLine size={19} />
-              <input
-                name="id"
-                aria-label="证物编号"
-                placeholder="扫描现场二维码，或输入编号 E-04"
-                defaultValue={
-                  new URLSearchParams(location.search).get("clue") || ""
-                }
-              />
-              <Button type="submit" kind="ghost compact" disabled={busy}>
-                查验证物
-              </Button>
-            </form>
             <div className="evidence-grid">
               {clueData?.clues.map((clue) => (
                 <button
@@ -516,6 +682,59 @@ function Player({ pub, notify }) {
           onClose={() => setScanning(false)}
         />
       )}
+      {model && (
+        <EvidenceModelViewer
+          clue={model.clue}
+          mode={model.mode}
+          onClose={() => {
+            setModel(null);
+            setDetail(model.clue);
+            setFlipped(true);
+            showModelOnUnlock.current = false;
+          }}
+        />
+      )}
+      {gallery &&
+        (gallery.loading || gallery.error ? (
+          <Modal
+            title="360°查看证物"
+            wide
+            onClose={() => {
+              galleryGeneration.current++;
+              setGallery(null);
+            }}
+          >
+            <div className="gallery-progress" role="status">
+              {gallery.loading ? (
+                "正在读取你的已收集证物…"
+              ) : (
+                <>
+                  <p className="gallery-error" role="alert">
+                    {gallery.error}
+                  </p>
+                  {gallery.clues.length > 0 && (
+                    <Button
+                      onClick={() => setGallery({ ...gallery, error: "" })}
+                    >
+                      查看已加载的{gallery.clues.length}件证物
+                    </Button>
+                  )}
+                  <Button kind="ghost" onClick={openGallery}>
+                    重新加载 <RefreshCw size={15} />
+                  </Button>
+                </>
+              )}
+            </div>
+          </Modal>
+        ) : (
+          <ImmersiveGallery
+            clues={gallery.clues}
+            onClose={() => {
+              galleryGeneration.current++;
+              setGallery(null);
+            }}
+          />
+        ))}
       {detail && (
         <ClueReveal
           clue={detail}
@@ -528,6 +747,15 @@ function Player({ pub, notify }) {
             setDetail(null);
           }}
           onFlip={flipClue}
+          onModel={
+            flipped && detail.model_url
+              ? () => {
+                  setModel({ clue: detail, mode: "ar" });
+                  detailGeneration.current++;
+                  setDetail(null);
+                }
+              : undefined
+          }
           onCheck={() =>
             action(async () => {
               const generation = detailGeneration.current;
@@ -540,89 +768,6 @@ function Player({ pub, notify }) {
         />
       )}
     </main>
-  );
-}
-function CharacterForm({ character: c, onSubmit, busy }) {
-  return (
-    <section className="panel character-form">
-      <span className="eyebrow">AURORA / CHARACTER REGISTRY</span>
-      <h2>{c ? "你的档案正在等待审核" : "建立你的宴会身份"}</h2>
-      <p className="muted">
-        写一个虚构的你。系统将从固定世界观中分配NPC关系和任务，由GM决定最终阵营。
-      </p>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmit(Object.fromEntries(new FormData(e.currentTarget)));
-        }}
-      >
-        <div className="two-grid">
-          <Field label="中文音译姓名">
-            <input
-              name="name"
-              required
-              maxLength={60}
-              defaultValue={c?.name}
-              placeholder="例如：莱恩·米勒"
-            />
-          </Field>
-          <Field label="英文姓名">
-            <input
-              name="english"
-              required
-              maxLength={60}
-              defaultValue={c?.english}
-              placeholder="Ryan Miller"
-            />
-          </Field>
-          <Field label="公开职业">
-            <input
-              name="profession"
-              required
-              maxLength={60}
-              defaultValue={c?.profession}
-              placeholder="调查员 / 金融家 / 技术顾问"
-            />
-          </Field>
-          <Field label="擅长技能">
-            <select name="skill" defaultValue={c?.skill || "洞察"}>
-              <option>洞察</option>
-              <option>技术</option>
-              <option>社交</option>
-            </select>
-          </Field>
-        </div>
-        <Field label="你为什么来到这场舞会？">
-          <input
-            name="motive"
-            required
-            maxLength={100}
-            defaultValue={c?.motive}
-            placeholder="寻找真相，改变命运，或找回一个人"
-          />
-        </Field>
-        <Field label="你与ECHO集团的过去">
-          <textarea
-            name="story"
-            required
-            maxLength={2000}
-            rows={5}
-            defaultValue={c?.story}
-            placeholder="你从哪里来？你曾做过什么？你为什么会收到邀请？只填写虚构故事。"
-          />
-        </Field>
-        <div className="notice">
-          <Shield size={17} />
-          <span>
-            当前使用受控角色模板；主线真相不会被自动改写，隐藏同伙须由GM审核分配。
-          </span>
-        </div>
-        <Button type="submit" disabled={busy}>
-          {busy ? "保存中…" : c ? "更新档案并重新提交" : "生成档案并提交审核"}
-          <ArrowUpRight size={16} />
-        </Button>
-      </form>
-    </section>
   );
 }
 function AuctionLot({ lot: l, player: p, onBid, busy }) {

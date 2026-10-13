@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { FileText, X } from "lucide-react";
 import QRCode from "qrcode";
 import { api } from "../api";
@@ -49,9 +49,43 @@ function Field({ label, children }) {
   );
 }
 function Modal({ title, children, onClose, wide = false }) {
+  const dialog = useRef(null);
+  const close = useRef(onClose);
+  close.current = onClose;
   useEffect(() => {
+    const previous = document.activeElement;
+    const focusable = () =>
+      [
+        ...(dialog.current?.querySelectorAll(
+          'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) || []),
+      ].filter((element) => element.getClientRects().length > 0);
+    if (!dialog.current?.contains(document.activeElement))
+      (focusable()[0] || dialog.current)?.focus();
     const fn = (e) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") close.current();
+      if (e.key !== "Tab") return;
+      const items = focusable();
+      const first = items[0],
+        last = items.at(-1);
+      if (!first) {
+        e.preventDefault();
+        dialog.current?.focus();
+      } else if (
+        e.shiftKey &&
+        (document.activeElement === first ||
+          !dialog.current?.contains(document.activeElement))
+      ) {
+        e.preventDefault();
+        last.focus();
+      } else if (
+        !e.shiftKey &&
+        (document.activeElement === last ||
+          !dialog.current?.contains(document.activeElement))
+      ) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", fn);
     const old = document.body.style.overflow;
@@ -59,14 +93,18 @@ function Modal({ title, children, onClose, wide = false }) {
     return () => {
       document.removeEventListener("keydown", fn);
       document.body.style.overflow = old;
+      if (previous instanceof HTMLElement && previous.isConnected)
+        previous.focus();
     };
-  }, [onClose]);
+  }, []);
   return (
     <div
       className="overlay"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <section
+        ref={dialog}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={title}

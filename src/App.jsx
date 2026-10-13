@@ -150,20 +150,22 @@ function App() {
             className={view === "home" ? "selected" : ""}
             onClick={() => navigate("home")}
           >
-            庄园邀请
+            活动介绍
           </button>
           <button
             className={view === "play" ? "selected" : ""}
             onClick={() => navigate("play")}
           >
-            我的档案
+            进入游戏
           </button>
-          <button
-            className={view === "admin" ? "selected" : ""}
-            onClick={() => navigate("admin")}
-          >
-            导演控制台
-          </button>
+          {(["gm", "npc"].includes(session?.role) || view === "admin") && (
+            <button
+              className={view === "admin" ? "selected" : ""}
+              onClick={() => navigate("admin")}
+            >
+              工作人员
+            </button>
+          )}
         </nav>
         <div className="header-actions">
           <span className="header-date">31 OCT · 2026</span>
@@ -203,7 +205,7 @@ function App() {
         ) : (
           <Access
             title="你的故事，从一封邀请开始"
-            text="登录你的私人档案，继续填写角色、领取身份并探索庄园。"
+            text="报名后上传头像、写下你的Cos角色故事。现场听从GM指引，扫码寻找线索。"
             onLogin={() => setAuthMode("login")}
             onRegister={() => setAuthMode("register")}
           />
@@ -222,7 +224,18 @@ function App() {
           ALASKA NIGHTS <span className="muted">/ THE LAST TESTAMENT</span>
         </span>
         <span>每个人都带着面具。每个秘密都有代价。</span>
-        <small>2026 · 万圣节沉浸式 TRPG</small>
+        <small>
+          2026 · 万圣节沉浸式 TRPG ·{" "}
+          <a
+            href="/admin"
+            onClick={(event) => {
+              event.preventDefault();
+              navigate("admin");
+            }}
+          >
+            工作人员入口
+          </a>
+        </small>
       </footer>
       {authMode && (
         <Auth
@@ -252,14 +265,15 @@ function Access({ title, text, onLogin, onRegister }) {
       <h1>{title}</h1>
       <p>{text}</p>
       <div className="hero-buttons">
-        <Button onClick={onLogin}>
-          登录专属入口 <KeyRound size={16} />
-        </Button>
         {onRegister && (
-          <Button kind="ghost" onClick={onRegister}>
-            还未报名？接受邀请
+          <Button onClick={onRegister}>
+            第一次来，报名参加 <ArrowRight size={16} />
           </Button>
         )}
+        <Button kind={onRegister ? "ghost" : ""} onClick={onLogin}>
+          {onRegister ? "已经报名，登录" : "工作人员登录"}{" "}
+          <KeyRound size={16} />
+        </Button>
       </div>
     </main>
   );

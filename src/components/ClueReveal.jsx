@@ -1,5 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { FileText, Lock, CheckCircle2, RotateCcw, Dices } from "lucide-react";
+import {
+  FileText,
+  Lock,
+  CheckCircle2,
+  RotateCcw,
+  Dices,
+  Box,
+} from "lucide-react";
 import { Badge, Button, Modal } from "./ui";
 
 export default function ClueReveal({
@@ -11,6 +18,7 @@ export default function ClueReveal({
   onFlip,
   onCheck,
   onClose,
+  onModel,
 }) {
   const revealed = useRef(null);
   useEffect(() => {
@@ -64,6 +72,15 @@ export default function ClueReveal({
                   基础证据
                 </h3>
                 <p>{clue.body}</p>
+                {onModel && (
+                  <Button
+                    kind="ghost model-detail-button"
+                    onClick={onModel}
+                    disabled={busy}
+                  >
+                    <Box size={17} /> 查看AR证物模型
+                  </Button>
+                )}
                 {clue.detail ? (
                   <div className="advanced">
                     <span className="eyebrow">ADVANCED ANALYSIS</span>

@@ -5,4 +5,5 @@ data
 docs
 tests
 test-results
+output
 *.log

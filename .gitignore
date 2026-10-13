@@ -7,3 +7,4 @@ test-results/
 
 output/playwright/
 .playwright-cli/
+output/models/

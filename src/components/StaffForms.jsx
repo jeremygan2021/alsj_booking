@@ -2,6 +2,11 @@ import React from "react";
 import { ArrowUpRight, Check, Lock } from "lucide-react";
 import { Badge, Button, Empty, Field } from "./ui";
 import { phases, factions, formatTime } from "../constants";
+import {
+  CharacterAvatar,
+  GenerationStatus,
+  RelationCards,
+} from "./CharacterProfile";
 function Audit({ rows }) {
   return rows.length ? (
     rows.map((a) => (
@@ -22,6 +27,8 @@ function Audit({ rows }) {
 }
 function PlayerReview({ data, busy, onUpdate }) {
   const { player: p, character: c } = data;
+  const canApprove =
+    c && !c.generation_pending && c.generation_status !== "error";
   return (
     <>
       <div className="review-header">
@@ -57,13 +64,43 @@ function PlayerReview({ data, busy, onUpdate }) {
       {c ? (
         <section className="review-character">
           <span className="eyebrow">PRIVATE CHARACTER FILE</span>
-          <h3>
-            {c.name} / {c.english}
-          </h3>
-          <p>
-            {c.profession} · {c.skill} +2
-          </p>
-          <p>{c.story}</p>
+          <div className="review-avatar-heading">
+            <CharacterAvatar src={c.avatar_url} name={c.name} large />
+            <div>
+              <h3>
+                {c.name} / {c.english}
+              </h3>
+              <p>
+                {c.profession} · {c.skill} +2
+              </p>
+              <p>
+                万圣节Cos：{c.cosplay_character || "待补充"}
+                {c.cosplay_source && ` · ${c.cosplay_source}`}
+              </p>
+            </div>
+          </div>
+          <span className="eyebrow">PLAYER'S ORIGINAL STORY</span>
+          <p className="character-original-story">{c.story}</p>
+          <p>赴宴动机：{c.motive}</p>
+          {c.adaptation && (
+            <div className="character-adaptation">
+              <h4>ECHO世界身份 · 生成改编</h4>
+              <p>{c.adaptation}</p>
+            </div>
+          )}
+          <GenerationStatus character={c} />
+          <div className="relation-section-heading">
+            <span className="eyebrow">BOTH SIDES OF THE STORY</span>
+            <h3>NPC双向剧情关系</h3>
+            <p>
+              审核共同经历、分幕目标与NPC演绎说明；批准后，NPC只会收到与自己有关的玩家档案。
+            </p>
+          </div>
+          <RelationCards
+            relations={data.relations || []}
+            role="gm"
+            approved={c.status === "approved"}
+          />
           <div className="secret-note">
             <Lock size={16} />
             <p>{c.secret}</p>
@@ -72,6 +109,7 @@ function PlayerReview({ data, busy, onUpdate }) {
             onSubmit={(e) => {
               e.preventDefault();
               const d = Object.fromEntries(new FormData(e.currentTarget));
+              if (d.status === "approved" && !canApprove) return;
               onUpdate({ ...d, group: Number(d.group) });
             }}
           >
@@ -97,10 +135,19 @@ function PlayerReview({ data, busy, onUpdate }) {
               <Field label="角色审核">
                 <select name="status" defaultValue={c.status}>
                   <option value="pending">退回 / 等待审核</option>
-                  <option value="approved">批准人物档案</option>
+                  <option value="approved" disabled={!canApprove}>
+                    批准人物档案
+                  </option>
                 </select>
               </Field>
             </div>
+            {!canApprove && (
+              <p className="avatar-error" role="alert">
+                {c.generation_pending
+                  ? "剧情生成进行中，请完成后再审核批准。"
+                  : "剧情生成失败，请玩家重试生成后再批准。"}
+              </p>
+            )}
             <Button type="submit" disabled={busy}>
               保存并分配身份 <Check size={16} />
             </Button>

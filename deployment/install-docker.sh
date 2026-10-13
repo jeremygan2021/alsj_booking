@@ -46,6 +46,7 @@ sudo tee /etc/nginx/conf.d/alsj.luna.ski.conf >/dev/null <<'NGINX'
 server {
     listen 80;
     server_name alsj.luna.ski;
+    client_max_body_size 3m;
     location /.well-known/acme-challenge/ { root /var/www/alsj-acme; }
     location / {
         proxy_pass http://127.0.0.1:3206;

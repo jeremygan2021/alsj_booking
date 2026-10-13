@@ -2,6 +2,7 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { applyNpcOutline } from "./migrations/npc-outline-v2.js";
+import { applyCharacterLinks } from "./migrations/character-links.js";
 import { npcs, evidence, lots } from "./content.js";
 async function openSqlite(path) {
   if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
@@ -58,6 +59,7 @@ async function openSqlite(path) {
     }
   };
   await db.transaction(() => applyNpcOutline(db));
+  await db.transaction(() => applyCharacterLinks(db));
   return db;
 }
 

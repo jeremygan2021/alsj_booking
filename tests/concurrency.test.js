@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createApp } from "../server/app.js";
+import { avatarData, cosplay } from "./profile-fixture.js";
 test("并发报名不超额，重复签到及落槌只结算一次", async (t) => {
   const options = {
     databaseUrl: process.env.TEST_DATABASE_URL,
@@ -71,16 +72,19 @@ test("并发报名不超额，重复签到及落槌只结算一次", async (t) =
       .status,
     200,
   );
+  await request("/avatar", { data: avatarData }, p.cookie);
   assert.equal(
     (
       await request(
         "/character",
         {
+          ...cosplay,
           name: "并发角色",
           english: "Race Guest",
           profession: "记者",
           skill: "洞察",
-          story: "参加极光宴会的记者。",
+          story:
+            "参加极光宴会的记者，喜欢聆听陌生人的故事，今晚希望结识新的采访对象。",
           motive: "调查",
         },
         p.cookie,

@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createApp, npcCredential } from "../server/app.js";
+import { avatarData, cosplay } from "./profile-fixture.js";
 test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流程", async (t) => {
   const { app, db } = await createApp({
     databaseUrl: process.env.TEST_DATABASE_URL,
@@ -43,11 +44,13 @@ test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流�
     contact: "test@example.com",
     password: "test-pass-123",
   });
+  await p("/avatar", { data: avatarData });
   await p("/character", {
+    ...cosplay,
     name: "莱恩·米勒",
     english: "Ryan Miller",
     profession: "调查员",
-    story: "我曾在极光集团工作。",
+    story: "我曾在极光集团工作，习惯观察陌生人的习惯，今晚以调查员的身份赴宴。",
     motive: "寻找真相",
     skill: "洞察",
   });

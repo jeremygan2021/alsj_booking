@@ -35,6 +35,7 @@ import {
 import { api } from "../api";
 import { phases, factions, formatTime } from "../constants";
 import { Audit, PlayerReview, ContentEditor } from "../components/StaffForms";
+import { RelationCards } from "../components/CharacterProfile";
 import {
   Icon,
   Button,
@@ -47,7 +48,7 @@ import {
 } from "../components/ui";
 function Admin({ pub, session, notify }) {
   const [data, refresh] = useResource("/staff", notify),
-    [tab, setTab] = useState(session.role === "npc" ? "missions" : "overview"),
+    [tab, setTab] = useState(session.role === "npc" ? "relations" : "overview"),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
     [detail, setDetail] = useState(null),
@@ -73,6 +74,7 @@ function Admin({ pub, session, notify }) {
     ? [
         ["overview", "总览", LayoutDashboard],
         ["players", "宾客与角色", Users],
+        ["relations", "剧情关系", Compass],
         ["npcs", "NPC档案", Briefcase],
         ["evidence", "证据与二维码", ScanLine],
         ["missions", "任务与金币", Coins],
@@ -82,8 +84,9 @@ function Admin({ pub, session, notify }) {
         ["settings", "活动设置", Layers],
       ]
     : [
+        ["relations", "关联玩家", Users],
         ["missions", "我的NPC委托", Compass],
-        ["players", "现场宾客", Users],
+        ["players", "关联宾客状态", Ticket],
       ];
   const awaiting = data.players.filter((p) => p.status === "pending"),
     checked = data.players.filter((p) => p.checked_in);
@@ -96,6 +99,11 @@ function Admin({ pub, session, notify }) {
         (filter === "pending" && p.status === "pending") ||
         (filter === "paid" && p.payment === "paid") ||
         (filter === "checkin" && p.checked_in)),
+  );
+  const relations = (data.relations || []).filter((r) =>
+    `${r.player_name} ${r.character_name} ${r.cosplay_character} ${r.npc_name}`
+      .toLowerCase()
+      .includes(query.toLowerCase()),
   );
   const playerTable = (
     <>
@@ -270,7 +278,7 @@ function Admin({ pub, session, notify }) {
               : data.npcs.find((n) => n.id === session.id)?.name}
           </p>
           <small>
-            当前内容{gm ? "包含保密剧本" : "仅限现场任务"}
+            当前内容{gm ? "包含保密剧本" : "仅含已批准的关联玩家与委托"}
             <br />
             请勿向宾客公开工作人员账号
           </small>
@@ -454,6 +462,42 @@ function Admin({ pub, session, notify }) {
         )}
         {tab === "players" && (
           <section className="panel">{playerTable}</section>
+        )}
+        {tab === "relations" && (
+          <>
+            <div className="notice">
+              <Compass size={19} />
+              <span>
+                {gm
+                  ? "查看Cos角色如何进入ECHO世界，以及玩家和NPC各自的互动视角。关系草稿须随人物档案审核，批准后才发送给对应NPC。"
+                  : "这里是与你有关的已批准玩家。带着NPC演绎提示与他们对话，并按分幕目标推进关系；破冰委托在「我的NPC委托」中现场确认。"}
+              </span>
+            </div>
+            <div className="table-toolbar">
+              <div className="search">
+                <Search size={17} />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={
+                    gm ? "搜索玩家、Cos角色或NPC" : "搜索关联玩家或Cos角色"
+                  }
+                  aria-label="搜索剧情关系"
+                />
+              </div>
+              <Badge>
+                {new Set(relations.map((r) => r.player_id)).size}位玩家 ·{" "}
+                {relations.length}段关系
+              </Badge>
+            </div>
+            <RelationCards
+              relations={relations}
+              role={gm ? "gm" : "npc"}
+              approved={!gm}
+              phase={data.settings.phase}
+              onInspect={gm ? inspect : undefined}
+            />
+          </>
         )}
         {tab === "npcs" && (
           <div className="two-grid">
@@ -856,9 +900,22 @@ function Admin({ pub, session, notify }) {
               </form>
             </section>
             <section className="panel">
+              <h3>角色剧情生成</h3>
+              <Badge tone={pub.generation?.configured ? "green" : "gold"}>
+                {pub.generation?.configured
+                  ? "大模型接口已配置"
+                  : "大模型接口未配置"}
+              </Badge>
+              <p>
+                {pub.generation?.configured
+                  ? "玩家提交Cos角色、原始故事和头像后，系统会依据NPC背景与四幕规则生成ECHO身份、双向关系和目标。所有生成内容由GM审核后生效。"
+                  : "当前角色使用剧情模板草稿。配置OpenAI兼容服务后，玩家可在人物档案中重新生成关系；原始角色故事和头像会保留。"}
+              </p>
+            </section>
+            <section className="panel">
               <h3>首版运营说明</h3>
               <p>
-                本场为2026年10月31日的万圣节活动。地点以线下正式通知为准。当前角色采用受控模板，票务采用人工核验；角色立绘、最终主持台本及完整证据链应在活动前由策划确认。
+                本场为2026年10月31日的万圣节活动。地点以线下正式通知为准。角色剧情支持大模型生成与GM审核，票务采用人工核验；NPC演绎说明、最终主持台本及完整证据链应在活动前由策划确认。
               </p>
               <p>
                 数据库使用本地SQLite。正式部署时配置真实域名与HTTPS，修改工作人员密码，并定期备份数据库。NPC账号有各自的登录口令，GM与NPC权限分开。
@@ -885,7 +942,20 @@ function Admin({ pub, session, notify }) {
       </div>
       {detail && (
         <Modal title="宾客档案管理" wide onClose={() => setDetail(null)}>
+          <div className="review-refresh">
+            <p className="muted">
+              玩家修改或生成剧情后，刷新获取最新档案再审核。
+            </p>
+            <Button
+              kind="ghost compact"
+              disabled={busy}
+              onClick={() => inspect(detail.player.id)}
+            >
+              <RefreshCw size={16} /> 刷新人物档案
+            </Button>
+          </div>
           <PlayerReview
+            key={`${detail.player.id}:${detail.character?.revision || 0}:${detail.character?.generation_status || ""}:${detail.character?.generation_pending || 0}:${detail.character?.status || ""}`}
             data={detail}
             busy={busy}
             onUpdate={(d) =>

@@ -1,6 +1,7 @@
 import pg from "pg";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { applyNpcOutline } from "./migrations/npc-outline-v2.js";
+import { applyCharacterLinks } from "./migrations/character-links.js";
 import { npcs, evidence, lots } from "./content.js";
 // Keep aggregate counts as numbers to preserve the API's numeric fields.
 pg.types.setTypeParser(20, Number);
@@ -105,6 +106,7 @@ export async function openPostgres(connectionString) {
       );
     });
     await db.transaction(() => applyNpcOutline(db));
+    await db.transaction(() => applyCharacterLinks(db, true));
     return db;
   } catch (error) {
     await pool.end();

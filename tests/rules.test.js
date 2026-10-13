@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createApp } from "../server/app.js";
 import { openDb } from "../server/db.js";
+import { avatarData, cosplay } from "./profile-fixture.js";
 
 test("数据库重启后保留活动数据，种子不会覆盖GM编辑", async () => {
   const dir = mkdtempSync(join(tmpdir(), "alaska-persistence-"));
@@ -87,12 +88,15 @@ test("报名容量、非法来源、退款撤销玩法资格与事务回滚", as
     origin: "https://evil.example",
   });
   assert.equal((await db.prepare("SELECT phase FROM settings").get()).phase, 1);
+  await p("/avatar", { data: avatarData });
   await p("/character", {
+    ...cosplay,
     name: "米娅·科尔曼",
     english: "Mia Coleman",
     profession: "研究员",
     skill: "技术",
-    story: "曾参与集团项目。",
+    story:
+      "曾参与集团研究项目，擅长辨认技术细节，希望借晚宴找回自己遗失的公开档案。",
     motive: "寻找档案",
   });
   await gm("/staff/players/" + id, {

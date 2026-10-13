@@ -20,7 +20,9 @@
 
 服务器需已有 Docker、Compose、Nginx、certbot，域名 A 记录指向服务器；已有 `pg` 容器、数据库账号及 `1panel-network`。先在 `/var/lib/alsj_booking/.env` 配置 `DATABASE_URL`，安装脚本不会创建 PostgreSQL 或写入数据库密码。
 
-本地 `npm ci && npm test && npm run build` 后，打包 `package.json package-lock.json server scripts dist deployment README.md Dockerfile .dockerignore` 上传到服务器 `/tmp/alsj-booking-release.tar.gz`，通过 SSH 执行 `deployment/install-docker.sh`。脚本生成工作人员随机口令（若已有配置则保留）、构建应用、检查接口、配置域名证书、启用备份。
+本地 `npm ci && npm test && npm run build` 后，打包 `package.json package-lock.json server scripts src/evidence-models.js public/models dist deployment README.md Dockerfile .dockerignore` 上传到服务器 `/tmp/alsj-booking-release.tar.gz`，通过 SSH 执行 `deployment/install-docker.sh`。脚本生成工作人员随机口令（若已有配置则保留）、构建应用、检查接口、配置域名证书、启用备份。
+
+`public/models` 必须随版本带上，不能把该目录直接映射为 Nginx 静态目录；模型经 `/api/models` 检查登录和证据解锁后返回。头像存入数据库，现有只读容器无需新增文件写入卷。Nginx 请求体限制为 3 MiB，以容纳最多 2 MiB 头像的 base64 JSON。模型服务的 `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 在持久化 `.env` 中配置，修改后重启应用；详情见 `docs/ROLE-STORY-AND-XR.md`。
 
 使用官方 `node:24.21.0-bookworm-slim` 作为运行镜像，复用构建缓存。
 

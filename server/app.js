@@ -1,4 +1,7 @@
 import express from "express";
+import sharp from "sharp";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import {
   randomBytes,
   randomInt,
@@ -8,6 +11,16 @@ import {
 } from "node:crypto";
 import { openDb } from "./db.js";
 import { phases, npcOrder } from "./content.js";
+import { getEvidenceModel } from "../src/evidence-models.js";
+import {
+  generationConfig,
+  isGenerationConfigured,
+  generateStory,
+  templateStory,
+} from "./story-generation.js";
+// Limit each native image job to one libvips worker on the small deployment.
+sharp.concurrency(1);
+const modelsRoot = fileURLToPath(new URL("../public/models/", import.meta.url));
 const token = () => randomBytes(24).toString("hex");
 export function hashPassword(p) {
   const salt = token();
@@ -30,12 +43,14 @@ export async function createApp({
   npcPassword,
   secure = false,
   trustProxy = "loopback",
+  llm = {},
 }) {
   const app = express(),
     db = await openDb(databaseUrl || dbPath);
   app.disable("x-powered-by");
   // Production traffic enters through the local Nginx proxy only.
   app.set("trust proxy", trustProxy);
+  app.use("/api/avatar", express.json({ limit: "3mb" }));
   app.use(
     express.json({
       limit: "32kb",
@@ -55,6 +70,122 @@ export async function createApp({
     return v.trim();
   };
   const tx = (fn) => db.transaction(fn);
+  const generation = generationConfig(llm);
+  const configured = isGenerationConfigured(generation);
+  let avatarDecodes = 0;
+  const relationsFor = async (id, { playerView = false } = {}) => {
+    const rows = await all(
+      "SELECT r.*,n.name npc_name,c.status FROM character_relations r JOIN npcs n ON n.id=r.npc_id JOIN characters c ON c.player_id=r.player_id WHERE r.player_id=? ORDER BY r.npc_id",
+      id,
+    );
+    return rows.map(({ npc_brief, hooks, ...row }) => ({
+      ...row,
+      ...(playerView ? {} : { npc_brief }),
+      hooks: JSON.parse(hooks),
+    }));
+  };
+  const characterView = (c, playerView = false) => {
+    if (!c) return c;
+    const { generation_lock, generation_started_at, ...visible } = c;
+    if (
+      c.generation_pending &&
+      (!generation_started_at ||
+        Date.now() - Number(generation_started_at) >= 45000)
+    ) {
+      visible.generation_pending = 0;
+      visible.generation_status = "error";
+      visible.generation_error = "上次剧情生成已中断，请重试";
+    }
+    if (playerView && c.status !== "approved")
+      return { ...visible, secret: null, faction: null };
+    return visible;
+  };
+  // Called only within a mutation transaction, including across PG instances.
+  const limitGeneration = async (id) => {
+    const now = Date.now();
+    await run(
+      "DELETE FROM generation_requests WHERE requested_at<=?",
+      now - 60000,
+    );
+    const { n } = await one(
+      "SELECT COUNT(*) n FROM generation_requests WHERE player_id=? AND requested_at>?",
+      id,
+      now - 60000,
+    );
+    if (n >= 3) fail("剧情生成太频繁，请一分钟后重试", 429);
+    await run(
+      "INSERT INTO generation_requests(id,player_id,requested_at) VALUES(?,?,?)",
+      token(),
+      id,
+      now,
+    );
+  };
+  const completeGeneration = async (id, revision, lock, c) => {
+    const npcs = await all(
+      `SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`,
+    );
+    let result,
+      error = null;
+    try {
+      result = configured
+        ? await generateStory(c, npcs, generation)
+        : templateStory(c, npcs);
+    } catch (e) {
+      error = e.message;
+    }
+    return tx(async () => {
+      const current = await one(
+        "SELECT * FROM characters WHERE player_id=?",
+        id,
+      );
+      if (
+        current?.revision !== revision ||
+        current.generation_lock !== lock ||
+        current.status !== "pending"
+      )
+        return { ok: true, stale: true };
+      await run(
+        "UPDATE characters SET adaptation=?,generation_status=?,generator=?,generation_error=?,generation_pending=0,generation_lock=NULL,generation_started_at=NULL,npc_id=? WHERE player_id=?",
+        result?.adaptation || null,
+        error ? "error" : configured ? "ready" : "unconfigured",
+        configured ? "llm" : "curated-template",
+        error,
+        result?.relations[0]?.npc_id || null,
+        id,
+      );
+      await run("DELETE FROM character_relations WHERE player_id=?", id);
+      await run("DELETE FROM missions WHERE player_id=?", id);
+      for (const relation of result?.relations || []) {
+        await run(
+          "INSERT INTO character_relations(player_id,npc_id,relation,player_brief,npc_brief,hooks,mission) VALUES(?,?,?,?,?,?,?)",
+          id,
+          relation.npc_id,
+          relation.relation,
+          relation.player_brief,
+          relation.npc_brief,
+          JSON.stringify(relation.hooks),
+          relation.mission,
+        );
+        await run(
+          "INSERT INTO missions(id,player_id,title,npc_id,reward) VALUES(?,?,?,?,?)",
+          token(),
+          id,
+          relation.mission,
+          relation.npc_id,
+          2,
+        );
+      }
+      return {
+        ok: true,
+        generator: configured ? "llm" : "curated-template",
+        generation_status: error
+          ? "error"
+          : configured
+            ? "ready"
+            : "unconfigured",
+      };
+    });
+  };
   const audit = async (r, action) =>
     await run(
       "INSERT INTO audit(actor,action) VALUES(?,?)",
@@ -160,6 +291,7 @@ export async function createApp({
         `SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`,
       ),
       registered: (await one("SELECT COUNT(*) n FROM players")).n,
+      generation: { configured, provider: "OpenAI兼容接口" },
       events: await all("SELECT * FROM events ORDER BY id DESC LIMIT 8"),
     }),
   );
@@ -239,16 +371,14 @@ export async function createApp({
   });
   app.get("/api/me", auth("player"), async (r, s) => {
     const { password, ...p } = await player(r);
-    let c = await one("SELECT * FROM characters WHERE player_id=?", p.id);
-    if (c?.status !== "approved" && c)
-      c = {
-        ...c,
-        secret: null,
-        faction: null,
-      };
+    const c = characterView(
+      await one("SELECT * FROM characters WHERE player_id=?", p.id),
+      true,
+    );
     s.json({
       player: p,
       character: c,
+      relations: await relationsFor(p.id, { playerView: true }),
       missions:
         c?.status === "approved"
           ? await all("SELECT * FROM missions WHERE player_id=?", p.id)
@@ -264,29 +394,141 @@ export async function createApp({
       vote: await one("SELECT * FROM votes WHERE player_id=?", p.id),
     });
   });
+  app.post("/api/avatar", auth("player"), async (r, s) => {
+    const p = await player(r);
+    const raw = r.body.data;
+    if (typeof raw !== "string" || raw.length > 2800000)
+      fail("头像文件不能超过2MB");
+    const match =
+      /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(raw);
+    if (!match || match[2].length % 4 !== 0) fail("请上传PNG、JPEG或WebP头像");
+    if (avatarDecodes >= 2) fail("头像处理繁忙，请稍后重试", 429);
+    avatarDecodes++;
+    let image;
+    try {
+      const input = Buffer.from(match[2], "base64");
+      if (!input.length || input.length > 2 * 1024 * 1024)
+        fail("头像文件不能超过2MB");
+      const source = sharp(input, {
+        limitInputPixels: 16000000,
+        failOn: "error",
+      });
+      const metadata = await source.metadata();
+      if (
+        !["png", "jpeg", "webp"].includes(metadata.format) ||
+        (metadata.pages || 1) !== 1
+      )
+        fail("请上传静态PNG、JPEG或WebP头像");
+      image = await source
+        .rotate()
+        .resize({
+          width: 512,
+          height: 512,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({ quality: 82 })
+        .toBuffer();
+    } catch (error) {
+      if (error.status) throw error;
+      fail("头像无法解码或尺寸过大，请换一张静态图片");
+    } finally {
+      avatarDecodes--;
+    }
+    if (image.length > 512 * 1024) fail("头像压缩后过大，请换一张图片");
+    const avatar_url = `/api/avatars/${p.id}?v=${Date.now()}`;
+    await tx(async () => {
+      const c = await one(
+        "SELECT status FROM characters WHERE player_id=?",
+        p.id,
+      );
+      if (c?.status === "approved") fail("已批准角色需由GM重新开放编辑");
+      await run(
+        "INSERT INTO avatars(player_id,data,updated_at) VALUES(?,?,?) ON CONFLICT(player_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at",
+        p.id,
+        image.toString("base64"),
+        Date.now(),
+      );
+      await run(
+        "UPDATE characters SET avatar_url=? WHERE player_id=?",
+        avatar_url,
+        p.id,
+      );
+    });
+    s.json({ avatar_url });
+  });
+  app.get("/api/avatars/:id", auth("player", "gm", "npc"), async (r, s) => {
+    const own = r.auth.role === "player" && r.auth.user_id === r.params.id;
+    const related =
+      r.auth.role === "npc" &&
+      (await one(
+        "SELECT 1 FROM character_relations r JOIN characters c ON c.player_id=r.player_id WHERE r.player_id=? AND r.npc_id=? AND c.status='approved'",
+        r.params.id,
+        r.auth.user_id,
+      ));
+    if (r.auth.role !== "gm" && !own && !related)
+      fail("无法查看该角色头像", 403);
+    const avatar = await one(
+      "SELECT data FROM avatars WHERE player_id=?",
+      r.params.id,
+    );
+    if (!avatar) fail("头像不存在", 404);
+    s.set({
+      "Content-Type": "image/webp",
+      "X-Content-Type-Options": "nosniff",
+      "Cache-Control": "private, no-store",
+    }).send(Buffer.from(avatar.data, "base64"));
+  });
   app.post("/api/character", auth("player"), async (r, s) => {
     const p = await player(r),
-      name = required(r.body.name, "角色姓名", 60),
-      english = required(r.body.english, "英文名", 60),
-      profession = required(r.body.profession, "职业", 60),
       story = required(r.body.story, "虚构人物背景", 2000),
-      motive = required(r.body.motive, "赴宴动机", 100),
-      skill = r.body.skill;
+      cosplay_character = required(
+        r.body.cosplay_character,
+        "万圣节Cos角色",
+        100,
+      ),
+      cosplay_source = required(
+        r.body.cosplay_source,
+        "Cos角色的作品或原创来源",
+        100,
+      ),
+      name =
+        r.body.name === undefined
+          ? cosplay_character.slice(0, 60)
+          : required(r.body.name, "角色姓名", 60),
+      english =
+        r.body.english === undefined
+          ? "Guest"
+          : required(r.body.english, "英文名", 60),
+      profession =
+        r.body.profession === undefined
+          ? "受邀宾客"
+          : required(r.body.profession, "职业", 60),
+      motive =
+        r.body.motive === undefined
+          ? "应邀参加万圣节舞会"
+          : required(r.body.motive, "赴宴动机", 100),
+      skill = r.body.skill === undefined ? "洞察" : r.body.skill;
     if (!["洞察", "技术", "社交"].includes(skill)) fail("技能无效");
-    const existing = await one(
-      "SELECT * FROM characters WHERE player_id=?",
-      p.id,
-    );
-    if (existing?.status === "approved") fail("已批准角色需由GM重新开放编辑");
-    const npc =
-      skill === "技术"
-        ? "scientist"
-        : skill === "洞察"
-          ? "detective"
-          : "singer";
-    await tx(async () => {
+    if (story.length < 20)
+      fail("角色故事至少20字，请描述你的Cos角色经历和性格");
+    const draft = await tx(async () => {
+      const existing = await one(
+        "SELECT * FROM characters WHERE player_id=?",
+        p.id,
+      );
+      if (existing?.status === "approved") fail("已批准角色需由GM重新开放编辑");
+      const avatar = await one(
+        "SELECT updated_at FROM avatars WHERE player_id=?",
+        p.id,
+      );
+      if (!avatar) fail("请先上传你的角色头像");
+      await limitGeneration(p.id);
+      const revision = (existing?.revision || 0) + 1,
+        lock = token();
+      const avatar_url = `/api/avatars/${p.id}?v=${avatar.updated_at}`;
       await run(
-        `INSERT INTO characters(player_id,name,english,profession,skill,story,secret,npc_id,motive) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(player_id) DO UPDATE SET name=excluded.name,english=excluded.english,profession=excluded.profession,skill=excluded.skill,story=excluded.story,secret=excluded.secret,npc_id=excluded.npc_id,status='pending',motive=excluded.motive`,
+        `INSERT INTO characters(player_id,name,english,profession,skill,story,secret,motive,cosplay_character,cosplay_source,avatar_url,revision,generation_pending,generation_lock,generation_started_at,generation_status,generator) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,1,?,?,?,?) ON CONFLICT(player_id) DO UPDATE SET name=excluded.name,english=excluded.english,profession=excluded.profession,skill=excluded.skill,story=excluded.story,secret=excluded.secret,npc_id=NULL,status='pending',motive=excluded.motive,cosplay_character=excluded.cosplay_character,cosplay_source=excluded.cosplay_source,avatar_url=excluded.avatar_url,revision=excluded.revision,generation_pending=1,generation_lock=excluded.generation_lock,generation_started_at=excluded.generation_started_at,generation_status=excluded.generation_status,generator=excluded.generator,generation_error=NULL,adaptation=NULL`,
         p.id,
         name,
         english,
@@ -294,31 +536,46 @@ export async function createApp({
         skill,
         story,
         "你曾接触ECHO集团的一份内部材料。今晚必须决定把它交给谁。",
-        npc,
         motive,
+        cosplay_character,
+        cosplay_source,
+        avatar_url,
+        revision,
+        lock,
+        Date.now(),
+        configured ? "error" : "unconfigured",
+        configured ? "llm" : "curated-template",
       );
+      await run("DELETE FROM character_relations WHERE player_id=?", p.id);
       await run("DELETE FROM missions WHERE player_id=?", p.id);
-      await run(
-        "INSERT INTO missions(id,player_id,title,npc_id,reward) VALUES(?,?,?,?,?)",
-        token(),
-        p.id,
-        "向你的NPC联系人介绍自己，完成一次破冰互动",
-        npc,
-        2,
-      );
-      await run(
-        "INSERT INTO missions(id,player_id,title,npc_id,reward) VALUES(?,?,?,?,?)",
-        token(),
-        p.id,
-        "与另一位宾客交换一条公开情报",
-        npc,
-        2,
-      );
+      return {
+        revision,
+        lock,
+        c: await one("SELECT * FROM characters WHERE player_id=?", p.id),
+      };
     });
-    s.json({
-      ok: true,
-      generator: "curated-template",
+    s.json(await completeGeneration(p.id, draft.revision, draft.lock, draft.c));
+  });
+  app.post("/api/character/generate", auth("player"), async (r, s) => {
+    const p = await player(r);
+    const draft = await tx(async () => {
+      const c = await one("SELECT * FROM characters WHERE player_id=?", p.id);
+      if (!c || !c.cosplay_character || !c.cosplay_source || !c.avatar_url)
+        fail("请先完成Cos角色、故事和头像档案");
+      if (c.status === "approved") fail("已批准角色需由GM重新开放编辑");
+      if (c.generation_pending && Date.now() - c.generation_started_at < 45000)
+        fail("剧情正在生成，请稍候", 409);
+      await limitGeneration(p.id);
+      const lock = token();
+      await run(
+        "UPDATE characters SET generation_pending=1,generation_lock=?,generation_started_at=?,generation_error=NULL WHERE player_id=?",
+        lock,
+        Date.now(),
+        p.id,
+      );
+      return { revision: c.revision, lock, c };
     });
+    s.json(await completeGeneration(p.id, draft.revision, draft.lock, draft.c));
   });
   app.get("/api/clues", auth("player"), async (r, s) => {
     const p = await player(r),
@@ -337,6 +594,7 @@ export async function createApp({
       p.group_id,
       c.area,
     );
+    const model = getEvidenceModel(c.id);
     return {
       id: c.id,
       title: c.title,
@@ -346,8 +604,37 @@ export async function createApp({
           ? c.detail
           : null,
       check,
+      ...(model
+        ? {
+            model_url: `/api/models/${model.filename}.glb`,
+            model_label: model.label,
+          }
+        : {}),
     };
   };
+  app.get("/api/models/:filename", auth("player", "gm"), async (r, s) => {
+    const filename = r.params.filename;
+    if (!/^[a-z0-9-]+\.glb$/.test(filename)) fail("模型不存在", 404);
+    const clues = (await all("SELECT id FROM clues")).filter(
+      (c) => getEvidenceModel(c.id)?.filename + ".glb" === filename,
+    );
+    if (!clues.length) fail("模型不存在", 404);
+    if (r.auth.role !== "gm") {
+      const { p } = await playable(r);
+      const unlocked = await all(
+        "SELECT clue_id FROM unlocks WHERE player_id=?",
+        p.id,
+      );
+      if (!clues.some((c) => unlocked.some((u) => u.clue_id === c.id)))
+        fail("请先取得对应证物，再查看AR/VR模型", 403);
+    }
+    s.set({
+      "Content-Type": "model/gltf-binary",
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    });
+    s.sendFile(path.join(modelsRoot, filename));
+  });
   app.get("/api/clues/:id", auth("player"), async (r, s) => {
     const { p } = await playable(r),
       c = await one("SELECT * FROM clues WHERE id=?", r.params.id);
@@ -510,13 +797,24 @@ export async function createApp({
   });
   app.get("/api/staff", auth("gm", "npc"), async (r, s) => {
     const gm = r.auth.role === "gm";
+    const relationRows = await all(
+      `SELECT r.*,n.name npc_name,p.name player_name,c.name character_name,c.cosplay_character,c.cosplay_source,c.avatar_url,c.status,c.generation_status,c.generator FROM character_relations r JOIN npcs n ON n.id=r.npc_id JOIN players p ON p.id=r.player_id JOIN characters c ON c.player_id=r.player_id ${gm ? "" : "WHERE r.npc_id=? AND c.status='approved'"} ORDER BY p.created_at DESC,r.npc_id`,
+      ...(gm ? [] : [r.auth.user_id]),
+    );
     s.json({
       settings: await setting(),
       players: await all(
-        `SELECT p.id,p.name,p.payment,p.checked_in,p.coins,p.group_id,c.name AS "character",c.status${gm ? ",c.faction" : ""} FROM players p LEFT JOIN characters c ON c.player_id=p.id ORDER BY p.created_at DESC`,
+        `SELECT p.id,p.name,p.payment,p.checked_in,p.coins,p.group_id,c.name AS "character",c.status,c.cosplay_character,c.cosplay_source,c.avatar_url${gm ? ",c.faction,c.generation_status,c.generator,c.generation_error,c.generation_pending" : ""} FROM players p LEFT JOIN characters c ON c.player_id=p.id ${gm ? "" : "WHERE c.status='approved' AND EXISTS (SELECT 1 FROM character_relations r WHERE r.player_id=p.id AND r.npc_id=?)"} ORDER BY p.created_at DESC`,
+        ...(gm ? [] : [r.auth.user_id]),
       ),
+      relations: relationRows.map(({ hooks, ...relation }) => ({
+        ...relation,
+        hooks: JSON.parse(hooks),
+      })),
       missions: await all(
-        gm ? "SELECT * FROM missions" : "SELECT * FROM missions WHERE npc_id=?",
+        gm
+          ? "SELECT * FROM missions"
+          : "SELECT m.* FROM missions m JOIN characters c ON c.player_id=m.player_id WHERE m.npc_id=? AND c.status='approved'",
         ...(gm ? [] : [r.auth.user_id]),
       ),
       npcs: await all(
@@ -547,7 +845,10 @@ export async function createApp({
     if (!p) fail("玩家不存在", 404);
     s.json({
       player: p,
-      character: await one("SELECT * FROM characters WHERE player_id=?", p.id),
+      character: characterView(
+        await one("SELECT * FROM characters WHERE player_id=?", p.id),
+      ),
+      relations: await relationsFor(p.id),
     });
   });
   app.post("/api/staff/players/:id", auth("gm"), async (r, s) => {
@@ -577,6 +878,16 @@ export async function createApp({
           fail("审核状态无效");
         const c = await one("SELECT * FROM characters WHERE player_id=?", id);
         if (!c) fail("该玩家尚未填写角色");
+        if (r.body.status === "approved" && c.generation_pending)
+          fail("剧情仍在生成，请完成或重试后再审核");
+        if (
+          r.body.status === "approved" &&
+          !(await one(
+            "SELECT 1 FROM character_relations WHERE player_id=?",
+            id,
+          ))
+        )
+          fail("角色尚未生成有效NPC关联，请先完成生成");
         const faction = r.body.faction || c.faction;
         if (!["fbi", "croft", "conspirator"].includes(faction))
           fail("阵营无效");
@@ -622,6 +933,11 @@ export async function createApp({
           fail("无法操作此任务", 403);
         if ((await setting()).phase !== 1) fail("破冰任务只在第一幕结算");
         const p = await one("SELECT * FROM players WHERE id=?", m.player_id);
+        const c = await one(
+          "SELECT status FROM characters WHERE player_id=?",
+          m.player_id,
+        );
+        if (c?.status !== "approved") fail("玩家角色尚未通过GM审核", 403);
         if (!p.checked_in || p.payment !== "paid") fail("玩家尚未签到");
         if (m.status === "done") return;
         const earned = (
