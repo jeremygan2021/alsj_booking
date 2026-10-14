@@ -267,5 +267,88 @@
   opacity: 0.4;
   cursor: default;
 }
-.invitation-poster { display:block; width:100%; max-width:380px; margin:16px auto; border-radius:12px; border:1px solid #d8b779; }
-.invitation-valid { display:block; padding:10px 14px; border:1px solid #d8b779; border-radius:8px; color:#f6dfab; background:#173c32; text-align:center; }
+.castle-game-hud {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: calc(180px + env(safe-area-inset-bottom));
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  pointer-events: none;
+}
+.castle-game-hud > span {
+  max-width: 180px;
+  padding: 10px 13px;
+  border: 1px solid #d4b47766;
+  border-radius: 12px;
+  background: #102e2ad9;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #f3dfb1;
+}
+.castle-game-hud > button {
+  pointer-events: auto;
+  border: 1px solid #d4b477;
+  border-radius: 20px;
+  padding: 10px 16px;
+  color: #edd6a2;
+  background: #18372de8;
+}
+.castle-game-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 42px);
+  grid-template-rows: repeat(2, 42px);
+  gap: 5px;
+  pointer-events: auto;
+}
+.castle-game-pad button {
+  touch-action: none;
+  user-select: none;
+  border: 1px solid #e3c585;
+  border-radius: 12px;
+  color: #1b362d;
+  background: linear-gradient(135deg, #f0dba6, #b89858);
+  font-size: 24px;
+  box-shadow: 0 4px 14px #0004;
+}
+.castle-game-pad button:first-child {
+  grid-column: 2;
+}
+.castle-game-pad button:nth-child(2) {
+  grid-column: 1;
+  grid-row: 2;
+}
+.castle-game-pad button:nth-child(3) {
+  grid-column: 2;
+  grid-row: 2;
+}
+.castle-game-pad button:nth-child(4) {
+  grid-column: 3;
+  grid-row: 2;
+}
+.castle-game-pad button:disabled {
+  opacity: 0.45;
+}
+.castle-game-pad button:active {
+  transform: translateY(2px);
+}
+.invitation-poster {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  margin: 16px auto;
+  border-radius: 12px;
+  border: 1px solid #d8b779;
+}
+.invitation-valid {
+  display: block;
+  padding: 10px 14px;
+  border: 1px solid #d8b779;
+  border-radius: 8px;
+  color: #f6dfab;
+  background: #173c32;
+  text-align: center;
+}

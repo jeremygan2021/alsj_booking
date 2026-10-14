@@ -1,6 +1,6 @@
 import { createQrFrameTracker } from "./qr-frame-tracker.js";
 import { createEvidencePresentation } from "./qr-evidence-presentation.js";
-import { createInvitationPresentation } from "./invitation-presentation.js";
+import { createCastleInvitation } from "./castle-invitation.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
@@ -55,6 +55,7 @@ export function createQrSceneRuntime({
   onClue,
   onInteraction,
   onAcceptInvitation,
+  onExperienceState,
 }) {
   let stopped = false;
   let mediaStream, renderer, environment, camera, scene, anchor, raf;
@@ -73,7 +74,8 @@ export function createQrSceneRuntime({
     candidateFrames = 0;
   let hasLocated = false,
     unavailableId = null;
-  let lastNotifiedId = null;
+  let lastNotifiedId = null,
+    lastInteractionLabel = "";
   let presentation,
     lastTrackedAt = -Infinity,
     opacity = 0,
@@ -166,6 +168,10 @@ export function createQrSceneRuntime({
         if (presentation.acceptEnabled) onAcceptInvitation?.();
         return;
       }
+      if (selected.userData.action === "walkCastle") {
+        presentation.walkTo?.(hits[0].point);
+        return;
+      }
       selected = selected.parent;
     }
     interact();
@@ -184,10 +190,21 @@ export function createQrSceneRuntime({
       presentation && opacity > 0 && modelId === currentId,
     );
     if (presentation) {
+      if (!reliable || opacity < 0.8) presentation.move?.({ x: 0, y: 0 });
       container.dataset.animationProgress = presentation
         .update(time, opacity, camera)
         .toFixed(3);
       container.dataset.modelKind = presentation.kind;
+      if (presentation.root.userData.phase)
+        container.dataset.experiencePhase = presentation.root.userData.phase;
+      const nextInteraction = presentation.interaction;
+      container.dataset.interaction = nextInteraction.opened
+        ? "opened"
+        : "closed";
+      if (nextInteraction.label !== lastInteractionLabel) {
+        lastInteractionLabel = nextInteraction.label;
+        onInteraction?.(nextInteraction);
+      }
     }
     container.dataset.modelVisible = String(anchor.visible);
     container.dataset.anchorVisible = String(anchor.visible);
@@ -281,7 +298,10 @@ export function createQrSceneRuntime({
       }
       const nextPresentation =
         clue.presentation === "invitation"
-          ? await createInvitationPresentation(clue)
+          ? await createCastleInvitation(clue, (state) => {
+              if (!stopped && version === requestVersion)
+                onExperienceState?.(state);
+            })
           : createEvidencePresentation(gltf.scene);
       if (clue.presentation === "invitation") disposeTree(gltf.scene);
       if (stopped || version !== requestVersion) {
@@ -298,6 +318,8 @@ export function createQrSceneRuntime({
       opacity = 0;
       container.dataset.interaction = "closed";
       onInteraction?.(presentation.interaction);
+      lastInteractionLabel = presentation.interaction.label;
+      if (clue.presentation !== "invitation") onExperienceState?.(null);
       modelId = id;
       unavailableId = null;
       anchor.add(model);
@@ -585,6 +607,8 @@ export function createQrSceneRuntime({
   return {
     cleanup,
     interact,
+    move: (vector) => presentation?.move?.(vector),
+    restartGame: () => presentation?.restartGame?.(),
     retryModel() {
       if (currentId) {
         unavailableId = null;

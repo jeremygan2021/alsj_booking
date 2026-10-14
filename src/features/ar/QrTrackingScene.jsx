@@ -31,7 +31,12 @@ const messages = {
   paused: "摄像头已暂停",
 };
 
-export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
+export default function QrTrackingScene({
+  onClose,
+  initialClueId,
+  onClue,
+  onInvitationUnlocked,
+}) {
   const acceptInvitation = () => {
     window.location.assign("/play?invite=AR-INV&auth=invite");
   };
@@ -40,14 +45,51 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
   const polygon = useRef(null);
   const runtime = useRef(null);
   const initialHint = useRef(initialClueId);
-  const callbacks = useRef({ onClose, onClue });
-  callbacks.current = { onClose, onClue };
+  const callbacks = useRef({ onClose, onClue, onInvitationUnlocked });
+  callbacks.current = { onClose, onClue, onInvitationUnlocked };
   const [attempt, setAttempt] = useState(0);
   const [visible, setVisible] = useState(document.visibilityState !== "hidden");
   const [view, setView] = useState({ status: "requesting", error: null });
   const [clue, setClue] = useState(null);
   const [drawer, setDrawer] = useState(false);
   const [interaction, setInteraction] = useState(null);
+  const [game, setGame] = useState(null);
+  useEffect(() => {
+    if (game?.phase !== "castle") return;
+    const vectors = {
+      ArrowUp: { x: 0, y: 1 },
+      w: { x: 0, y: 1 },
+      ArrowDown: { x: 0, y: -1 },
+      s: { x: 0, y: -1 },
+      ArrowLeft: { x: -1, y: 0 },
+      a: { x: -1, y: 0 },
+      ArrowRight: { x: 1, y: 0 },
+      d: { x: 1, y: 0 },
+    };
+    const down = (event) => {
+      if (
+        view.status === "located" &&
+        vectors[event.key] &&
+        !event.target.closest("input,textarea")
+      ) {
+        event.preventDefault();
+        runtime.current?.move(vectors[event.key]);
+      }
+    };
+    const stop = () => runtime.current?.move({ x: 0, y: 0 });
+    const up = (event) => {
+      if (vectors[event.key]) stop();
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", stop);
+    return () => {
+      stop();
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", stop);
+    };
+  }, [game?.phase, view.status]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -112,6 +154,10 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
       onClue: (id) => callbacks.current.onClue?.(id),
       onInteraction: setInteraction,
       onAcceptInvitation: acceptInvitation,
+      onExperienceState: (next) => {
+        setGame(next);
+        if (next?.unlocked) callbacks.current.onInvitationUnlocked?.();
+      },
       onState: ({ status, error, clue: nextClue }) => {
         setView({ status, error: error || null });
         if (nextClue) setClue(nextClue);
@@ -154,7 +200,7 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
       <header className="qr-tracking-topbar">
         <span className="qr-tracking-title">
           <ScanLine size={17} aria-hidden="true" />
-          现场搜证
+          {game ? "庄园之邀" : "现场搜证"}
         </span>
         <button
           type="button"
@@ -171,7 +217,11 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
         data-testid="qr-tracking-status"
       >
         <span className="qr-tracking-dot" aria-hidden="true" />
-        {messages[view.status]}
+        {game && identified
+          ? game.unlocked
+            ? "3D邀请函已解锁 · 移动镜头观察"
+            : "庄园已定位 · 控制宾客入场"
+          : messages[view.status]}
       </div>
       {!clue && !["error", "requesting", "paused"].includes(view.status) && (
         <div className="qr-tracking-guide" aria-hidden="true">
@@ -187,6 +237,55 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
             <RotateCcw size={16} aria-hidden="true" />
             重试
           </button>
+        </div>
+      )}
+      {game && (
+        <div className="castle-game-hud">
+          <span>{game.instruction}</span>
+          {game.unlocked ? (
+            <button
+              type="button"
+              onClick={() => runtime.current?.restartGame()}
+            >
+              再逛一次城堡
+            </button>
+          ) : (
+            game.phase === "castle" && (
+              <div className="castle-game-pad" aria-label="控制小人移动">
+                {[
+                  { label: "向前走", text: "↑", x: 0, y: 1 },
+                  { label: "向左走", text: "←", x: -1, y: 0 },
+                  { label: "向后走", text: "↓", x: 0, y: -1 },
+                  { label: "向右走", text: "→", x: 1, y: 0 },
+                ].map(({ label, text, x, y }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    aria-label={label}
+                    disabled={!identified}
+                    onPointerDown={(event) => {
+                      event.preventDefault();
+                      event.currentTarget.setPointerCapture(event.pointerId);
+                      runtime.current?.move({ x, y });
+                    }}
+                    onPointerUp={() => runtime.current?.move({ x: 0, y: 0 })}
+                    onPointerCancel={() =>
+                      runtime.current?.move({ x: 0, y: 0 })
+                    }
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        runtime.current?.move({ x, y });
+                      }
+                    }}
+                    onKeyUp={() => runtime.current?.move({ x: 0, y: 0 })}
+                  >
+                    {text}
+                  </button>
+                ))}
+              </div>
+            )
+          )}
         </div>
       )}
       {clue && (
@@ -220,14 +319,22 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
               <small>
                 {clue.id} · {clue.area}
               </small>
-              <strong>{clue.title || clue.model_label}</strong>
+              <strong>
+                {game && !game.unlocked
+                  ? "索恩庄园 · 城堡入场之旅"
+                  : clue.title || clue.model_label}
+              </strong>
             </span>
             <ChevronDown size={19} aria-hidden="true" />
           </button>
           {drawer && (
             <div id="qr-evidence-body" className="qr-tracking-evidence-body">
-              <p>{clue.body}</p>
-              {clue.presentation === "invitation" && (
+              <p>
+                {game && !game.unlocked
+                  ? "按住方向按钮操控小人，或轻点金色步道指引移动。走到正门前，城门会升起；走进门内即可解锁旋转的3D邀请函。请保持真实二维码在镜头内。"
+                  : clue.body}
+              </p>
+              {clue.presentation === "invitation" && game?.unlocked && (
                 <>
                   <strong className="invitation-valid">
                     {clue.invitation_valid

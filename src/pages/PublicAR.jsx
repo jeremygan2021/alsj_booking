@@ -21,6 +21,7 @@ import InvestigationAudio, {
 import "./public-ar.css";
 
 export default function PublicAR() {
+  const [invitationUnlocked, setInvitationUnlocked] = useState(false);
   const audio = useInvestigationAudio();
   const discoveryAudio = useRef(audio.playDiscovery);
   discoveryAudio.current = audio.playDiscovery;
@@ -239,8 +240,12 @@ export default function PublicAR() {
               <h3>现场记录</h3>
               <span>线索内容</span>
             </div>
-            <p>{state.clue.body}</p>
-            {state.clue.presentation === "invitation" && (
+            <p>
+              {state.clue.presentation === "invitation" && !invitationUnlocked
+                ? "开启相机对准邀请函二维码，操控小人走进3D索恩庄园，即可解锁旋转的立体邀请函。"
+                : state.clue.body}
+            </p>
+            {state.clue.presentation === "invitation" && invitationUnlocked && (
               <>
                 <strong>
                   {state.clue.invitation_valid ? "邀请有效" : "活动邀请已结束"}
@@ -262,7 +267,7 @@ export default function PublicAR() {
           <p className="public-ar-copy-note">
             线索以文字内容为准，现场玩法与判定请听从GM指引。
           </p>
-          {state.clue.presentation === "invitation" && (
+          {state.clue.presentation === "invitation" && invitationUnlocked && (
             <Button
               kind="full"
               disabled={!state.clue.invitation_valid}
@@ -335,6 +340,7 @@ export default function PublicAR() {
         <QrTrackingScene
           initialClueId={scanClueId}
           onClue={loadClue}
+          onInvitationUnlocked={() => setInvitationUnlocked(true)}
           onClose={() => setScanning(false)}
         />
       )}

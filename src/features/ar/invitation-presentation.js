@@ -156,12 +156,16 @@ export async function createInvitationPresentation(clue) {
   coverText.position.set(0, -0.13, 0.034);
   const card = new THREE.Group();
   root.add(card);
-  slab(0.89, 1.6, 0.021, 0, 0, 0, gold, card);
-  slab(0.865, 1.575, 0.016, 0, 0, 0.015, cream, card);
+  slab(0.89, 1.6, 0.048, 0, 0, 0, gold, card);
+  slab(0.865, 1.575, 0.023, 0, 0, 0.026, cream, card);
   const poster = panel(0.84, 1.493, posterTexture, card);
-  poster.position.z = 0.026;
+  poster.position.z = 0.04;
+  for (const x of [-0.431, 0.431])
+    slab(0.012, 1.57, 0.019, x, 0, 0.043, gold, card);
+  for (const y of [-0.785, 0.785])
+    slab(0.87, 0.012, 0.019, 0, y, 0.043, gold, card);
   const back = panel(0.84, 0.42, inviteMap, card);
-  back.position.set(0, 0, -0.016);
+  back.position.set(0, 0, -0.025);
   back.rotation.y = Math.PI;
   const status = panel(1.12, 0.35, statusMap);
   status.position.set(0, -0.81, 0.23);
@@ -324,6 +328,7 @@ export async function createInvitationPresentation(clue) {
     return { min, max };
   };
   let layoutCamera;
+  let spinStart = null;
   let target = 0,
     progress = 0,
     last = null;
@@ -393,6 +398,7 @@ export async function createInvitationPresentation(clue) {
     // The pedestal stands at 90° to the QR plane. The sign faces the viewer
     // so its text remains readable when the marker lies flat or on a wall.
     if (camera && visibility > 0.01) {
+      if (spinStart === null) spinStart = time;
       layoutCamera = camera;
       root.getWorldQuaternion(worldRotation);
       camera.getWorldQuaternion(cameraRotation);
@@ -410,6 +416,13 @@ export async function createInvitationPresentation(clue) {
         .invert()
         .multiply(cameraRotation);
       card.quaternion.slerp(cardFacing, lift * 0.9);
+      if (!reduced)
+        card.quaternion.multiply(
+          new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 1, 0),
+            (time - spinStart) * 0.00026 * lift,
+          ),
+        );
       let bounds = projectedBounds();
       const scale = Math.min(
         1,
@@ -486,6 +499,7 @@ export async function createInvitationPresentation(clue) {
       line.needsUpdate = true;
       supportGeometry.computeBoundingSphere();
     }
+    if (visibility <= 0.01) spinStart = null;
     sway.setFromAxisAngle(
       new THREE.Vector3(0, 1, 0),
       reduced ? 0 : 0.09 * Math.sin(motion * 0.42),

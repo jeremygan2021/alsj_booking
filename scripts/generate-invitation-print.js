@@ -34,7 +34,7 @@ await sharp(poster)
   .png()
   .toFile(path.join(dir, "活动海报_AR邀请函二维码.png"));
 const frame = Buffer.from(
-  `<svg width="1400" height="2200"><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#102a2a"/><stop offset="1" stop-color="#091821"/></linearGradient></defs><rect width="1400" height="2200" fill="url(#bg)"/><rect x="50" y="50" width="1300" height="2100" rx="24" fill="none" stroke="#c9a96a" stroke-width="3"/><rect x="70" y="70" width="1260" height="2060" rx="20" fill="none" stroke="#806d49"/><g text-anchor="middle"><text x="700" y="128" fill="#d6ba7b" font-size="24" letter-spacing="8" font-family="Georgia">THE THORNE ESTATE</text><text x="700" y="201" fill="#f4e8cd" font-size="59" font-family="serif">极光之夜 · 庄园邀请</text><text x="700" y="1665" fill="#f2dfb2" font-size="39" font-family="serif">2026年10月31日 · 邀请有效</text><text x="700" y="1728" fill="#c3d4c9" font-size="27" font-family="serif">扫码打开相机，再对准此码启封邀请函</text><text x="700" y="2150" fill="#e2c894" font-size="24" font-family="serif">轻触蜡封 · 欣赏海报 · 接受邀请</text></g></svg>`,
+  `<svg width="1400" height="2200"><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#102a2a"/><stop offset="1" stop-color="#091821"/></linearGradient></defs><rect width="1400" height="2200" fill="url(#bg)"/><rect x="50" y="50" width="1300" height="2100" rx="24" fill="none" stroke="#c9a96a" stroke-width="3"/><rect x="70" y="70" width="1260" height="2060" rx="20" fill="none" stroke="#806d49"/><g text-anchor="middle"><text x="700" y="128" fill="#d6ba7b" font-size="24" letter-spacing="8" font-family="Georgia">THE THORNE ESTATE</text><text x="700" y="201" fill="#f4e8cd" font-size="59" font-family="serif">极光之夜 · 庄园邀请</text><text x="700" y="1665" fill="#f2dfb2" font-size="39" font-family="serif">2026年10月31日 · 邀请有效</text><text x="700" y="1728" fill="#c3d4c9" font-size="27" font-family="serif">扫码打开相机，操控小人走进城堡</text><text x="700" y="2150" fill="#e2c894" font-size="24" font-family="serif">探索城堡 · 解锁邀请 · 接受邀请</text></g></svg>`,
 );
 const inset = await sharp(poster).resize(720, 1280).toBuffer();
 const cardQR = await sharp(qr)
@@ -50,7 +50,7 @@ await sharp(frame)
 await writeFile(path.join(dir, "邀请函链接.txt"), url + "\n");
 await writeFile(
   path.join(dir, "打印说明.md"),
-  `# AR邀请函\n\n链接：${url}\n\n- 扫码后自动进入相机搜证，按浏览器提示授权；若被浏览器限制，点击重试。\n- 镜头再次对准二维码，轻触蜡封或“启封庄园之邀”，观看信封展开、海报升起、极光、飘雪、渡鸦和钥匙动画。\n- 3D“接受邀请”按钮自动保持画面上方并面向镜头，避免遮挡邀请函；点击进入手机号注册／登录。\n- 邀请有效期截至2026年10月31日23:59:59（北京时间），本函为公开活动邀请，入场以报名确认为准。\n- 纯二维码适合单独贴牌，海报版使用原海报右下角位置，黑金打印卡采用较大二维码，便于AR识别。\n- 不要裁掉二维码白边；推荐黑金卡A4打印。\n`,
+  `# AR邀请函\n\n链接：${url}\n\n- 扫码后自动进入相机搜证，按浏览器提示授权；若被浏览器限制，点击重试。\n- 镜头再次对准二维码，先操控小人沿金色步道走进立体城堡；城门升起后才会解锁3D邀请函。卡片有厚度和金属边框，在二维码上方升起并缓慢旋转，配有信封翻盖、蜡封、极光、飘雪、渡鸦和钥匙动画。\n- 城堡可点亮灯光，步道可点击指引小人，方向键支持按住移动；解锁后的3D“接受邀请”按钮自动保持画面上方并面向镜头，避免遮挡邀请函；点击进入手机号注册／登录。\n- 邀请有效期截至2026年10月31日23:59:59（北京时间），本函为公开活动邀请，入场以报名确认为准。\n- 纯二维码适合单独贴牌，海报版使用原海报右下角位置，黑金打印卡采用较大二维码，便于AR识别。\n- 不要裁掉二维码白边；推荐黑金卡A4打印。\n`,
 );
 await writeFile(
   path.join(dir, "A4打印.html"),
