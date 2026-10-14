@@ -211,7 +211,7 @@ export function createQrSceneRuntime({
           experience.phase,
           experience.view.id,
           experience.zoom,
-          experience.adventure.health,
+          experience.autoEntering,
           experience.adventure.collected,
           experience.adventure.jumpReady,
           experience.adventure.feedback,
@@ -221,6 +221,7 @@ export function createQrSceneRuntime({
         onExperienceState?.(experience);
       }
       if (experience) {
+        container.dataset.autoEntering = String(experience.autoEntering);
         container.dataset.viewPreset = experience.view.id;
         container.dataset.modelZoom = String(experience.zoom);
         container.dataset.viewMatrix = JSON.stringify(
@@ -358,6 +359,7 @@ export function createQrSceneRuntime({
       if (clue.presentation !== "invitation") {
         onExperienceState?.(null);
         for (const key of [
+          "autoEntering",
           "viewPreset",
           "modelZoom",
           "viewMatrix",

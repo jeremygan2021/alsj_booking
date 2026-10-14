@@ -10,7 +10,6 @@ import {
   Minus,
   Footprints,
   Sparkles,
-  Heart,
 } from "lucide-react";
 import { createQrSceneRuntime } from "./qr-scene-runtime.js";
 import "./qr-tracking.css";
@@ -67,6 +66,11 @@ export default function QrTrackingScene({
   const [drawer, setDrawer] = useState(false);
   const [interaction, setInteraction] = useState(null);
   const [game, setGame] = useState(null);
+  const [manualControls, setManualControls] = useState(false);
+  useEffect(() => {
+    if (game?.phase !== "castle" || game?.autoEntering)
+      setManualControls(false);
+  }, [game?.phase, game?.autoEntering]);
   const sound = useRef(null);
   const [soundState, setSoundState] = useState({
     enabled: true,
@@ -283,7 +287,7 @@ export default function QrTrackingScene({
         {game && identified
           ? game.unlocked
             ? "3D邀请函已解锁 · 移动镜头观察"
-            : "庄园已定位 · 控制宾客入场"
+            : "庄园已定位 · 一键即可入场"
           : messages[view.status]}
       </div>
       {!clue && !["error", "requesting", "paused"].includes(view.status) && (
@@ -349,18 +353,6 @@ export default function QrTrackingScene({
             <div className="castle-game-caption">
               {!game.unlocked && (
                 <div className="castle-game-stats">
-                  <span aria-label={`体力 ${game.adventure.health} / 3`}>
-                    {[0, 1, 2].map((i) => (
-                      <Heart
-                        key={i}
-                        size={12}
-                        aria-hidden="true"
-                        fill={
-                          i < game.adventure.health ? "currentColor" : "none"
-                        }
-                      />
-                    ))}
-                  </span>
                   <span>
                     <Sparkles size={13} aria-hidden="true" />
                     星光 {game.adventure.collected}/{game.adventure.total}
@@ -368,11 +360,23 @@ export default function QrTrackingScene({
                 </div>
               )}
               <span role="status">
-              {game.unlocked
-                ? `邀请已解锁 · 收集星光 ${game.adventure.collected}/${game.adventure.total}`
-                : game.adventure.feedback || game.instruction}
+                {game.unlocked
+                  ? `邀请已解锁 · 收集星光 ${game.adventure.collected}/${game.adventure.total}`
+                  : game.adventure.feedback || game.instruction}
               </span>
-              {!game.unlocked && <small>金色预警 · 红色冰刺请绕行或跳过</small>}
+              {!game.unlocked && <small>冰刺自动跳过 · 星光自动拾取</small>}
+              {game.phase === "castle" && !game.autoEntering && (
+                <button
+                  className="castle-manual-toggle"
+                  type="button"
+                  aria-expanded={manualControls}
+                  aria-controls="castle-manual-controls"
+                  disabled={!identified}
+                  onClick={() => setManualControls((open) => !open)}
+                >
+                  {manualControls ? "收起操作" : "自己逛逛"}
+                </button>
+              )}
             </div>
             {game.unlocked ? (
               <button
@@ -382,8 +386,12 @@ export default function QrTrackingScene({
                 再逛一次城堡
               </button>
             ) : (
-              game.phase === "castle" && (
-                <div className="castle-game-actions">
+              game.phase === "castle" &&
+              manualControls && (
+                <div
+                  className="castle-game-actions"
+                  id="castle-manual-controls"
+                >
                   <button
                     className="castle-jump-button"
                     type="button"
@@ -452,8 +460,15 @@ export default function QrTrackingScene({
               <button
                 type="button"
                 data-testid="qr-evidence-interact"
-                disabled={!identified}
-                onClick={() => runtime.current?.interact()}
+                disabled={
+                  !identified ||
+                  game?.autoEntering ||
+                  game?.phase === "entering"
+                }
+                onClick={() => {
+                  if (game && !game.unlocked) setManualControls(false);
+                  runtime.current?.interact();
+                }}
               >
                 {interaction.label}
               </button>
@@ -482,7 +497,7 @@ export default function QrTrackingScene({
             <div id="qr-evidence-body" className="qr-tracking-evidence-body">
               <p>
                 {game && !game.unlocked
-                  ? "按住方向按钮操控小人，或轻点步道指引移动；键盘方向键／WASD移动，空格跳跃。冰刺会先亮金色预警，再变红升起：绕行或跳跃避开，受伤会退回安全步道。沿途可收集3颗星光，轻点门前管家可获得提示。走进城门即可解锁邀请函。点击视角切换全景、城门、小人跟随和鸟瞰；用＋／－放大缩小。请保持真实二维码在镜头内。"
+                  ? "点“一键入场”，小人会自动走进城门，几秒后展开邀请函。保持二维码在镜头内即可，冰刺会自动跳过，附近星光自动拾取。想自由探索可点“自己逛逛”，使用方向按钮或WASD移动、空格跳跃；碰到冰刺也不会扣血或重来。点击视角切换观察角度，用＋／－放大缩小。"
                   : clue.body}
               </p>
               {clue.presentation === "invitation" && game?.unlocked && (

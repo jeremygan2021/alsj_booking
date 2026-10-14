@@ -309,9 +309,6 @@
   margin-bottom: 7px;
   font-size: 11px;
 }
-.castle-game-stats > span:first-child {
-  color: #eea89a;
-}
 .castle-game-actions {
   display: flex;
   align-items: center;
@@ -543,4 +540,20 @@
   color: #f6dfab;
   background: #173c32;
   text-align: center;
+}
+
+.castle-manual-toggle {
+  pointer-events: auto;
+  display: inline-flex;
+  margin-top: 9px;
+  min-height: 38px;
+  align-items: center;
+  padding: 5px 12px;
+  border: 1px solid #b8c9bb66;
+  border-radius: 8px;
+  background: #ffffff0a;
+  font-size: 11px;
+}
+.castle-manual-toggle:disabled {
+  opacity: 0.4;
 }

@@ -243,7 +243,7 @@ export default function PublicAR() {
             </div>
             <p>
               {state.clue.presentation === "invitation" && !invitationUnlocked
-                ? "开启相机对准邀请函二维码，操控小人走进3D索恩庄园，即可解锁旋转的立体邀请函。"
+                ? "开启相机对准邀请函二维码，点“一键入场”，小人会自动走进庄园并展开3D邀请函。"
                 : state.clue.body}
             </p>
             {state.clue.presentation === "invitation" && invitationUnlocked && (

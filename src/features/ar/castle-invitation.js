@@ -257,16 +257,18 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
   let phase = "castle",
     input = { x: 0, y: 0 },
     destination = null,
+    autoEntering = false,
+    autoRoute = [],
     last = null,
     gate = 0,
     entry = 0,
     reveal = 0,
-    lights = true,
     walkClock = 0,
     footstep = 0,
     revealStarted = false;
   const snapshot = () => ({
     phase,
+    autoEntering,
     unlocked: phase === "invitation",
     view: currentView(),
     zoom,
@@ -277,7 +279,9 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
     ],
     instruction:
       phase === "castle"
-        ? "收集星光，避开冰刺 · 走进城门解锁邀请"
+        ? autoEntering
+          ? "小人正在自动入场 · 保持二维码在画面内"
+          : "点下方一键入场，小人会帮你走进城门"
         : phase === "entering"
           ? "城门已开启 · 小人正在入场"
           : "庄园之邀已解锁 · 轻触启封或接受邀请",
@@ -294,7 +298,22 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
     life.update(dt, active, phase !== "castle" || gate > 0.5);
     if (phase === "castle" && active) {
       let direction = new THREE.Vector2();
-      if (input.x || input.y) {
+      if (autoEntering && autoRoute.length) {
+        let waypoint = autoRoute[0];
+        while (
+          waypoint &&
+          walker.position.distanceTo(
+            new THREE.Vector3(waypoint.x, waypoint.y, walker.position.z),
+          ) < 0.018
+        ) {
+          autoRoute.shift();
+          waypoint = autoRoute[0];
+        }
+        if (waypoint)
+          direction
+            .set(waypoint.x - walker.position.x, waypoint.y - walker.position.y)
+            .normalize();
+      } else if (input.x || input.y) {
         const inverse = castle
           .getWorldQuaternion(new THREE.Quaternion())
           .invert();
@@ -319,24 +338,28 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
         if (direction.length() < 0.018) destination = null;
         else direction.normalize();
       }
-      const x = THREE.MathUtils.clamp(
-        walker.position.x + direction.x * dt * 0.3,
+      const speed = autoEntering ? 0.38 : 0.3;
+      let x = THREE.MathUtils.clamp(
+        walker.position.x + direction.x * dt * speed,
         -0.59,
         0.59,
       );
       const y = THREE.MathUtils.clamp(
-        walker.position.y + direction.y * dt * 0.3,
+        walker.position.y + direction.y * dt * speed,
         -0.65,
         0.62,
       );
       const nearDoor =
-        Math.abs(walker.position.x) < 0.12 && walker.position.y > -0.28;
+        Math.abs(walker.position.x) < 0.22 && walker.position.y > -0.36;
       const previousGate = gate;
-      gate = THREE.MathUtils.clamp(gate + (nearDoor ? dt * 1.6 : -dt), 0, 1);
+      gate = THREE.MathUtils.clamp(gate + (nearDoor ? dt * 2.8 : -dt), 0, 1);
       if (previousGate === 0 && gate > 0) onSound?.("gate");
+      // Gently funnel forward movement into the opening; no precise aiming.
+      if (direction.y > 0 && y > -0.3 && Math.abs(x) < 0.16)
+        x = Math.sign(x) * Math.max(0, Math.abs(x) - dt * 0.42);
       const insideWall = Math.abs(x) < 0.49 && y > -0.145 && y < 0.59;
       // Reserve the figure's shoulder radius within the physical door opening.
-      const doorway = Math.abs(x) < 0.046 && y < 0.1 && gate > 0.82;
+      const doorway = Math.abs(x) < 0.056 && y < 0.1 && gate > 0.65;
       const towerCollision = [-0.43, 0.43].some((tx) =>
         [-0.055, 0.51].some((ty) => Math.hypot(x - tx, y - ty) < 0.14),
       );
@@ -364,8 +387,10 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
             ? Math.sin(walkClock + (i % 2) * Math.PI) * 0.42
             : 0),
       );
-      if (Math.abs(walker.position.x) < 0.046 && walker.position.y > -0.09) {
+      if (Math.abs(walker.position.x) < 0.085 && walker.position.y > -0.12) {
         phase = "entering";
+        autoEntering = false;
+        autoRoute = [];
         onSound?.("enter");
         input = { x: 0, y: 0 };
         destination = null;
@@ -373,25 +398,25 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
       }
     }
     if (phase === "castle") {
-      const adventure = gameplay.update(dt, walker.position, active);
+      const adventure = gameplay.update(
+        dt,
+        walker.position,
+        active,
+        autoEntering,
+      );
       const ground =
         Math.abs(walker.position.x) < 0.11 && walker.position.y < -0.14
           ? 0.094
           : 0.074;
       walker.position.z = ground + adventure.jumpHeight;
-      if (adventure.hit) {
-        walker.position.set(0, -0.63, 0.094);
-        destination = null;
-        input = { x: 0, y: 0 };
-        onSound?.("hurt");
-      }
+      if (adventure.assistedJump) onSound?.("jump");
       if (adventure.collectedNow) onSound?.("collect");
-      walker.scale.setScalar(adventure.immune ? 0.97 : 1);
+      walker.scale.setScalar(1);
     } else gameplay.finish();
     walker.visible = phase !== "invitation";
     if (phase === "entering" && active) {
-      entry = Math.min(1, entry + dt);
-      walker.position.y = -0.08 + entry * 0.18;
+      entry = Math.min(1, entry + dt * 1.4);
+      walker.position.y = -0.12 + entry * 0.22;
       walker.position.z = 0.074;
       walker.scale.setScalar(1 - entry * 0.55);
       gate = 1;
@@ -406,7 +431,7 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
     const pulse = reduced ? 1 : 0.7 + 0.3 * Math.sin(time * 0.003);
     guide.visible = phase === "castle";
     guide.scale.setScalar(0.85 + 0.15 * pulse);
-    glow.emissiveIntensity = (lights ? 0.8 : 0.12) + gate * 0.3;
+    glow.emissiveIntensity = 0.8 + gate * 0.3;
     const compact = THREE.MathUtils.smoothstep(reveal, 0, 0.45);
     const s = 1 - 0.58 * compact;
     castle.scale.setScalar(s);
@@ -491,12 +516,32 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
       emit();
       return snapshot();
     },
+    autoEnter() {
+      if (phase !== "castle" || autoEntering) return;
+      // Bring a guest wandering behind the walls onto the safe front approach.
+      if (walker.position.y > -0.15) walker.position.set(0, -0.63, 0.094);
+      autoRoute = [
+        { x: walker.position.x, y: -0.34 },
+        { x: 0, y: -0.34 },
+        { x: 0, y: -0.06 },
+      ];
+      autoEntering = true;
+      input = { x: 0, y: 0 };
+      destination = null;
+      emit();
+    },
     move(vector) {
+      if (vector.x || vector.y) {
+        autoEntering = false;
+        autoRoute = [];
+      }
       input = vector;
       destination = null;
     },
     walkTo(point) {
       if (phase !== "castle") return;
+      autoEntering = false;
+      autoRoute = [];
       const p = castle.worldToLocal(point.clone());
       destination = {
         x: THREE.MathUtils.clamp(p.x, -0.58, 0.58),
@@ -509,6 +554,8 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
     restartGame() {
       if (invitation.interaction.opened) invitation.toggle();
       phase = "castle";
+      autoEntering = false;
+      autoRoute = [];
       gate = entry = reveal = 0;
       revealStarted = false;
       castleViewIndex = invitationViewIndex = 0;
@@ -531,7 +578,7 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
         onSound?.(next.opened ? "open" : "close");
         return next;
       }
-      lights = !lights;
+      this.autoEnter();
       return this.interaction;
     },
     get interaction() {
@@ -543,13 +590,15 @@ export async function createCastleInvitation(clue, onGameChange, onSound) {
             label:
               phase === "entering"
                 ? "城门已开启"
-                : lights
-                  ? "调暗庄园灯光"
-                  : "点亮庄园灯光",
+                : autoEntering
+                  ? "自动入场中…"
+                  : "一键入场",
             message:
               phase === "entering"
                 ? "城门已打开 · 正在迎接宾客"
-                : "先操控小人走进城堡，解锁3D邀请函",
+                : autoEntering
+                  ? "保持二维码在镜头内，小人会自动走进去"
+                  : "点击一次，即可解锁3D邀请函",
           };
     },
   };

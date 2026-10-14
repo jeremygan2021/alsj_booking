@@ -52,7 +52,7 @@ export function createCastleGameplay(castle, surfaces, reducedMotion) {
     traps.push({ x, y, spikes, material, offset: index * 1.15, active: false });
   }
   const tokens = [
-    [-0.17, -0.56],
+    [-0.19, -0.54],
     [0.19, -0.37],
     [0, -0.19],
   ].map(([x, y], index) => {
@@ -81,13 +81,10 @@ export function createCastleGameplay(castle, surfaces, reducedMotion) {
   });
   let clock = 0,
     jumpStart = -Infinity,
-    immuneUntil = 0,
     feedbackUntil = 0;
-  let health = 3,
-    collected = 0,
+  let collected = 0,
     feedback = "";
   const state = () => ({
-    health,
     collected,
     total: tokens.length,
     jumpReady: clock - jumpStart >= 1.05,
@@ -101,7 +98,7 @@ export function createCastleGameplay(castle, surfaces, reducedMotion) {
       feedback =
         collected === tokens.length
           ? "管家：星光集齐了，请进城门领取邀请函"
-          : "管家：冰刺升起前会变金色，提前跳跃或绕行";
+          : "管家：点一键入场就好，冰刺会自动跳过，星光自动拾取";
       feedbackUntil = clock + 3;
     },
     jump() {
@@ -109,19 +106,14 @@ export function createCastleGameplay(castle, surfaces, reducedMotion) {
       jumpStart = clock;
       return true;
     },
-    update(dt, position, active) {
+    update(dt, position, active, autoWalking = false) {
       if (active) clock += dt;
-      const jumpProgress = (clock - jumpStart) / 0.75;
-      const jumpHeight =
-        jumpProgress >= 0 && jumpProgress < 1
-          ? Math.sin(jumpProgress * Math.PI) * 0.145
-          : 0;
-      let hit = false,
+      let assistedJump = false,
         collectedNow = false;
       for (const trap of traps) {
-        const phase = (clock + trap.offset) % 4.4;
-        const warning = phase >= 1.9 && phase < 2.6;
-        trap.active = phase >= 2.6 && phase < 3.6;
+        const phase = (clock + trap.offset) % 6;
+        const warning = phase >= 2.4 && phase < 4.2;
+        trap.active = phase >= 4.2 && phase < 4.9;
         trap.spikes.scale.z = trap.active ? 1 : warning ? 0.18 : 0.025;
         trap.material.color.setHex(
           trap.active ? 0xe27365 : warning ? 0xe7b95e : 0x527c85,
@@ -136,28 +128,22 @@ export function createCastleGameplay(castle, surfaces, reducedMotion) {
             : 0.18;
         if (
           active &&
-          trap.active &&
-          clock >= immuneUntil &&
-          jumpHeight < 0.065 &&
-          Math.hypot(position.x - trap.x, position.y - trap.y) < 0.081
+          (autoWalking || warning || trap.active) &&
+          clock - jumpStart >= 1.05 &&
+          Math.hypot(position.x - trap.x, position.y - trap.y) < 0.13
         ) {
-          hit = true;
-          health--;
-          immuneUntil = clock + 2;
-          feedback =
-            health > 0
-              ? "碰到冰刺 · 已退回安全步道"
-              : "体力恢复 · 从起点再试一次";
-          if (health === 0) health = 3;
-          feedbackUntil = clock + 2.2;
+          // A friendly obstacle: assist the jump without health loss or rewind.
+          jumpStart = clock;
+          assistedJump = true;
+          feedback = "已帮你跳过冰刺，继续走就好";
+          feedbackUntil = clock + 1.5;
         }
       }
       for (const token of tokens) {
         if (
           active &&
-          !hit &&
           !token.taken &&
-          Math.hypot(position.x - token.x, position.y - token.y) < 0.065
+          Math.hypot(position.x - token.x, position.y - token.y) < 0.2
         ) {
           token.taken = true;
           collected++;
@@ -175,7 +161,12 @@ export function createCastleGameplay(castle, surfaces, reducedMotion) {
           (reducedMotion ? 0 : Math.sin(clock * 2 + token.index) * 0.009);
       }
       root.visible = true;
-      return { jumpHeight, hit, collectedNow, immune: clock < immuneUntil };
+      const jumpProgress = (clock - jumpStart) / 0.75;
+      const jumpHeight =
+        jumpProgress >= 0 && jumpProgress < 1
+          ? Math.sin(jumpProgress * Math.PI) * 0.145
+          : 0;
+      return { jumpHeight, collectedNow, assistedJump };
     },
     finish() {
       root.visible = false;
@@ -184,9 +175,8 @@ export function createCastleGameplay(castle, surfaces, reducedMotion) {
     },
     reset() {
       clock = collected = 0;
-      health = 3;
       jumpStart = -Infinity;
-      immuneUntil = feedbackUntil = 0;
+      feedbackUntil = 0;
       feedback = "";
       tokens.forEach((token) => {
         token.taken = false;

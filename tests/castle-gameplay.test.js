@@ -18,32 +18,43 @@ function adventure() {
   );
 }
 
-test("ice traps pause with tracking loss, jumping clears spikes, damage has a grace period", () => {
+test("friendly traps assist jumping, never rewind the guest, and pause with tracking loss", () => {
   const game = adventure();
   const safe = new THREE.Vector3(0, -0.63, 0.094);
-  game.update(2.45, safe, true);
+  game.update(4.3, safe, true);
+  const guest = new THREE.Vector3(0, -0.39, 0.094);
+  assert.equal(game.update(0.01, guest, true).assistedJump, true);
+  const airborne = game.update(0.3, guest, true);
+  assert.ok(airborne.jumpHeight > 0.1);
+  const paused = game.update(30, guest, false);
+  assert.equal(paused.jumpHeight, airborne.jumpHeight);
+  assert.equal(guest.y, -0.39);
+  assert.equal("health" in game.state, false);
+  game.reset();
+  assert.equal(game.state.jumpReady, true);
   assert.equal(game.jump(), true);
   assert.equal(game.jump(), false);
-  const airborne = game.update(0.3, new THREE.Vector3(0, -0.39, 0.094), true);
-  assert.ok(airborne.jumpHeight > 0.1);
-  assert.equal(airborne.hit, false);
-  assert.equal(game.state.health, 3);
-  const paused = game.update(30, safe, false);
-  assert.equal(paused.jumpHeight, airborne.jumpHeight);
-  game.update(0.46, safe, true);
-  assert.equal(
-    game.update(0.01, new THREE.Vector3(0, -0.39, 0.094), true).hit,
+});
+
+test("automatic arrival clears even dormant traps and picks up stars beside the path", () => {
+  const game = adventure();
+  game.update(0.01, new THREE.Vector3(0, -0.63, 0.094), true);
+  assert.equal(game.state.collected, 0);
+  const star = game.update(
+    0.01,
+    new THREE.Vector3(0, -0.56, 0.094),
+    true,
     true,
   );
-  assert.equal(game.state.health, 2);
-  assert.equal(
-    game.update(0.01, new THREE.Vector3(0, -0.39, 0.094), true).hit,
-    false,
+  assert.equal(star.collectedNow, true);
+  assert.equal(game.state.collected, 1);
+  const crossing = game.update(
+    0.01,
+    new THREE.Vector3(0, -0.47, 0.094),
+    true,
+    true,
   );
-  assert.equal(game.state.health, 2);
-  game.reset();
-  assert.equal(game.state.health, 3);
-  assert.equal(game.state.jumpReady, true);
+  assert.equal(crossing.assistedJump, true);
 });
 
 test("each star is collected once and restart restores every collectible", () => {

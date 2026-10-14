@@ -57,6 +57,7 @@ test("庄园视角、缩放、跳跃、入场与邀请函细节保留真实二�
   await expect(scene).toHaveAttribute("data-model-zoom", "1.15");
   await page.getByRole("button", { name: "缩小模型", exact: true }).click();
   await expect(scene).toHaveAttribute("data-model-zoom", "1");
+  await page.getByRole("button", { name: "自己逛逛", exact: true }).click();
   await page.getByRole("button", { name: "跳跃躲避陷阱", exact: true }).click();
   await expect
     .poll(async () => (await guestPosition(scene))[2])
@@ -106,11 +107,76 @@ test("庄园视角、缩放、跳跃、入场与邀请函细节保留真实二�
   await expect(scene).toHaveAttribute("data-experience-phase", "castle");
   await expect(scene).toHaveAttribute("data-view-preset", "overview");
   await expect(scene).toHaveAttribute("data-model-zoom", "1");
-  await expect(page.getByLabel("体力 3 / 3")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "自己逛逛", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "跳跃躲避陷阱", exact: true }),
+  ).toHaveCount(0);
   await expect(page.getByText("星光 0/3")).toBeVisible();
   await page.getByRole("button", { name: "关闭摄像头", exact: true }).click();
   expect(await page.evaluate(() => window.__qrCamera.tracks)).toEqual([
     "ended",
   ]);
+  expect(errors).toEqual([]);
+});
+
+test("一键安全入场：无需方向键，丢码暂停后恢复并自动展开邀请函", async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await installQrCamera(context, baseURL);
+  await context.addInitScript(() => {
+    Object.defineProperty(Element.prototype, "requestFullscreen", {
+      configurable: true,
+      value: undefined,
+    });
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/ar?node=AR-INV&camera=1");
+  await page.evaluate(() => window.__qrCamera.set({ id: "AR-INV" }));
+  const scene = page.getByTestId("qr-tracking-scene");
+  const start = page.getByRole("button", { name: "一键入场", exact: true });
+  await expect(scene).toHaveAttribute("data-interaction-ready", "true", {
+    timeout: 30000,
+  });
+  await expect(start).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "向前走", exact: true }),
+  ).toHaveCount(0);
+  await page.screenshot({ path: "output/playwright/castle-easy-start.png" });
+  await start.click();
+  await expect(scene).toHaveAttribute("data-auto-entering", "true");
+  await expect(
+    page.getByRole("button", { name: "自动入场中…", exact: true }),
+  ).toBeDisabled();
+  await expect
+    .poll(async () => (await guestPosition(scene))[1], { intervals: [35] })
+    .toBeGreaterThan(-0.56);
+  await page.evaluate(() => window.__qrCamera.set({ visible: false }));
+  await expect(scene).toHaveAttribute("data-model-visible", "false");
+  const paused = await scene.getAttribute("data-guest-position");
+  await page.waitForTimeout(600);
+  expect(await scene.getAttribute("data-guest-position")).toBe(paused);
+  await expect(scene).toHaveAttribute("data-auto-entering", "true");
+  await page.evaluate(() => window.__qrCamera.set({ visible: true }));
+  await expect(scene).toHaveAttribute("data-interaction-ready", "true");
+  await page.getByTestId("castle-view-toggle").click();
+  await expect(scene).toHaveAttribute("data-experience-phase", "invitation", {
+    timeout: 10000,
+  });
+  await expect(scene).toHaveAttribute("data-animation-progress", "1.000");
+  await expect(page.getByTestId("qr-evidence-interact")).toHaveText(
+    "合上邀请函",
+  );
+  await expect(page.getByText("邀请已解锁 · 收集星光 3/3")).toBeVisible();
+  await page.getByRole("button", { name: "再逛一次城堡", exact: true }).click();
+  await expect(start).toBeEnabled();
+  await expect(scene).toHaveAttribute("data-auto-entering", "false");
+  expect((await guestPosition(scene))[1]).toBe(-0.63);
+  await page.getByRole("button", { name: "关闭摄像头", exact: true }).click();
   expect(errors).toEqual([]);
 });
