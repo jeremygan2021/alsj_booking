@@ -335,6 +335,16 @@
 .castle-game-pad button:active {
   transform: translateY(2px);
 }
+.castle-sound-toggle {
+  margin-left: auto;
+  margin-right: 12px;
+  border: 1px solid #d7ba7d66;
+  background: #16392eda;
+  border-radius: 20px;
+  color: #ebd39f;
+  padding: 8px 11px;
+  font-size: 11px;
+}
 .invitation-poster {
   display: block;
   width: 100%;

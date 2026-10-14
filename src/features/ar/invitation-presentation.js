@@ -342,14 +342,17 @@ export async function createInvitationPresentation(clue) {
     const p = smooth(progress),
       lift = smooth(THREE.MathUtils.clamp((progress - 0.22) / 0.6, 0, 1));
     flap.rotation.x = 2.7 * smooth(Math.min(1, progress / 0.48));
+    // Move the opened envelope aside before the detached card starts rotating.
+    envelope.position.x = -1.1 * lift;
+    envelope.scale.setScalar(1 - 0.45 * lift);
     seal.position.set(
       0.55 * p,
       -0.055 + 0.2 * Math.sin(p * Math.PI),
       0.075 + 0.16 * p,
     );
     seal.rotation.z = -1.2 * p;
-    card.visible = progress > 0.18;
-    card.position.set(0, -0.29 + 0.64 * lift, 0.06 + 0.12 * lift);
+    card.visible = progress > 0.42;
+    card.position.set(0, -0.29 + 0.84 * lift, 0.12 + 0.66 * lift);
     card.scale.setScalar(0.52 + 0.48 * lift);
     card.rotation.set(0, (1 - lift) * 0.2, 0);
     status.visible = progress > 0.82;
@@ -398,7 +401,7 @@ export async function createInvitationPresentation(clue) {
     // The pedestal stands at 90° to the QR plane. The sign faces the viewer
     // so its text remains readable when the marker lies flat or on a wall.
     if (camera && visibility > 0.01) {
-      if (spinStart === null) spinStart = time;
+      if (lift > 0.98 && spinStart === null) spinStart = time;
       layoutCamera = camera;
       root.getWorldQuaternion(worldRotation);
       camera.getWorldQuaternion(cameraRotation);
@@ -415,8 +418,14 @@ export async function createInvitationPresentation(clue) {
         .getWorldQuaternion(new THREE.Quaternion())
         .invert()
         .multiply(cameraRotation);
-      card.quaternion.slerp(cardFacing, lift * 0.9);
-      if (!reduced)
+      // Keep the sheet's tilt bounded: its full rotation must clear the envelope
+      // and the marker backing, even when the phone views the QR obliquely.
+      const faceAngle = card.quaternion.angleTo(cardFacing);
+      card.quaternion.slerp(
+        cardFacing,
+        Math.min(lift * 0.9, 0.18 / Math.max(0.001, faceAngle)),
+      );
+      if (!reduced && spinStart !== null && lift > 0.98)
         card.quaternion.multiply(
           new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(0, 1, 0),

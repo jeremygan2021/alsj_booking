@@ -56,6 +56,8 @@ export function createQrSceneRuntime({
   onInteraction,
   onAcceptInvitation,
   onExperienceState,
+  onSound,
+  onUserGesture,
 }) {
   let stopped = false;
   let mediaStream, renderer, environment, camera, scene, anchor, raf;
@@ -74,6 +76,7 @@ export function createQrSceneRuntime({
     candidateFrames = 0;
   let hasLocated = false,
     unavailableId = null;
+  let lastExperiencePhase = null;
   let lastNotifiedId = null,
     lastInteractionLabel = "";
   let presentation,
@@ -122,6 +125,7 @@ export function createQrSceneRuntime({
     delete container.dataset.poseMatrix;
   };
   const interact = () => {
+    onUserGesture?.();
     if (
       stopped ||
       !reliable ||
@@ -136,6 +140,7 @@ export function createQrSceneRuntime({
     return true;
   };
   const pointerDown = (event) => {
+    onUserGesture?.();
     pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
   };
   const pointerUp = (event) => {
@@ -195,6 +200,11 @@ export function createQrSceneRuntime({
         .update(time, opacity, camera)
         .toFixed(3);
       container.dataset.modelKind = presentation.kind;
+      const experience = presentation.experienceState;
+      if (experience && experience.phase !== lastExperiencePhase) {
+        lastExperiencePhase = experience.phase;
+        onExperienceState?.(experience);
+      }
       if (presentation.root.userData.phase)
         container.dataset.experiencePhase = presentation.root.userData.phase;
       const nextInteraction = presentation.interaction;
@@ -251,11 +261,11 @@ export function createQrSceneRuntime({
   signal.addEventListener("abort", cleanup, { once: true });
 
   const loadClue = async (id) => {
+    if (id === modelId) return;
     const version = ++requestVersion;
     requestController?.abort();
     requestController = new AbortController();
     const requestSignal = requestController.signal;
-    if (id === modelId) return;
     state("loading");
     try {
       let clue = metadata.get(id);
@@ -298,9 +308,9 @@ export function createQrSceneRuntime({
       }
       const nextPresentation =
         clue.presentation === "invitation"
-          ? await createCastleInvitation(clue, (state) => {
-              if (!stopped && version === requestVersion)
-                onExperienceState?.(state);
+          ? await createCastleInvitation(clue, undefined, (event) => {
+              if (!stopped && modelId === id && reliable && opacity > 0.8)
+                onSound?.(event);
             })
           : createEvidencePresentation(gltf.scene);
       if (clue.presentation === "invitation") disposeTree(gltf.scene);
@@ -319,6 +329,7 @@ export function createQrSceneRuntime({
       container.dataset.interaction = "closed";
       onInteraction?.(presentation.interaction);
       lastInteractionLabel = presentation.interaction.label;
+      lastExperiencePhase = null;
       if (clue.presentation !== "invitation") onExperienceState?.(null);
       modelId = id;
       unavailableId = null;

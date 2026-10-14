@@ -1,13 +1,14 @@
 import * as THREE from "three";
 import { createInvitationPresentation } from "./invitation-presentation.js";
 
-export async function createCastleInvitation(clue, onGameChange) {
+export async function createCastleInvitation(clue, onGameChange, onSound) {
   const invitation = await createInvitationPresentation(clue);
   const root = new THREE.Group(),
     castle = new THREE.Group();
   root.add(castle, invitation.root);
   root.name = "Thorne_Estate_AR_Experience";
-  castle.rotation.x = -0.75;
+  // Local XY is the physical QR plane; tower height is local +Z, exactly normal.
+  castle.rotation.x = 0;
   const stone = new THREE.MeshStandardMaterial({
     color: 0x304751,
     roughness: 0.72,
@@ -140,7 +141,7 @@ export async function createCastleInvitation(clue, onGameChange) {
   }
   const walker = new THREE.Group();
   castle.add(walker);
-  walker.position.set(0, -0.63, 0.084);
+  walker.position.set(0, -0.63, 0.094);
   const coat = new THREE.MeshStandardMaterial({
     color: 0x863730,
     roughness: 0.6,
@@ -193,18 +194,20 @@ export async function createCastleInvitation(clue, onGameChange) {
     entry = 0,
     reveal = 0,
     lights = true,
-    walkClock = 0;
-  const emit = () =>
-    onGameChange?.({
-      phase,
-      unlocked: phase === "invitation",
-      instruction:
-        phase === "castle"
-          ? "操控小人沿金色步道走进城门"
-          : phase === "entering"
-            ? "城门已开启 · 小人正在入场"
-            : "庄园之邀已解锁 · 轻触启封或接受邀请",
-    });
+    walkClock = 0,
+    footstep = 0,
+    revealStarted = false;
+  const snapshot = () => ({
+    phase,
+    unlocked: phase === "invitation",
+    instruction:
+      phase === "castle"
+        ? "操控小人沿金色步道走进城门"
+        : phase === "entering"
+          ? "城门已开启 · 小人正在入场"
+          : "庄园之邀已解锁 · 轻触启封或接受邀请",
+  });
+  const emit = () => onGameChange?.(snapshot());
   emit();
   function update(time, visibility = 1, camera) {
     const dt = Math.max(
@@ -252,12 +255,28 @@ export async function createCastleInvitation(clue, onGameChange) {
       );
       const nearDoor =
         Math.abs(walker.position.x) < 0.12 && walker.position.y > -0.28;
+      const previousGate = gate;
       gate = THREE.MathUtils.clamp(gate + (nearDoor ? dt * 1.6 : -dt), 0, 1);
+      if (previousGate === 0 && gate > 0) onSound?.("gate");
       const insideWall = Math.abs(x) < 0.49 && y > -0.145 && y < 0.59;
-      const doorway = Math.abs(x) < 0.083 && y < 0.1 && gate > 0.72;
-      if (!insideWall || doorway) {
+      // Reserve the figure's shoulder radius within the physical door opening.
+      const doorway = Math.abs(x) < 0.046 && y < 0.1 && gate > 0.82;
+      const towerCollision = [-0.43, 0.43].some((tx) =>
+        [-0.055, 0.51].some((ty) => Math.hypot(x - tx, y - ty) < 0.14),
+      );
+      if ((!insideWall || doorway) && !towerCollision) {
+        const moved =
+          Math.hypot(x - walker.position.x, y - walker.position.y) > 0.0001;
         walker.position.x = x;
         walker.position.y = y;
+        walker.position.z = Math.abs(x) < 0.11 && y < -0.14 ? 0.094 : 0.074;
+        if (moved) {
+          footstep += dt;
+          if (footstep >= 0.28) {
+            footstep = 0;
+            onSound?.("step");
+          }
+        }
       }
       if (direction.lengthSq()) {
         walkClock += dt * 8;
@@ -269,8 +288,9 @@ export async function createCastleInvitation(clue, onGameChange) {
             ? Math.sin(walkClock + (i % 2) * Math.PI) * 0.42
             : 0),
       );
-      if (Math.abs(walker.position.x) < 0.083 && walker.position.y > -0.09) {
+      if (Math.abs(walker.position.x) < 0.046 && walker.position.y > -0.09) {
         phase = "entering";
+        onSound?.("enter");
         input = { x: 0, y: 0 };
         destination = null;
         emit();
@@ -279,11 +299,11 @@ export async function createCastleInvitation(clue, onGameChange) {
     if (phase === "entering" && active) {
       entry = Math.min(1, entry + dt);
       walker.position.y = -0.08 + entry * 0.18;
+      walker.position.z = 0.074;
       walker.scale.setScalar(1 - entry * 0.55);
       gate = 1;
       if (entry >= 1) {
         phase = "invitation";
-        invitation.toggle();
         emit();
       }
     }
@@ -294,9 +314,10 @@ export async function createCastleInvitation(clue, onGameChange) {
     guide.visible = phase === "castle";
     guide.scale.setScalar(0.85 + 0.15 * pulse);
     glow.emissiveIntensity = (lights ? 0.8 : 0.12) + gate * 0.3;
-    const s = 1 - 0.48 * reveal;
+    const compact = THREE.MathUtils.smoothstep(reveal, 0, 0.45);
+    const s = 1 - 0.58 * compact;
     castle.scale.setScalar(s);
-    castle.position.y = -0.44 * reveal;
+    castle.position.y = -0.6 * compact;
     for (let i = 0; i < sparkles.length; i++) {
       const p = sparkles[i];
       p.position.set(
@@ -310,19 +331,28 @@ export async function createCastleInvitation(clue, onGameChange) {
       m.transparent = visibility < 0.999;
       m.depthWrite = visibility > 0.9;
     }
-    invitation.root.visible = reveal > 0;
+    const invitationReveal = THREE.MathUtils.smoothstep(reveal, 0.45, 1);
+    if (invitationReveal > 0 && !revealStarted) {
+      revealStarted = true;
+      invitation.toggle();
+      onSound?.("open");
+    }
+    invitation.root.visible = invitationReveal > 0;
     invitation.root.position.z =
-      0.28 +
-      0.08 * reveal +
-      (reduced ? 0 : 0.012 * Math.sin(time * 0.0008)) * reveal;
-    invitation.root.scale.setScalar(0.6 + 0.4 * reveal);
-    invitation.update(time, visibility * reveal, camera);
+      0.5 +
+      0.1 * invitationReveal +
+      (reduced ? 0 : 0.012 * Math.sin(time * 0.0008)) * invitationReveal;
+    invitation.root.scale.setScalar(0.6 + 0.4 * invitationReveal);
+    invitation.update(time, visibility * invitationReveal, camera);
     root.userData.kind = "castle-invitation";
     root.userData.phase = phase;
     return phase === "invitation" ? reveal : 0;
   }
   return {
     root,
+    get experienceState() {
+      return snapshot();
+    },
     kind: "castle-invitation",
     update,
     move(vector) {
@@ -336,15 +366,18 @@ export async function createCastleInvitation(clue, onGameChange) {
         x: THREE.MathUtils.clamp(p.x, -0.58, 0.58),
         y: THREE.MathUtils.clamp(p.y, -0.62, 0.08),
       };
+      if (Math.abs(destination.x) < 0.49 && destination.y > -0.145)
+        destination.x = THREE.MathUtils.clamp(destination.x, -0.04, 0.04);
       input = { x: 0, y: 0 };
     },
     restartGame() {
       if (invitation.interaction.opened) invitation.toggle();
       phase = "castle";
       gate = entry = reveal = 0;
+      revealStarted = false;
       input = { x: 0, y: 0 };
       destination = null;
-      walker.position.set(0, -0.63, 0.084);
+      walker.position.set(0, -0.63, 0.094);
       walker.scale.setScalar(1);
       emit();
     },
@@ -352,7 +385,12 @@ export async function createCastleInvitation(clue, onGameChange) {
       return phase === "invitation" && reveal > 0.9 && invitation.acceptEnabled;
     },
     toggle() {
-      if (phase === "invitation") return invitation.toggle();
+      if (phase === "invitation") {
+        revealStarted = true;
+        const next = invitation.toggle();
+        onSound?.(next.opened ? "open" : "close");
+        return next;
+      }
       lights = !lights;
       return this.interaction;
     },

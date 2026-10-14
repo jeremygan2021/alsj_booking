@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Camera, ChevronDown, ScanLine, RotateCcw } from "lucide-react";
 import { createQrSceneRuntime } from "./qr-scene-runtime.js";
 import "./qr-tracking.css";
+import { createCastleAudio } from "../../audio/castle-audio.js";
 
 // Call synchronously in the entry button's click handler, before mounting the scene.
 // iPhone and browsers without physical fullscreen still use the full-screen CSS scene.
@@ -54,6 +55,28 @@ export default function QrTrackingScene({
   const [drawer, setDrawer] = useState(false);
   const [interaction, setInteraction] = useState(null);
   const [game, setGame] = useState(null);
+  const sound = useRef(null);
+  const [soundState, setSoundState] = useState({
+    enabled: true,
+    unlocked: false,
+  });
+  const soundGesture = () => {
+    if (
+      initialHint.current === "AR-INV" ||
+      clue?.presentation === "invitation"
+    ) {
+      sound.current ||= createCastleAudio(setSoundState);
+      sound.current.gesture();
+    }
+  };
+  callbacks.current.soundGesture = soundGesture;
+  useEffect(
+    () => () => {
+      sound.current?.dispose();
+      sound.current = null;
+    },
+    [],
+  );
   useEffect(() => {
     if (game?.phase !== "castle") return;
     const vectors = {
@@ -73,6 +96,7 @@ export default function QrTrackingScene({
         !event.target.closest("input,textarea")
       ) {
         event.preventDefault();
+        soundGesture();
         runtime.current?.move(vectors[event.key]);
       }
     };
@@ -154,6 +178,8 @@ export default function QrTrackingScene({
       onClue: (id) => callbacks.current.onClue?.(id),
       onInteraction: setInteraction,
       onAcceptInvitation: acceptInvitation,
+      onUserGesture: () => callbacks.current.soundGesture?.(),
+      onSound: (event) => sound.current?.play(event),
       onExperienceState: (next) => {
         setGame(next);
         if (next?.unlocked) callbacks.current.onInvitationUnlocked?.();
@@ -202,6 +228,27 @@ export default function QrTrackingScene({
           <ScanLine size={17} aria-hidden="true" />
           {game ? "庄园之邀" : "现场搜证"}
         </span>
+        {(initialHint.current === "AR-INV" || game) && (
+          <button
+            className="castle-sound-toggle"
+            type="button"
+            aria-label={
+              soundState.enabled && soundState.unlocked
+                ? "关闭音乐与音效"
+                : "开启音乐与音效"
+            }
+            aria-pressed={soundState.enabled && soundState.unlocked}
+            onClick={() => {
+              if (!sound.current || !soundState.unlocked) {
+                soundGesture();
+              } else sound.current.toggle();
+            }}
+          >
+            {soundState.enabled && soundState.unlocked
+              ? "♪ 音乐／音效已开启"
+              : "♪ 开启音乐／音效"}
+          </button>
+        )}
         <button
           type="button"
           className="qr-tracking-close"
@@ -265,6 +312,7 @@ export default function QrTrackingScene({
                     disabled={!identified}
                     onPointerDown={(event) => {
                       event.preventDefault();
+                      soundGesture();
                       event.currentTarget.setPointerCapture(event.pointerId);
                       runtime.current?.move({ x, y });
                     }}
@@ -275,6 +323,7 @@ export default function QrTrackingScene({
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
+                        soundGesture();
                         runtime.current?.move({ x, y });
                       }
                     }}

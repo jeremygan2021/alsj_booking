@@ -113,7 +113,8 @@ export default function PublicAR() {
   }, [state.clue]);
   const startScanning = () => {
     requestQrFullscreen();
-    audio.playFromGesture();
+    if (state.clue?.presentation === "invitation") audio.pause();
+    else audio.playFromGesture();
     setPreviewOpen(false);
     setScanClueId(state.clue?.id);
     setScanning(true);
