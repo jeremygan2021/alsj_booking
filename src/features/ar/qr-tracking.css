@@ -279,8 +279,8 @@
   gap: 16px;
   pointer-events: none;
 }
-.castle-game-hud > span {
-  max-width: 180px;
+.castle-game-caption {
+  max-width: 230px;
   padding: 10px 13px;
   border: 1px solid #d4b47766;
   border-radius: 12px;
@@ -288,6 +288,188 @@
   font-size: 12px;
   line-height: 1.6;
   color: #f3dfb1;
+}
+.castle-game-caption > span {
+  display: block;
+}
+.castle-game-caption > small {
+  display: block;
+  margin-top: 5px;
+  color: #bbc7c3;
+  font-size: 10px;
+}
+.castle-game-stats,
+.castle-game-stats > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.castle-game-stats {
+  gap: 12px;
+  margin-bottom: 7px;
+  font-size: 11px;
+}
+.castle-game-stats > span:first-child {
+  color: #eea89a;
+}
+.castle-game-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.castle-jump-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  pointer-events: auto;
+  min-width: 48px;
+  min-height: 62px;
+  border: 1px solid #98c8be;
+  border-radius: 12px;
+  background: linear-gradient(150deg, #326257, #15342e);
+  font-size: 12px;
+  touch-action: manipulation;
+}
+.castle-jump-button:disabled {
+  opacity: 0.45;
+}
+.castle-view-controls {
+  position: absolute;
+  top: calc(max(16px, env(safe-area-inset-top)) + 120px);
+  left: max(18px, env(safe-area-inset-left));
+  right: max(18px, env(safe-area-inset-right));
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.castle-view-toggle,
+.castle-zoom-controls {
+  pointer-events: auto;
+  border: 1px solid #c7a56880;
+  border-radius: 10px;
+  background: #10292be8;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 16px #0002;
+}
+.castle-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 48px;
+  padding: 7px 12px;
+  color: #efdab1;
+}
+.castle-view-toggle > span {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+.castle-view-toggle small {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #b1c1bb;
+}
+.castle-view-toggle strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.castle-zoom-controls {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+}
+.castle-zoom-controls button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 46px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  touch-action: manipulation;
+}
+.castle-zoom-controls output {
+  min-width: 38px;
+  text-align: center;
+  font-size: 11px;
+  color: #efdab1;
+  font-variant-numeric: tabular-nums;
+}
+.castle-view-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.castle-view-note {
+  flex-basis: 100%;
+  color: #ece9dc;
+  font-size: 10px;
+  text-align: center;
+  text-shadow: 0 1px 5px #000;
+}
+@media (max-width: 480px) {
+  .castle-game-hud {
+    left: 12px;
+    right: 12px;
+    gap: 8px;
+    bottom: calc(166px + env(safe-area-inset-bottom));
+  }
+  .castle-game-caption {
+    max-width: 158px;
+    padding: 9px;
+    font-size: 11px;
+  }
+  .castle-game-actions {
+    gap: 6px;
+  }
+  .castle-game-pad {
+    grid-template-columns: repeat(3, 38px);
+    grid-template-rows: repeat(2, 40px);
+    gap: 4px;
+  }
+  .castle-jump-button {
+    min-width: 44px;
+  }
+}
+@media (max-width: 359px) {
+  .castle-game-caption {
+    max-width: 125px;
+  }
+  .castle-game-pad {
+    grid-template-columns: repeat(3, 33px);
+  }
+  .castle-game-caption > small {
+    display: none;
+  }
+}
+@media (max-height: 520px) and (min-width: 600px) {
+  .castle-view-controls {
+    top: 75px;
+    left: 16px;
+    right: auto;
+    justify-content: flex-start;
+    max-width: 315px;
+  }
+  .castle-view-note {
+    text-align: left;
+  }
+  .castle-game-hud {
+    bottom: 18px;
+    right: 18px;
+    left: auto;
+  }
+  .castle-game-caption {
+    max-width: 150px;
+  }
+  .qr-tracking-scene:has(.castle-game-hud) .qr-tracking-evidence {
+    right: auto;
+    width: min(45vw, 350px);
+  }
 }
 .castle-game-hud > button {
   pointer-events: auto;

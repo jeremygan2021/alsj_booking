@@ -48,6 +48,47 @@ export async function createInvitationPresentation(clue) {
       }),
       parent,
     );
+  const paperGrain = texture(
+    (c, w, h) => {
+      c.fillStyle = "#c9c9c9";
+      c.fillRect(0, 0, w, h);
+      for (let i = 0; i < 16000; i++) {
+        const x = (i * 97) % w,
+          y = (i * 193 + Math.floor(i / w) * 37) % h;
+        c.fillStyle = i % 3 ? "#dedede" : "#ababab";
+        c.fillRect(x, y, 1 + (i % 3), 1);
+      }
+    },
+    512,
+    512,
+  );
+  paperGrain.colorSpace = THREE.NoColorSpace;
+  paperGrain.wrapS = paperGrain.wrapT = THREE.RepeatWrapping;
+  cream.bumpMap = paperGrain;
+  cream.bumpScale = 0.0012;
+  black.map = texture(
+    (c, w, h) => {
+      const gradient = c.createLinearGradient(0, 0, w, h);
+      gradient.addColorStop(0, "#233b41");
+      gradient.addColorStop(1, "#0e1923");
+      c.fillStyle = gradient;
+      c.fillRect(0, 0, w, h);
+      c.strokeStyle = "#47605e";
+      c.lineWidth = 1;
+      for (let i = -h; i < w; i += 32) {
+        c.beginPath();
+        c.moveTo(i, 0);
+        c.lineTo(i + h, h);
+        c.stroke();
+        c.beginPath();
+        c.moveTo(i + h, 0);
+        c.lineTo(i, h);
+        c.stroke();
+      }
+    },
+    512,
+    512,
+  );
   const sealMap = texture(
     (c, w, h) => {
       c.fillStyle = "#111b24";
@@ -115,9 +156,22 @@ export async function createInvitationPresentation(clue) {
   );
   posterTexture.colorSpace = THREE.SRGBColorSpace;
   // An opaque embossed envelope hides the printed marker behind the invitation.
-  slab(1.52, 1.52, 0.025, 0, 0, 0.015, black);
-  slab(1.47, 1.47, 0.014, 0, 0, 0.035, gold);
-  slab(1.43, 1.43, 0.01, 0, 0, 0.048, black);
+  const backing = new THREE.Group();
+  root.add(backing);
+  slab(1.52, 1.52, 0.025, 0, 0, 0.015, black, backing);
+  slab(1.47, 1.47, 0.014, 0, 0, 0.035, gold, backing);
+  slab(1.43, 1.43, 0.01, 0, 0, 0.048, black, backing);
+  for (const x of [-0.64, 0.64])
+    for (const y of [-0.64, 0.64]) {
+      const corner = mesh(
+        new THREE.TorusGeometry(0.053, 0.004, 6, 24),
+        gold,
+        backing,
+      );
+      corner.position.set(x, y, 0.059);
+      slab(0.095, 0.004, 0.005, x, y, 0.06, gold, backing).rotation.z =
+        Math.PI / 4;
+    }
   const envelope = new THREE.Group();
   root.add(envelope);
   envelope.position.set(0, -0.39, 0.1);
@@ -140,9 +194,16 @@ export async function createInvitationPresentation(clue) {
   const seal = new THREE.Group();
   envelope.add(seal);
   seal.position.set(0, -0.055, 0.075);
+  const waxMaterial = new THREE.MeshStandardMaterial({
+    color: 0x792b36,
+    roughness: 0.5,
+    metalness: 0.12,
+    bumpMap: paperGrain,
+    bumpScale: 0.0008,
+  });
   const wax = mesh(
     new THREE.CylinderGeometry(0.119, 0.126, 0.027, 48),
-    black,
+    waxMaterial,
     seal,
   );
   wax.rotation.x = Math.PI / 2;
@@ -152,6 +213,12 @@ export async function createInvitationPresentation(clue) {
     seal,
   );
   sealFace.position.z = 0.015;
+  const sealRim = mesh(
+    new THREE.TorusGeometry(0.109, 0.003, 8, 48),
+    gold,
+    seal,
+  );
+  sealRim.position.z = 0.016;
   const coverText = panel(0.84, 0.42, inviteMap, envelope);
   coverText.position.set(0, -0.13, 0.034);
   const card = new THREE.Group();
@@ -312,10 +379,14 @@ export async function createInvitationPresentation(clue) {
     matchMedia("(prefers-reduced-motion: reduce)").matches;
   const projectedBounds = () => {
     root.updateWorldMatrix(true, true);
-    const bounds = new THREE.Box3().setFromObject(envelope);
-    if (card.visible) bounds.union(new THREE.Box3().setFromObject(card));
-    bounds.union(new THREE.Box3().setFromObject(medallion));
-    if (status.visible) bounds.union(new THREE.Box3().setFromObject(status));
+    const bounds = new THREE.Box3().setFromObject(
+      detailView ? envelope : card.visible && fixedCardView ? card : envelope,
+    );
+    if (!detailView && !fixedCardView) {
+      if (card.visible) bounds.union(new THREE.Box3().setFromObject(card));
+      bounds.union(new THREE.Box3().setFromObject(medallion));
+      if (status.visible) bounds.union(new THREE.Box3().setFromObject(status));
+    }
     const min = new THREE.Vector2(Infinity, Infinity),
       max = new THREE.Vector2(-Infinity, -Infinity);
     for (const x of [bounds.min.x, bounds.max.x])
@@ -327,15 +398,35 @@ export async function createInvitationPresentation(clue) {
         }
     return { min, max };
   };
-  let layoutCamera;
+  let layoutCamera,
+    detailView = false,
+    fixedCardView = false;
   let spinStart = null;
   let target = 0,
     progress = 0,
     last = null;
   const smooth = (p) => p * p * (3 - 2 * p);
-  function update(time, visibility = 1, camera) {
+  function update(time, visibility = 1, camera, viewId = "rotate", zoom = 1) {
     const dt = Math.max(0, Math.min(64, last === null ? 16 : time - last));
     last = time;
+    detailView = viewId === "seal";
+    fixedCardView =
+      (viewId === "front" || viewId === "back") && progress > 0.42;
+    backing.visible =
+      medallion.visible =
+      outer.visible =
+        !detailView && !fixedCardView;
+    envelope.visible = !fixedCardView;
+    key.visible = !detailView && !fixedCardView;
+    sparkles.forEach(({ star }) => {
+      star.visible = !detailView && !fixedCardView;
+    });
+    ribbons.forEach((r) => {
+      r.visible = !detailView && !fixedCardView;
+    });
+    birds.forEach(({ bird }) => {
+      bird.visible = !detailView && !fixedCardView;
+    });
     progress = reduced
       ? target
       : THREE.MathUtils.clamp(progress + ((target ? 1 : -1) * dt) / 2400, 0, 1);
@@ -343,19 +434,25 @@ export async function createInvitationPresentation(clue) {
       lift = smooth(THREE.MathUtils.clamp((progress - 0.22) / 0.6, 0, 1));
     flap.rotation.x = 2.7 * smooth(Math.min(1, progress / 0.48));
     // Move the opened envelope aside before the detached card starts rotating.
-    envelope.position.x = -1.1 * lift;
-    envelope.scale.setScalar(1 - 0.45 * lift);
+    envelope.position.set(
+      detailView ? 0 : -1.1 * lift,
+      detailView ? 0 : -0.39,
+      0.1,
+    );
+    envelope.scale.setScalar(detailView ? 1 : 1 - 0.45 * lift);
+    if (detailView) flap.rotation.x = 0;
     seal.position.set(
       0.55 * p,
       -0.055 + 0.2 * Math.sin(p * Math.PI),
       0.075 + 0.16 * p,
     );
-    seal.rotation.z = -1.2 * p;
-    card.visible = progress > 0.42;
+    seal.rotation.z = detailView ? 0 : -1.2 * p;
+    if (detailView) seal.position.set(0, -0.055, 0.075);
+    card.visible = !detailView && progress > 0.42;
     card.position.set(0, -0.29 + 0.84 * lift, 0.12 + 0.66 * lift);
     card.scale.setScalar(0.52 + 0.48 * lift);
-    card.rotation.set(0, (1 - lift) * 0.2, 0);
-    status.visible = progress > 0.82;
+    card.rotation.set(0, viewId === "back" ? Math.PI : (1 - lift) * 0.2, 0);
+    status.visible = !detailView && !fixedCardView && progress > 0.82;
     status.scale.setScalar(
       Math.max(0.001, smooth(Math.max(0, (progress - 0.82) / 0.18))),
     );
@@ -425,7 +522,7 @@ export async function createInvitationPresentation(clue) {
         cardFacing,
         Math.min(lift * 0.9, 0.18 / Math.max(0.001, faceAngle)),
       );
-      if (!reduced && spinStart !== null && lift > 0.98)
+      if (viewId === "rotate" && !reduced && spinStart !== null && lift > 0.98)
         card.quaternion.multiply(
           new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(0, 1, 0),
@@ -436,20 +533,20 @@ export async function createInvitationPresentation(clue) {
       const scale = Math.min(
         1,
         1.48 / Math.max(0.05, bounds.max.x - bounds.min.x),
-        0.93 / Math.max(0.05, bounds.max.y - bounds.min.y),
+        0.76 / Math.max(0.05, bounds.max.y - bounds.min.y),
       );
-      artwork.scale.setScalar(scale);
+      artwork.scale.setScalar(scale * zoom);
       bounds = projectedBounds();
-      const offsetX = THREE.MathUtils.clamp(
-        0,
-        -0.76 - bounds.min.x,
-        0.76 - bounds.max.x,
-      );
-      const offsetY = THREE.MathUtils.clamp(
-        0,
-        -0.43 - bounds.min.y,
-        0.5 - bounds.max.y,
-      );
+      // Large zoom may intentionally crop the artwork. Keep its focus centred
+      // and the independently laid-out accept button inside the safe viewport.
+      const offsetX =
+        zoom > 1 || detailView || fixedCardView
+          ? -(bounds.min.x + bounds.max.x) / 2
+          : THREE.MathUtils.clamp(0, -0.76 - bounds.min.x, 0.76 - bounds.max.x);
+      const offsetY =
+        zoom > 1 || detailView || fixedCardView
+          ? -0.065 - (bounds.min.y + bounds.max.y) / 2
+          : THREE.MathUtils.clamp(0, -0.45 - bounds.min.y, 0.3 - bounds.max.y);
       const depth = root
         .getWorldPosition(new THREE.Vector3())
         .project(camera).z;
@@ -468,8 +565,8 @@ export async function createInvitationPresentation(clue) {
       );
       const buttonY = THREE.MathUtils.clamp(
         bounds.max.y + 0.16 + (reduced ? 0 : 0.008 * Math.sin(motion * 0.65)),
-        0.35,
-        0.78,
+        0.37,
+        0.49,
       );
       accept.position.copy(
         root.worldToLocal(

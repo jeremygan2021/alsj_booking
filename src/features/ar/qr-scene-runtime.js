@@ -76,7 +76,7 @@ export function createQrSceneRuntime({
     candidateFrames = 0;
   let hasLocated = false,
     unavailableId = null;
-  let lastExperiencePhase = null;
+  let lastExperienceState = "";
   let lastNotifiedId = null,
     lastInteractionLabel = "";
   let presentation,
@@ -173,6 +173,10 @@ export function createQrSceneRuntime({
         if (presentation.acceptEnabled) onAcceptInvitation?.();
         return;
       }
+      if (selected.userData.action === "castleGuide") {
+        presentation.greet?.();
+        return;
+      }
       if (selected.userData.action === "walkCastle") {
         presentation.walkTo?.(hits[0].point);
         return;
@@ -197,13 +201,34 @@ export function createQrSceneRuntime({
     if (presentation) {
       if (!reliable || opacity < 0.8) presentation.move?.({ x: 0, y: 0 });
       container.dataset.animationProgress = presentation
-        .update(time, opacity, camera)
+        .update(time, opacity, camera, reliable)
         .toFixed(3);
       container.dataset.modelKind = presentation.kind;
       const experience = presentation.experienceState;
-      if (experience && experience.phase !== lastExperiencePhase) {
-        lastExperiencePhase = experience.phase;
+      const experienceKey =
+        experience &&
+        JSON.stringify([
+          experience.phase,
+          experience.view.id,
+          experience.zoom,
+          experience.adventure.health,
+          experience.adventure.collected,
+          experience.adventure.jumpReady,
+          experience.adventure.feedback,
+        ]);
+      if (experience && experienceKey !== lastExperienceState) {
+        lastExperienceState = experienceKey;
         onExperienceState?.(experience);
+      }
+      if (experience) {
+        container.dataset.viewPreset = experience.view.id;
+        container.dataset.modelZoom = String(experience.zoom);
+        container.dataset.viewMatrix = JSON.stringify(
+          presentation.root.userData.viewMatrix,
+        );
+        container.dataset.guestPosition = JSON.stringify(
+          presentation.root.userData.guestPosition,
+        );
       }
       if (presentation.root.userData.phase)
         container.dataset.experiencePhase = presentation.root.userData.phase;
@@ -329,8 +354,18 @@ export function createQrSceneRuntime({
       container.dataset.interaction = "closed";
       onInteraction?.(presentation.interaction);
       lastInteractionLabel = presentation.interaction.label;
-      lastExperiencePhase = null;
-      if (clue.presentation !== "invitation") onExperienceState?.(null);
+      lastExperienceState = "";
+      if (clue.presentation !== "invitation") {
+        onExperienceState?.(null);
+        for (const key of [
+          "viewPreset",
+          "modelZoom",
+          "viewMatrix",
+          "guestPosition",
+          "experiencePhase",
+        ])
+          delete container.dataset[key];
+      }
       modelId = id;
       unavailableId = null;
       anchor.add(model);
@@ -618,7 +653,24 @@ export function createQrSceneRuntime({
   return {
     cleanup,
     interact,
-    move: (vector) => presentation?.move?.(vector),
+    cycleView: () => {
+      onUserGesture?.();
+      if (reliable && opacity > 0.8 && modelId === currentId)
+        presentation?.cycleView?.();
+    },
+    changeZoom: (delta) => {
+      if (reliable && opacity > 0.8 && modelId === currentId)
+        presentation?.changeZoom?.(delta);
+    },
+    jump: () => {
+      onUserGesture?.();
+      if (reliable && opacity > 0.8 && modelId === currentId)
+        presentation?.jump?.();
+    },
+    move: (vector) => {
+      if (reliable && opacity > 0.8 && modelId === currentId)
+        presentation?.move?.(vector);
+    },
     restartGame: () => presentation?.restartGame?.(),
     retryModel() {
       if (currentId) {

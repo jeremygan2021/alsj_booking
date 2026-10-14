@@ -102,6 +102,16 @@ export function createCastleAudio(onChange) {
       rustle(0.18, 0.12, 850);
       tone(115, "sine", 0.15, 0.09, 0, 65);
     }
+    if (event === "hint") tone(587.33, "sine", 0.08, 0.5);
+    if (event === "jump") tone(220, "sine", 0.08, 0.22, 0, 520);
+    if (event === "hurt") {
+      tone(180, "triangle", 0.1, 0.26, 0, 70);
+      rustle(0.1, 0.18, 600);
+    }
+    if (event === "collect") {
+      tone(880, "sine", 0.1, 0.32);
+      tone(1320, "sine", 0.08, 0.38, 0.1);
+    }
     if (event === "gate") {
       tone(74, "sawtooth", 0.05, 0.65, 0, 38);
       rustle(0.14, 0.65, 420);

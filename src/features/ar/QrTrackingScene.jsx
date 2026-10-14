@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Camera, ChevronDown, ScanLine, RotateCcw } from "lucide-react";
+import {
+  X,
+  Camera,
+  ChevronDown,
+  ScanLine,
+  RotateCcw,
+  View,
+  Plus,
+  Minus,
+  Footprints,
+  Sparkles,
+  Heart,
+} from "lucide-react";
 import { createQrSceneRuntime } from "./qr-scene-runtime.js";
 import "./qr-tracking.css";
 import { createCastleAudio } from "../../audio/castle-audio.js";
@@ -90,14 +102,17 @@ export default function QrTrackingScene({
       d: { x: 1, y: 0 },
     };
     const down = (event) => {
+      if (event.code === "Space" && event.target.closest("button")) return;
       if (
         view.status === "located" &&
-        vectors[event.key] &&
+        (vectors[event.key] || event.code === "Space") &&
         !event.target.closest("input,textarea")
       ) {
         event.preventDefault();
         soundGesture();
-        runtime.current?.move(vectors[event.key]);
+        if (event.code === "Space") {
+          if (!event.repeat) runtime.current?.jump();
+        } else runtime.current?.move(vectors[event.key]);
       }
     };
     const stop = () => runtime.current?.move({ x: 0, y: 0 });
@@ -169,6 +184,7 @@ export default function QrTrackingScene({
     }
     const controller = new AbortController();
     setView({ status: "requesting", error: null });
+    setGame(null);
     runtime.current = createQrSceneRuntime({
       container: container.current,
       video: video.current,
@@ -287,55 +303,141 @@ export default function QrTrackingScene({
         </div>
       )}
       {game && (
-        <div className="castle-game-hud">
-          <span>{game.instruction}</span>
-          {game.unlocked ? (
+        <>
+          <div className="castle-view-controls" aria-label="3D模型视角与缩放">
             <button
+              className="castle-view-toggle"
               type="button"
-              onClick={() => runtime.current?.restartGame()}
+              data-testid="castle-view-toggle"
+              disabled={!identified}
+              aria-label={`切换视角，当前${game.view.label}，下一个${game.nextView.label}`}
+              onClick={() => runtime.current?.cycleView()}
             >
-              再逛一次城堡
+              <View size={18} aria-hidden="true" />
+              <span>
+                <small>切换视角</small>
+                <strong>{game.view.label}</strong>
+              </span>
+              <RotateCcw size={14} aria-hidden="true" />
             </button>
-          ) : (
-            game.phase === "castle" && (
-              <div className="castle-game-pad" aria-label="控制小人移动">
-                {[
-                  { label: "向前走", text: "↑", x: 0, y: 1 },
-                  { label: "向左走", text: "←", x: -1, y: 0 },
-                  { label: "向后走", text: "↓", x: 0, y: -1 },
-                  { label: "向右走", text: "→", x: 1, y: 0 },
-                ].map(({ label, text, x, y }) => (
+            <div className="castle-zoom-controls" aria-label="缩放模型">
+              <button
+                type="button"
+                aria-label="缩小模型"
+                disabled={!identified || game.zoom <= 0.65}
+                onClick={() => runtime.current?.changeZoom(-0.15)}
+              >
+                <Minus size={17} aria-hidden="true" />
+              </button>
+              <output aria-live="polite" aria-label="模型缩放比例">
+                {Math.round(game.zoom * 100)}%
+              </output>
+              <button
+                type="button"
+                aria-label="放大模型"
+                disabled={!identified || game.zoom >= 1.6}
+                onClick={() => runtime.current?.changeZoom(0.15)}
+              >
+                <Plus size={17} aria-hidden="true" />
+              </button>
+            </div>
+            <span className="castle-view-note" aria-live="polite">
+              {game.view.label} · 移动手机仍可环绕观察
+            </span>
+          </div>
+          <div className="castle-game-hud">
+            <div className="castle-game-caption">
+              {!game.unlocked && (
+                <div className="castle-game-stats">
+                  <span aria-label={`体力 ${game.adventure.health} / 3`}>
+                    {[0, 1, 2].map((i) => (
+                      <Heart
+                        key={i}
+                        size={12}
+                        aria-hidden="true"
+                        fill={
+                          i < game.adventure.health ? "currentColor" : "none"
+                        }
+                      />
+                    ))}
+                  </span>
+                  <span>
+                    <Sparkles size={13} aria-hidden="true" />
+                    星光 {game.adventure.collected}/{game.adventure.total}
+                  </span>
+                </div>
+              )}
+              <span role="status">
+              {game.unlocked
+                ? `邀请已解锁 · 收集星光 ${game.adventure.collected}/${game.adventure.total}`
+                : game.adventure.feedback || game.instruction}
+              </span>
+              {!game.unlocked && <small>金色预警 · 红色冰刺请绕行或跳过</small>}
+            </div>
+            {game.unlocked ? (
+              <button
+                type="button"
+                onClick={() => runtime.current?.restartGame()}
+              >
+                再逛一次城堡
+              </button>
+            ) : (
+              game.phase === "castle" && (
+                <div className="castle-game-actions">
                   <button
-                    key={label}
+                    className="castle-jump-button"
                     type="button"
-                    aria-label={label}
-                    disabled={!identified}
-                    onPointerDown={(event) => {
-                      event.preventDefault();
-                      soundGesture();
-                      event.currentTarget.setPointerCapture(event.pointerId);
-                      runtime.current?.move({ x, y });
-                    }}
-                    onPointerUp={() => runtime.current?.move({ x: 0, y: 0 })}
-                    onPointerCancel={() =>
-                      runtime.current?.move({ x: 0, y: 0 })
-                    }
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        soundGesture();
-                        runtime.current?.move({ x, y });
-                      }
-                    }}
-                    onKeyUp={() => runtime.current?.move({ x: 0, y: 0 })}
+                    aria-label="跳跃躲避陷阱"
+                    disabled={!identified || !game.adventure.jumpReady}
+                    onClick={() => runtime.current?.jump()}
                   >
-                    {text}
+                    <Footprints size={16} aria-hidden="true" />
+                    跳跃
                   </button>
-                ))}
-              </div>
-            )
-          )}
-        </div>
+                  <div className="castle-game-pad" aria-label="控制小人移动">
+                    {[
+                      { label: "向前走", text: "↑", x: 0, y: 1 },
+                      { label: "向左走", text: "←", x: -1, y: 0 },
+                      { label: "向后走", text: "↓", x: 0, y: -1 },
+                      { label: "向右走", text: "→", x: 1, y: 0 },
+                    ].map(({ label, text, x, y }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-label={label}
+                        disabled={!identified}
+                        onPointerDown={(event) => {
+                          event.preventDefault();
+                          soundGesture();
+                          event.currentTarget.setPointerCapture(
+                            event.pointerId,
+                          );
+                          runtime.current?.move({ x, y });
+                        }}
+                        onPointerUp={() =>
+                          runtime.current?.move({ x: 0, y: 0 })
+                        }
+                        onPointerCancel={() =>
+                          runtime.current?.move({ x: 0, y: 0 })
+                        }
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            soundGesture();
+                            runtime.current?.move({ x, y });
+                          }
+                        }}
+                        onKeyUp={() => runtime.current?.move({ x: 0, y: 0 })}
+                      >
+                        {text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </>
       )}
       {clue && (
         <aside
@@ -380,7 +482,7 @@ export default function QrTrackingScene({
             <div id="qr-evidence-body" className="qr-tracking-evidence-body">
               <p>
                 {game && !game.unlocked
-                  ? "按住方向按钮操控小人，或轻点金色步道指引移动。走到正门前，城门会升起；走进门内即可解锁旋转的3D邀请函。请保持真实二维码在镜头内。"
+                  ? "按住方向按钮操控小人，或轻点步道指引移动；键盘方向键／WASD移动，空格跳跃。冰刺会先亮金色预警，再变红升起：绕行或跳跃避开，受伤会退回安全步道。沿途可收集3颗星光，轻点门前管家可获得提示。走进城门即可解锁邀请函。点击视角切换全景、城门、小人跟随和鸟瞰；用＋／－放大缩小。请保持真实二维码在镜头内。"
                   : clue.body}
               </p>
               {clue.presentation === "invitation" && game?.unlocked && (

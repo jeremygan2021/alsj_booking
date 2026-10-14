@@ -4,7 +4,16 @@ import QRCode from "qrcode";
 // This exercises decoding and the full video-cover -> 3D projection pipeline.
 export async function installQrCamera(context, origin, options = {}) {
   const codes = {};
-  for (const id of ["E-01", "E-02", "E-05", "E-06", "E-09", "E-99", "AR-05"]) {
+  for (const id of [
+    "E-01",
+    "E-02",
+    "E-05",
+    "E-06",
+    "E-09",
+    "E-99",
+    "AR-05",
+    "AR-INV",
+  ]) {
     const qr = QRCode.create(
       `${origin}/ar?${id.startsWith("AR-") ? "node" : "clue"}=${id}`,
       {
