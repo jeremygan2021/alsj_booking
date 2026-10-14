@@ -28,13 +28,13 @@ export const defaultArScenes = [
       },
       {
         id: "recorder",
-        clueId: "E-02",
+        clueId: "E-05",
         position: [0.09, -0.08, 0.36],
         radius: 0.09,
       },
       {
         id: "key",
-        clueId: "E-03",
+        clueId: "E-04",
         position: [-0.16, -0.36, 0.4],
         radius: 0.09,
       },

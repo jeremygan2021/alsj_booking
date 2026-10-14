@@ -1,3 +1,5 @@
+import { applyNpcMaterials } from "./migrations/npc-materials-v4.js";
+import { applyNpcStory } from "./migrations/npc-story-v3.js";
 import pg from "pg";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { applyNpcOutline } from "./migrations/npc-outline-v2.js";
@@ -111,6 +113,8 @@ export async function openPostgres(connectionString) {
       );
     });
     await db.transaction(() => applyNpcOutline(db));
+    await db.transaction(() => applyNpcStory(db));
+    await db.transaction(() => applyNpcMaterials(db));
     await db.transaction(() => applyCharacterLinks(db, true));
     return db;
   } catch (error) {

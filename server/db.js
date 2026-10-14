@@ -1,3 +1,5 @@
+import { applyNpcMaterials } from "./migrations/npc-materials-v4.js";
+import { applyNpcStory } from "./migrations/npc-story-v3.js";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
@@ -64,6 +66,8 @@ async function openSqlite(path) {
     }
   };
   await db.transaction(() => applyNpcOutline(db));
+  await db.transaction(() => applyNpcStory(db));
+  await db.transaction(() => applyNpcMaterials(db));
   await db.transaction(() => applyCharacterLinks(db));
   return db;
 }

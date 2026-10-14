@@ -8,7 +8,7 @@ import {
   ScanLine,
 } from "lucide-react";
 import { api } from "../api";
-import { parseClueCode } from "../clue-scan";
+import { parseClueCode, parseInvestigationNode } from "../clue-scan";
 import { Button } from "../components/ui";
 import ClueImageReader from "../components/ClueImageReader";
 import QrTrackingScene, {
@@ -24,8 +24,16 @@ export default function PublicAR() {
   const audio = useInvestigationAudio();
   const discoveryAudio = useRef(audio.playDiscovery);
   discoveryAudio.current = audio.playDiscovery;
-  const [scanning, setScanning] = useState(false);
-  const [scanClueId, setScanClueId] = useState(undefined);
+  const [scanning, setScanning] = useState(
+    () =>
+      new URLSearchParams(location.search).get("node") === "AR-INV" &&
+      new URLSearchParams(location.search).get("camera") === "1",
+  );
+  const [scanClueId, setScanClueId] = useState(() =>
+    new URLSearchParams(location.search).get("node") === "AR-INV"
+      ? "AR-INV"
+      : undefined,
+  );
   const [previewOpen, setPreviewOpen] = useState(false);
   const [state, setState] = useState({
     clue: null,
@@ -41,10 +49,14 @@ export default function PublicAR() {
     setPreviewOpen(false);
     setState({ clue: null, busy: true, error: "", id });
     const params = new URLSearchParams(location.search);
-    params.set("clue", id);
+    const node = /^AR-/.test(id);
+    params.delete(node ? "clue" : "node");
+    params.set(node ? "node" : "clue", id);
     history.replaceState({}, "", `/ar?${params}`);
     try {
-      const clue = await api(`/ar/clues/${encodeURIComponent(id)}`);
+      const clue = await api(
+        `/ar/${node ? "nodes" : "clues"}/${encodeURIComponent(id)}`,
+      );
       if (version !== requestVersion.current) return;
       setState({ clue, busy: false, error: "", id });
     } catch (error) {
@@ -63,13 +75,16 @@ export default function PublicAR() {
         requestVersion.current++;
         return;
       }
-      const raw = new URLSearchParams(location.search).get("clue");
+      const query = new URLSearchParams(location.search);
+      const raw = query.get("node") || query.get("clue");
       if (!raw) {
         requestVersion.current++;
         setState({ clue: null, busy: false, error: "", id: "" });
         return;
       }
-      const id = parseClueCode(raw, location.origin);
+      const id =
+        parseInvestigationNode(raw, location.origin) ||
+        parseClueCode(raw, location.origin);
       if (!id) {
         requestVersion.current++;
         setState({
@@ -103,7 +118,9 @@ export default function PublicAR() {
     setScanning(true);
   };
   const detected = (raw) => {
-    const id = parseClueCode(raw, location.origin);
+    const id =
+      parseInvestigationNode(raw, location.origin) ||
+      parseClueCode(raw, location.origin);
     if (!id) throw new Error("这不是本活动的线索码，请扫描现场二维码。");
     audio.playFromGesture();
     return loadClue(id);
@@ -223,11 +240,38 @@ export default function PublicAR() {
               <span>线索内容</span>
             </div>
             <p>{state.clue.body}</p>
+            {state.clue.presentation === "invitation" && (
+              <>
+                <strong>
+                  {state.clue.invitation_valid ? "邀请有效" : "活动邀请已结束"}
+                </strong>
+                <img
+                  src={state.clue.poster_url}
+                  alt="阿拉斯加之夜：最后的遗嘱活动海报"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    maxWidth: 480,
+                    margin: "20px auto",
+                    borderRadius: 12,
+                  }}
+                />
+              </>
+            )}
           </article>
           <p className="public-ar-copy-note">
             线索以文字内容为准，现场玩法与判定请听从GM指引。
           </p>
-          {state.clue.model_url && (
+          {state.clue.presentation === "invitation" && (
+            <Button
+              kind="full"
+              disabled={!state.clue.invitation_valid}
+              onClick={() => location.assign("/play?invite=AR-INV&auth=invite")}
+            >
+              接受邀请 · 注册／登录 <ArrowRight size={18} />
+            </Button>
+          )}
+          {state.clue.model_url && state.clue.presentation !== "invitation" && (
             <details
               className="public-ar-manual public-ar-preview"
               data-testid="public-ar-preview"
@@ -253,14 +297,14 @@ export default function PublicAR() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            const id = parseClueCode(
-              new FormData(event.currentTarget).get("clue"),
-              location.origin,
-            );
+            const raw = new FormData(event.currentTarget).get("clue");
+            const id =
+              parseInvestigationNode(raw, location.origin) ||
+              parseClueCode(raw, location.origin);
             if (!id) {
               setState((old) => ({
                 ...old,
-                error: "请输入如E-01的线索编号，或本活动的线索链接。",
+                error: "请输入如E-01、AR-01的编号，或本活动的现场链接。",
               }));
               manualInput.current?.focus();
               return;
@@ -275,7 +319,7 @@ export default function PublicAR() {
               ref={manualInput}
               name="clue"
               aria-label="线索编号或现场链接"
-              placeholder="例如：E-01"
+              placeholder="例如：E-01 或 AR-01"
               required
               maxLength={2048}
               disabled={state.busy}

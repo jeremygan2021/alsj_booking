@@ -68,7 +68,7 @@ export function relationSchema(npcs) {
 }
 
 const safePlot =
-  /E-\d{2}|真凶|真正凶手|凶手(?:是|为)|(?:盖茨比|Gatsby).{0,15}(?:死亡|死去|遇害)|(?:杀害|刺杀).{0,15}(?:盖茨比|Gatsby)|(?:阵营分配|你的阵营|所属阵营)|(?:奖励|获得|给予|发放).{0,6}\d+\s*(?:枚|个)?金币/i;
+  /E-\d{2}|真凶|真正凶手|凶手(?:是|为)|(?:阿德里安·索恩|Adrian Thorne).{0,15}(?:死亡|死去|遇害)|(?:杀害|刺杀).{0,15}(?:阿德里安·索恩|Adrian Thorne)|(?:阵营分配|你的阵营|所属阵营)|(?:奖励|获得|给予|发放).{0,6}\d+\s*(?:枚|个)?金币/i;
 export function validateGeneratedStory(value, npcs) {
   const error = () => {
     throw new GenerationError(
@@ -151,7 +151,7 @@ export function templateStory(character, npcs) {
       relation: index
         ? "经公开邀请赴宴的宾客与晚宴主人"
         : "因角色专长结识的晚宴联系人",
-      player_brief: `你将以《${character.cosplay_source}》中${character.cosplay_character}的Cos形象扮演${character.name}。${index ? `盖茨比邀请你以${character.profession}的身份参加晚宴，请向他说明你的赴宴动机。` : `你和${n.name}可以围绕你的${character.skill}专长展开交流。先介绍角色，再请对方分享公开背景。`}`,
+      player_brief: `你将以《${character.cosplay_source}》中${character.cosplay_character}的Cos形象扮演${character.name}。${index ? `阿德里安·索恩邀请你以${character.profession}的身份参加晚宴，请向他说明你的赴宴动机。` : `你和${n.name}可以围绕你的${character.skill}专长展开交流。先介绍角色，再请对方分享公开背景。`}`,
       npc_brief: `${character.name}将以《${character.cosplay_source}》的${character.cosplay_character}形象参加晚宴，剧中身份为${character.profession}。请接待这位宾客，用你的公开人物背景完成一次互动；具体演绎由GM审核后指导。`,
       hooks: [
         {
@@ -163,7 +163,7 @@ export function templateStory(character, npcs) {
         { phase: 4, goal: "根据现场已开放的证据表达判断，遵循GM指引" },
       ],
       mission: index
-        ? "向盖茨比说明赴宴动机，完成一次角色介绍"
+        ? "向阿德里安·索恩说明赴宴动机，完成一次角色介绍"
         : `与${n.name}交换一条公开情报`,
     };
   });

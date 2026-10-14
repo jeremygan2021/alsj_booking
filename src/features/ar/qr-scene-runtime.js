@@ -1,9 +1,10 @@
 import { createQrFrameTracker } from "./qr-frame-tracker.js";
 import { createEvidencePresentation } from "./qr-evidence-presentation.js";
+import { createInvitationPresentation } from "./invitation-presentation.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
-import { parseClueCode } from "../../clue-scan.js";
+import { parseClueCode, parseInvestigationNode } from "../../clue-scan.js";
 import { estimateQrPose } from "./qr-pose.js";
 
 // The displayed video and the camera projection share the same centred cover crop.
@@ -53,6 +54,7 @@ export function createQrSceneRuntime({
   onState,
   onClue,
   onInteraction,
+  onAcceptInvitation,
 }) {
   let stopped = false;
   let mediaStream, renderer, environment, camera, scene, anchor, raf;
@@ -154,8 +156,19 @@ export function createQrSceneRuntime({
       camera,
     );
     scene.updateMatrixWorld(true);
-    if (anchor.visible && raycaster.intersectObject(anchor, true).length)
-      interact();
+    if (!anchor.visible || !reliable || opacity < 0.8 || modelId !== currentId)
+      return;
+    const hits = raycaster.intersectObject(anchor, true);
+    if (!hits.length) return;
+    let selected = hits[0].object;
+    while (selected && selected !== anchor) {
+      if (selected.userData.action === "acceptInvitation") {
+        if (presentation.acceptEnabled) onAcceptInvitation?.();
+        return;
+      }
+      selected = selected.parent;
+    }
+    interact();
   };
   const render = (time) => {
     const age = time - lastTrackedAt;
@@ -172,7 +185,7 @@ export function createQrSceneRuntime({
     );
     if (presentation) {
       container.dataset.animationProgress = presentation
-        .update(time, opacity)
+        .update(time, opacity, camera)
         .toFixed(3);
       container.dataset.modelKind = presentation.kind;
     }
@@ -231,7 +244,7 @@ export function createQrSceneRuntime({
       let clue = metadata.get(id);
       if (!clue) {
         const response = await fetch(
-          `/api/ar/clues/${encodeURIComponent(id)}`,
+          `/api/ar/${id.startsWith("AR-") ? "nodes" : "clues"}/${encodeURIComponent(id)}`,
           { signal: requestSignal },
         );
         if (!response.ok)
@@ -266,7 +279,15 @@ export function createQrSceneRuntime({
         disposeTree(gltf.scene);
         return;
       }
-      const nextPresentation = createEvidencePresentation(gltf.scene);
+      const nextPresentation =
+        clue.presentation === "invitation"
+          ? await createInvitationPresentation(clue)
+          : createEvidencePresentation(gltf.scene);
+      if (clue.presentation === "invitation") disposeTree(gltf.scene);
+      if (stopped || version !== requestVersion) {
+        disposeTree(nextPresentation.root);
+        return;
+      }
       const nextModel = nextPresentation.root;
       if (model) {
         anchor.remove(model);
@@ -333,7 +354,10 @@ export function createQrSceneRuntime({
     container.dataset.trackingSource = qr?.source || "hold";
     container.dataset.trackedPoints = String(qr?.points || 0);
     container.dataset.decodeMs = (performance.now() - started).toFixed(1);
-    const id = qr && parseClueCode(qr.data, window.location.origin);
+    const id =
+      qr &&
+      (parseInvestigationNode(qr.data, window.location.origin) ||
+        parseClueCode(qr.data, window.location.origin));
     if (!id) {
       reliable = false;
       if (qr) {
@@ -538,7 +562,8 @@ export function createQrSceneRuntime({
       pmrem.dispose();
       resize();
       state("searching");
-      if (/^E-\d{2}$/.test(initialClueId || "")) void loadClue(initialClueId);
+      if (/^(?:E-\d{2}|AR-0[1-6]|AR-INV)$/.test(initialClueId || ""))
+        void loadClue(initialClueId);
       raf = requestAnimationFrame(tick);
     } catch (error) {
       if (stopped || signal.aborted) return;

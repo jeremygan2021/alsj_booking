@@ -11,7 +11,12 @@ export default defineConfig({
       closeBundle() {
         const root = fileURLToPath(new URL("./", import.meta.url));
         mkdirSync(root + "dist", { recursive: true });
-        for (const asset of ["ar-assets", "ar-target.html", "favicon.svg"])
+        for (const asset of [
+          "ar-assets",
+          "ar-target.html",
+          "favicon.svg",
+          "invitation",
+        ])
           if (existsSync(root + "public/" + asset))
             cpSync(root + "public/" + asset, root + "dist/" + asset, {
               recursive: true,
@@ -28,6 +33,8 @@ export default defineConfig({
         "*.{crt,pem}",
         "**/.git/**",
         "**/public/models/**",
+        "**/server/**",
+        "**/交付包_*/**",
       ],
     },
   },

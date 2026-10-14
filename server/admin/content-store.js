@@ -4,7 +4,7 @@ export const defaultSite = {
   subtitle: "最后的遗嘱",
   englishTitle: "THE LAST TESTAMENT",
   badge: "2026 万圣节特别企划",
-  schedule: "10月31日 · 19:00—23:00",
+  schedule: "10月31日 · 19:00—24:00",
   description:
     "黄金时代的最后一场舞会。\n一封邀请，一场盛宴，\n和一个不该被说出的秘密。",
 };

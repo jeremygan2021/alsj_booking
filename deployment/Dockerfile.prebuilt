@@ -10,7 +10,7 @@ ARG APP_REVISION=unknown
 LABEL org.opencontainers.image.revision=$APP_REVISION
 COPY server ./server
 COPY scripts ./scripts
-COPY src/evidence-models.js ./src/evidence-models.js
+COPY src/evidence-models.js src/model-inspection.js ./src/
 COPY public/models/*.glb ./public/models/
 COPY dist ./dist
 USER node

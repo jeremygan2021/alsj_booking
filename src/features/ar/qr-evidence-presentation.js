@@ -5,6 +5,8 @@ const labels = {
   letter: ["拆开信件", "收起信件", "信件已展开 · 移动手机查看"],
   terminal: ["启动终端", "关闭终端", "终端已启动 · 正在回放信号"],
   case: ["打开物证箱", "合上物证箱", "物证箱已打开 · 靠近查看细节"],
+  archive: ["展开档案", "收起档案", "档案已展开 · 内容以线索记录为准"],
+  prop: ["查看背面", "恢复正面", "已转向背面 · 移动手机观察细节"],
 };
 
 function attachParts(root, names, pivotPosition) {
@@ -93,9 +95,20 @@ export function createEvidencePresentation(gltf) {
     center = bounds.getCenter(new THREE.Vector3());
   const kind = gltf.getObjectByName("Folded_Envelope_Flap")
     ? "letter"
-    : gltf.getObjectByName("Record_Display")
+    : [
+          "Record_Display",
+          "file_browser",
+          "mode_screen",
+          "profile_directory",
+          "replay_screen",
+          "letter_slot",
+        ].some((name) => gltf.getObjectByName(name))
       ? "terminal"
-      : "case";
+      : gltf.getObjectByName("Open_Lid")
+        ? "case"
+        : gltf.getObjectByName("document_page")
+          ? "archive"
+          : "prop";
   const root = new THREE.Group();
   root.add(plaque());
   const oriented = new THREE.Group();
@@ -113,7 +126,8 @@ export function createEvidencePresentation(gltf) {
     screen,
     traces = [],
     keys = [],
-    lamps = [];
+    lamps = [],
+    archivePage;
   if (kind === "letter") {
     flap = attachParts(
       gltf,
@@ -151,11 +165,30 @@ export function createEvidencePresentation(gltf) {
         n === "Open_Lid" || /^(Lid_(?!Hinge$|Hinge\.)|Rear_Lid_Rib)/.test(n),
       [0, 0.075, -0.132],
     );
-  } else {
-    screen = gltf.getObjectByName("Record_Display");
+  } else if (kind === "archive") {
+    archivePage = attachParts(
+      gltf,
+      (name) => name === "document_page" || name.startsWith("blank_page_rule"),
+      [0, 0.06, 0],
+    );
+  } else if (kind === "terminal") {
+    screen = [
+      "Record_Display",
+      "file_browser",
+      "mode_screen",
+      "profile_directory",
+      "replay_screen",
+      "letter_slot",
+    ]
+      .map((name) => gltf.getObjectByName(name))
+      .find(Boolean);
     gltf.traverse((object) => {
       if (!object.isMesh) return;
-      if (/^(Record_Display|Display_Trace_|Status_Lamp)/.test(object.name))
+      if (
+        /^(Record_Display|file_browser|mode_screen|profile_directory|replay_screen|letter_slot|Display_Trace_|Status_Lamp)/.test(
+          object.name,
+        )
+      )
         object.material = object.material.clone();
       if (object.name.startsWith("Display_Trace_")) traces.push(object);
       if (object.name.startsWith("Key_"))
@@ -215,6 +248,11 @@ export function createEvidencePresentation(gltf) {
       paper.position.set(0, 0.035 * p, -0.055 * p);
     }
     if (lid) lid.rotation.x = Math.PI / 2 - p * (Math.PI / 2 + 0.85);
+    if (archivePage) {
+      archivePage.position.y = 0.06 + 0.045 * p;
+      archivePage.rotation.x = -0.2 * p;
+    }
+    if (kind === "prop") positioned.rotation.y = Math.PI * p;
     if (screen) {
       screen.material.emissive.setHex(0x4bcab4);
       screen.material.emissiveIntensity = p * 0.65;

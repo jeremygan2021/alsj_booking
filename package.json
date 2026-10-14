@@ -13,7 +13,9 @@
     "start": "NODE_ENV=production node server/index.js",
     "test": "node --test tests/*.test.js",
     "test:postgres": "node scripts/test-postgres.js",
-    "test:browser": "npm run build && playwright test"
+    "test:browser": "npm run build && playwright test",
+    "export:materials": "python3 scripts/export-story-materials.py",
+    "export:qr": "node scripts/generate-print-materials.js"
   },
   "dependencies": {
     "@alicloud/pop-core": "^1.8.0",

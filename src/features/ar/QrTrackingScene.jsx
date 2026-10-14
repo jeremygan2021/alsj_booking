@@ -32,6 +32,9 @@ const messages = {
 };
 
 export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
+  const acceptInvitation = () => {
+    window.location.assign("/play?invite=AR-INV&auth=invite");
+  };
   const container = useRef(null);
   const video = useRef(null);
   const polygon = useRef(null);
@@ -108,6 +111,7 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
       initialClueId: initialHint.current,
       onClue: (id) => callbacks.current.onClue?.(id),
       onInteraction: setInteraction,
+      onAcceptInvitation: acceptInvitation,
       onState: ({ status, error, clue: nextClue }) => {
         setView({ status, error: error || null });
         if (nextClue) setClue(nextClue);
@@ -223,6 +227,28 @@ export default function QrTrackingScene({ onClose, initialClueId, onClue }) {
           {drawer && (
             <div id="qr-evidence-body" className="qr-tracking-evidence-body">
               <p>{clue.body}</p>
+              {clue.presentation === "invitation" && (
+                <>
+                  <strong className="invitation-valid">
+                    {clue.invitation_valid
+                      ? "邀请有效 · 2026.10.31"
+                      : "活动邀请已结束"}
+                  </strong>
+                  <img
+                    className="invitation-poster"
+                    src={clue.poster_url}
+                    alt="阿拉斯加之夜活动海报"
+                  />
+                  <button
+                    className="invitation-accept-accessible"
+                    type="button"
+                    disabled={!clue.invitation_valid}
+                    onClick={acceptInvitation}
+                  >
+                    接受邀请，注册／登录
+                  </button>
+                </>
+              )}
               <small>移动手机，从不同角度观察；保持二维码在画面内。</small>
             </div>
           )}

@@ -117,7 +117,7 @@ test("全屏真实二维码连续锚定：移动/旋转/透视/竖屏裁剪/丢�
   const bCompleted = new Promise((resolve) => {
     completedB = resolve;
   });
-  const modelRoute = "**/api/ar/models/evidence-case.glb";
+  const modelRoute = "**/api/ar/models/aurora-trophy.glb";
   await page.route(modelRoute, async (route) => {
     requestedB();
     await gateB;
@@ -151,6 +151,16 @@ test("全屏真实二维码连续锚定：移动/旋转/透视/竖屏裁剪/丢�
     .poll(async () => (await alignment(page))?.maximum ?? 1000)
     .toBeLessThan(8);
   expect(await page.evaluate(() => window.__qrCamera.calls)).toBe(1);
+  // Printed AR-node codes use the same continuous tracking pipeline.
+  await page.evaluate(() => window.__qrCamera.set({ id: "AR-05" }));
+  await expect(scene).toHaveAttribute("data-clue-id", "AR-05");
+  await expect(scene).toHaveAttribute("data-model-visible", "true");
+  await expect(page.getByTestId("qr-tracking-evidence")).toContainText(
+    "酒杯检验",
+  );
+  await expect
+    .poll(async () => (await alignment(page))?.maximum ?? 1000)
+    .toBeLessThan(8);
   // A syntactically valid but unknown QR must never display the previous model.
   await page.evaluate(() => window.__qrCamera.set({ id: "E-99" }));
   await expect(scene).toHaveAttribute("data-clue-id", "E-99");
@@ -302,7 +312,7 @@ test("证物覆盖二维码、真实点击开合与短暂遮挡无闪烁", async
   await page.mouse.click(center.x, center.y);
   await expect(scene).toHaveAttribute("data-interaction", "opened");
   await expect(scene).toHaveAttribute("data-animation-progress", "1.000");
-  await page.screenshot({ path: "output/playwright/qr-letter-open.png" });
+  await page.screenshot({ path: "output/playwright/qr-archive-open.png" });
   await page.getByTestId("qr-evidence-interact").click();
   await expect(scene).toHaveAttribute("data-animation-progress", "0.000");
   // A brief dropped frame never toggles visibility or restarts the appearance.
@@ -337,8 +347,8 @@ test("证物覆盖二维码、真实点击开合与短暂遮挡无闪烁", async
   await page.evaluate(() => window.__qrCamera.set({ occluded: false }));
   await expect(scene).toHaveAttribute("data-interaction-ready", "true");
   for (const [id, kind, label] of [
-    ["E-02", "terminal", "启动终端"],
-    ["E-06", "case", "打开物证箱"],
+    ["E-05", "terminal", "启动终端"],
+    ["E-09", "case", "打开物证箱"],
   ]) {
     await page.evaluate(
       (id) => window.__qrCamera.set({ id, x: 0, rx: 27, ry: -18, rz: -6 }),

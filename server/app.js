@@ -1,3 +1,5 @@
+import { modelInspectionPoints } from "../src/model-inspection.js";
+import { staffStoryMaterials } from "./story-materials.js";
 import express from "express";
 import sharp from "sharp";
 import { fileURLToPath } from "node:url";
@@ -13,7 +15,15 @@ import { createSmsAuth } from "./auth/sms.js";
 import { randomBytes, scryptSync, createHmac } from "node:crypto";
 import { openDb } from "./db.js";
 import { phases, npcOrder } from "./content.js";
-import { getEvidenceModel } from "../src/evidence-models.js";
+import {
+  resolveEvidenceModel as getEvidenceModel,
+  evidenceModelFilenames,
+  modelFileExists,
+} from "./evidence/models.js";
+import {
+  publicInvestigationNodes,
+  findPublicInvestigationNode,
+} from "./public-investigation.js";
 import {
   generationConfig,
   isGenerationConfigured,
@@ -653,7 +663,7 @@ export async function createApp({
       })),
     });
   });
-// The standalone scanner exposes only the printed clue's basic evidence.
+  // The standalone scanner exposes only the printed clue's basic evidence.
   // Advanced information, checks and player records remain in the game flow.
   app.get("/api/ar/clues/:id", async (r, s) => {
     const id = r.params.id.toUpperCase();
@@ -670,8 +680,33 @@ export async function createApp({
         ? {
             model_url: `/api/ar/models/${model.filename}.glb`,
             model_label: model.label,
+            inspection_points: modelInspectionPoints(model.filename),
           }
         : {}),
+    });
+  });
+  app.get("/api/ar/nodes/:id", async (r, s) => {
+    const node = findPublicInvestigationNode(r.params.id.toUpperCase());
+    if (!node) fail("调查节点不存在", 404);
+    const filename = modelFileExists(node.filename)
+      ? node.filename
+      : node.fallback;
+    s.json({
+      id: node.id,
+      title: node.title,
+      area: node.area,
+      body: node.body,
+      model_url: `/api/ar/models/${filename}.glb`,
+      model_label: node.title,
+      ...(node.presentation === "invitation"
+        ? {
+            presentation: node.presentation,
+            poster_url: node.poster_url,
+            valid_until: node.valid_until,
+            invitation_valid: Date.now() <= Date.parse(node.valid_until),
+          }
+        : {}),
+      inspection_points: modelInspectionPoints(filename),
     });
   });
   app.get("/api/ar/models/:filename", async (r, s) => {
@@ -679,7 +714,14 @@ export async function createApp({
     if (!/^[a-z0-9-]+\.glb$/.test(filename)) fail("模型不存在", 404);
     const clues = await all("SELECT id FROM clues");
     if (
-      !clues.some((c) => getEvidenceModel(c.id)?.filename + ".glb" === filename)
+      !clues.some((c) =>
+        evidenceModelFilenames(c.id).some((name) => name + ".glb" === filename),
+      ) &&
+      !publicInvestigationNodes.some((node) =>
+        [node.filename, node.fallback].some(
+          (name) => name + ".glb" === filename,
+        ),
+      )
     )
       fail("模型不存在", 404);
     s.set({
@@ -709,6 +751,7 @@ export async function createApp({
         ? {
             model_url: `/api/models/${model.filename}.glb`,
             model_label: model.label,
+            inspection_points: modelInspectionPoints(model.filename),
           }
         : {}),
     };
@@ -717,8 +760,8 @@ export async function createApp({
   app.get("/api/models/:filename", auth("player", "gm"), async (r, s) => {
     const filename = r.params.filename;
     if (!/^[a-z0-9-]+\.glb$/.test(filename)) fail("模型不存在", 404);
-    const clues = (await all("SELECT id FROM clues")).filter(
-      (c) => getEvidenceModel(c.id)?.filename + ".glb" === filename,
+    const clues = (await all("SELECT id FROM clues")).filter((c) =>
+      evidenceModelFilenames(c.id).some((name) => name + ".glb" === filename),
     );
     if (!clues.length) fail("模型不存在", 404);
     if (r.auth.role !== "gm") {
@@ -853,6 +896,7 @@ export async function createApp({
     );
     s.json({
       settings: await setting(),
+      storyMaterials: staffStoryMaterials(r.auth.role, r.auth.user_id),
       players: await all(
         `SELECT p.id,p.name,p.payment,p.checked_in,p.coins,p.group_id,c.name AS "character",c.status,c.cosplay_character,c.cosplay_source,c.avatar_url${gm ? ",c.faction,c.generation_status,c.generator,c.generation_error,c.generation_pending" : ""} FROM players p LEFT JOIN characters c ON c.player_id=p.id ${gm ? "" : "WHERE c.status='approved' AND EXISTS (SELECT 1 FROM character_relations r WHERE r.player_id=p.id AND r.npc_id=?)"} ORDER BY p.created_at DESC`,
         ...(gm ? [] : [r.auth.user_id]),

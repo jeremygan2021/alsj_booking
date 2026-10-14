@@ -1,3 +1,4 @@
+import { resolveEvidenceModel } from "../server/evidence/models.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import sharp from "sharp";
@@ -23,7 +24,7 @@ const output = (name = "莱恩") => ({
   relations: ["detective", "host"].map((npc_id) => ({
     npc_id,
     relation: "在公开展览中结识的旧友",
-    player_brief: `你曾在展览上和${npc_id === "host" ? "盖茨比" : "FBI探员"}讨论公开艺术品。今晚可以重提那场讨论。`,
+    player_brief: `你曾在展览上和${npc_id === "host" ? "阿德里安·索恩" : "诺拉·里德"}讨论公开艺术品。今晚可以重提那场讨论。`,
     npc_brief: `${name}是公开展览中的旧相识，请用一句共同话题接待他。NPC专属演绎提示。`,
     hooks: [
       { phase: 1, goal: "介绍角色，并交换一次公开见闻" },
@@ -569,8 +570,11 @@ test("AR与VR模型只给已批准签到且取得对应证物的玩家，NPC和�
   await p("/clues/E-01/unlock", {}, 403);
   await gm("/staff/phase", { phase: 3 });
   const clue = await p("/clues/E-01/unlock", {});
-  assert.equal(clue.model_url, "/api/models/sealed-letter.glb");
-  assert.match(clue.model_label, /剧情示例/);
+  assert.equal(
+    clue.model_url,
+    `/api/models/${resolveEvidenceModel("E-01").filename}.glb`,
+  );
+  assert.equal(clue.model_label, resolveEvidenceModel("E-01").label);
   const model = await p(
     clue.model_url.replace("/api", ""),
     undefined,

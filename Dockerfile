@@ -5,6 +5,7 @@ RUN npm ci --ignore-scripts --no-audit --no-fund
 COPY index.html vite.config.js ./
 COPY src ./src
 COPY public/ar-assets ./public/ar-assets
+COPY public/invitation ./public/invitation
 COPY public/ar-target.html public/favicon.svg ./public/
 RUN npm run build
 
@@ -18,7 +19,7 @@ ARG APP_REVISION=unknown
 LABEL org.opencontainers.image.revision=$APP_REVISION
 COPY server ./server
 COPY scripts ./scripts
-COPY src/evidence-models.js ./src/evidence-models.js
+COPY src/evidence-models.js src/model-inspection.js ./src/
 COPY public/models/*.glb ./public/models/
 COPY --from=build /app/dist ./dist
 USER node

@@ -54,6 +54,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(root, "dist")));
   app.get("/{*path}", (r, s) => s.sendFile(path.join(root, "dist/index.html")));
 } else {
+  app.use("/invitation", express.static(path.join(root, "public/invitation")));
   app.use("/ar-assets", express.static(path.join(root, "public/ar-assets")));
   app.get("/favicon.svg", (req, res) =>
     res.sendFile(path.join(root, "public/favicon.svg")),

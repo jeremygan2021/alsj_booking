@@ -267,3 +267,5 @@
   opacity: 0.4;
   cursor: default;
 }
+.invitation-poster { display:block; width:100%; max-width:380px; margin:16px auto; border-radius:12px; border:1px solid #d8b779; }
+.invitation-valid { display:block; padding:10px 14px; border:1px solid #d8b779; border-radius:8px; color:#f6dfab; background:#173c32; text-align:center; }

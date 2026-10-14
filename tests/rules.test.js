@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createApp } from "../server/app.js";
 import { openDb } from "../server/db.js";
+import { evidence } from "../server/content.js";
 import { avatarData, cosplay } from "./profile-fixture.js";
 
 test("数据库重启后保留活动数据，种子不会覆盖GM编辑", async () => {
@@ -28,7 +29,7 @@ test("数据库重启后保留活动数据，种子不会覆盖GM编辑", async 
     );
     assert.equal(
       (await db.prepare("SELECT COUNT(*) n FROM clues").get()).n,
-      12,
+      evidence.length,
     );
     await db.prepare("UPDATE settings SET phase=1,capacity=40").run();
     await db.close();

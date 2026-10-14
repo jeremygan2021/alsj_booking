@@ -11,10 +11,10 @@
 ```text
 Use case: stylized-concept.
 Asset type: individual NPC portrait for a Chinese TRPG mystery dinner website, square 1:1 image.
-Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Gatsby mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
+Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Adrian Thorne mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
 Composition: ONE fictional adult person only, centered head and shoulders, whole head visible with comfortable margin, face clearly readable even at 250 pixels, facing camera with subtle three-quarter pose. Consistent eye level and framing throughout the series.
 No text, letters, typography, logos, border, watermark, collage or graphic UI. No resemblance to an actor or existing film character. Do not show plot spoilers.
-Subject: Gatsby, fictional wealthy male mansion host aged around 40, refined neatly swept dark hair, black tuxedo and ivory shirt with bow tie, subtly luxurious gold cuff detail, charismatic composed expression. Warm gold bokeh from evening mansion chandeliers.
+Subject: Adrian Thorne, fictional wealthy male mansion host aged around 40, refined neatly swept dark hair, black tuxedo and ivory shirt with bow tie, subtly luxurious gold cuff detail, charismatic composed expression. Warm gold bokeh from evening mansion chandeliers.
 ```
 
 ## singer
@@ -26,10 +26,10 @@ Subject: Gatsby, fictional wealthy male mansion host aged around 40, refined nea
 ```text
 Use case: stylized-concept.
 Asset type: individual NPC portrait for a Chinese TRPG mystery dinner website, square 1:1 image.
-Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Gatsby mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
+Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Adrian Thorne mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
 Composition: ONE fictional adult person only, centered head and shoulders, whole head visible with comfortable margin, face clearly readable even at 250 pixels, facing camera with subtle three-quarter pose. Consistent eye level and framing throughout the series.
 No text, letters, typography, logos, border, watermark, collage or graphic UI. No resemblance to an actor or existing film character. Do not show plot spoilers.
-Subject: Daisy, fictional adult female AI android and Gatsby's beloved aged around 28 in appearance, elegant dark bob hair, ivory satin evening dress and a small pearl earring, delicate almost human beauty, a very subtle luminous gold seam at the temple hinting at her android nature, thoughtful warm expression. Muted teal mansion background.
+Subject: Clara Walker, fictional adult female AI android and Adrian Thorne's beloved aged around 28 in appearance, elegant dark bob hair, ivory satin evening dress and a small pearl earring, delicate almost human beauty, a very subtle luminous gold seam at the temple hinting at her android nature, thoughtful warm expression. Muted teal mansion background.
 ```
 
 ## attorney
@@ -41,10 +41,10 @@ Subject: Daisy, fictional adult female AI android and Gatsby's beloved aged arou
 ```text
 Use case: stylized-concept.
 Asset type: individual NPC portrait for a Chinese TRPG mystery dinner website, square 1:1 image.
-Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Gatsby mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
+Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Adrian Thorne mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
 Composition: ONE fictional adult person only, centered head and shoulders, whole head visible with comfortable margin, face clearly readable even at 250 pixels, facing camera with subtle three-quarter pose. Consistent eye level and framing throughout the series.
 No text, letters, typography, logos, border, watermark, collage or graphic UI. No resemblance to an actor or existing film character. Do not show plot spoilers.
-Subject: Vera, fictional powerful adult female ECHO business investor aged around 38, sleek dark hair swept back, tailored black evening blazer over dark emerald silk, understated geometric gold earrings, confident sharp calm gaze, refined business elegance. Dark green mansion lounge background. Do not signal villainy or murder.
+Subject: Evelyn Vale, fictional powerful adult female ECHO business investor aged around 38, sleek dark hair swept back, tailored black evening blazer over dark emerald silk, understated geometric gold earrings, confident sharp calm gaze, refined business elegance. Dark green mansion lounge background. Do not signal villainy or murder.
 ```
 
 ## detective
@@ -56,7 +56,7 @@ Subject: Vera, fictional powerful adult female ECHO business investor aged aroun
 ```text
 Use case: stylized-concept.
 Asset type: individual NPC portrait for a Chinese TRPG mystery dinner website, square 1:1 image.
-Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Gatsby mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
+Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Adrian Thorne mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
 Composition: ONE fictional adult person only, centered head and shoulders, whole head visible with comfortable margin, face clearly readable even at 250 pixels, facing camera with subtle three-quarter pose. Consistent eye level and framing throughout the series.
 No text, letters, typography, logos, border, watermark, collage or graphic UI. No resemblance to an actor or existing film character. Do not show plot spoilers.
 Subject: FBI investigator, fictional adult male aged around 35, neat short dark hair, charcoal suit, white shirt and dark tie, alert thoughtful eyes, understated professional investigation style, no weapons or badge text. Desaturated navy and gold mansion study background.
@@ -71,10 +71,10 @@ Subject: FBI investigator, fictional adult male aged around 35, neat short dark 
 ```text
 Use case: stylized-concept.
 Asset type: individual NPC portrait for a Chinese TRPG mystery dinner website, square 1:1 image.
-Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Gatsby mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
+Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Adrian Thorne mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
 Composition: ONE fictional adult person only, centered head and shoulders, whole head visible with comfortable margin, face clearly readable even at 250 pixels, facing camera with subtle three-quarter pose. Consistent eye level and framing throughout the series.
 No text, letters, typography, logos, border, watermark, collage or graphic UI. No resemblance to an actor or existing film character. Do not show plot spoilers.
-Subject: Gatsby's private bodyguard, fictional adult male aged around 40, strong broad shoulders and close cropped dark hair, fitted black suit, black shirt and discreet clear earpiece, serious attentive composed expression, professional protective demeanor. Dark bronze and green mansion hallway background. No weapons.
+Subject: Adrian Thorne's private bodyguard, fictional adult male aged around 40, strong broad shoulders and close cropped dark hair, fitted black suit, black shirt and discreet clear earpiece, serious attentive composed expression, professional protective demeanor. Dark bronze and green mansion hallway background. No weapons.
 ```
 
 ## scientist
@@ -86,7 +86,7 @@ Subject: Gatsby's private bodyguard, fictional adult male aged around 40, strong
 ```text
 Use case: stylized-concept.
 Asset type: individual NPC portrait for a Chinese TRPG mystery dinner website, square 1:1 image.
-Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Gatsby mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
+Style: premium cinematic photographic character portrait, subtle film grain, realistic skin and fabric, elegant neo-noir Adrian Thorne mansion atmosphere with restrained near-future details. Black, deep forest green and warm antique gold palette. Soft golden key light, dark atmospheric mansion background, shallow depth of field.
 Composition: ONE fictional adult person only, centered head and shoulders, whole head visible with comfortable margin, face clearly readable even at 250 pixels, facing camera with subtle three-quarter pose. Consistent eye level and framing throughout the series.
 No text, letters, typography, logos, border, watermark, collage or graphic UI. No resemblance to an actor or existing film character. Do not show plot spoilers.
 Subject: AI researcher, fictional adult female aged around 32, intelligent thoughtful expression, round fine gold wire glasses, dark hair tied loosely back, dark high-collar top under clean ivory laboratory coat, discreet small near-future technical accessory without text. Subdued teal laboratory lights and warm gold rim light, credible scientific professional.

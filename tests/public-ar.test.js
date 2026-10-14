@@ -1,3 +1,4 @@
+import { resolveEvidenceModel } from "../server/evidence/models.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createApp } from "../server/app.js";
@@ -65,11 +66,15 @@ test("匿名AR只返回指定公开线索和示例模型，原玩家搜证接口
       "body",
       "model_url",
       "model_label",
+      "inspection_points",
     ].sort(),
   );
   assert.ok(source.phase > original.settings.phase);
-  assert.equal(card.model_url, "/api/ar/models/sealed-letter.glb");
-  assert.match(card.model_label, /剧情示例/);
+  assert.equal(
+    card.model_url,
+    `/api/ar/models/${resolveEvidenceModel(source.id).filename}.glb`,
+  );
+  assert.equal(card.model_label, resolveEvidenceModel(source.id).label);
   for (const field of [
     "detail",
     "secret",

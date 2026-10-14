@@ -1,3 +1,4 @@
+import { NpcDossier, ModelBriefs } from "../components/NpcMaterials";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   ArrowUpRight,
@@ -115,6 +116,7 @@ function Admin({ pub, session, notify }) {
         ["settings", "活动设置", Layers],
       ]
     : [
+        ["script", "我的NPC剧本", BookOpen],
         ["relations", "关联玩家", Users],
         ["missions", "我的NPC委托", Compass],
         ["players", "关联宾客状态", Ticket],
@@ -537,32 +539,51 @@ function Admin({ pub, session, notify }) {
             />
           </>
         )}
+        {tab === "script" && !gm && (
+          <section className="panel">
+            {data.storyMaterials?.npcs?.length ? (
+              data.storyMaterials.npcs.map((n) => (
+                <NpcDossier key={n.id} dossier={n} />
+              ))
+            ) : (
+              <p>此账号暂未配置演员剧本，请联系GM。</p>
+            )}
+          </section>
+        )}
         {tab === "npcs" && (
-          <div className="two-grid">
-            {data.npcs.map((n) => (
-              <section className="panel staff-npc" key={n.id}>
-                <div className="panel-heading">
-                  <Badge>{n.role}</Badge>
-                  <Button
-                    kind="ghost compact"
-                    onClick={() => setEdit({ type: "npc", data: n })}
-                  >
-                    编辑
-                  </Button>
-                </div>
-                <h3>{n.name}</h3>
-                <span className="eyebrow">{n.english}</span>
-                <p>{n.bio}</p>
-                <div className="secret-note">
-                  <Lock size={14} />
-                  <div>
-                    <small>GM专属秘密</small>
-                    <p>{n.secret}</p>
+          <>
+            <div className="two-grid">
+              {data.npcs.map((n) => (
+                <section className="panel staff-npc" key={n.id}>
+                  <div className="panel-heading">
+                    <Badge>{n.role}</Badge>
+                    <Button
+                      kind="ghost compact"
+                      onClick={() => setEdit({ type: "npc", data: n })}
+                    >
+                      编辑
+                    </Button>
                   </div>
-                </div>
-              </section>
-            ))}
-          </div>
+                  <h3>{n.name}</h3>
+                  <span className="eyebrow">{n.english}</span>
+                  <p>{n.bio}</p>
+                  <div className="secret-note">
+                    <Lock size={14} />
+                    <div>
+                      <small>GM专属秘密</small>
+                      <p>{n.secret}</p>
+                    </div>
+                  </div>
+                  <NpcDossier
+                    dossier={data.storyMaterials?.npcs?.find(
+                      (item) => item.id === n.id,
+                    )}
+                  />
+                </section>
+              ))}
+            </div>
+            <ModelBriefs materials={data.storyMaterials} />
+          </>
         )}
         {tab === "evidence" && (
           <>

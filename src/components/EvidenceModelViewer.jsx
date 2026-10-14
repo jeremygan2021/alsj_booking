@@ -71,6 +71,7 @@ export function EvidenceModelStage({
   const [retry, setRetry] = useState(0);
   const [autoRotate, setAutoRotate] = useState(false);
   const [zoom, setZoom] = useState(30);
+  const [inspectedPoint, setInspectedPoint] = useState(null);
   const xrSupported = useXrSupport(
     "immersive-ar",
     mode === "ar" && !publicView,
@@ -90,6 +91,7 @@ export function EvidenceModelStage({
     setExamining(false);
     setAutoRotate(false);
     setZoom(30);
+    setInspectedPoint(null);
     loadViewer().then(
       () => active && setReady(true),
       () => active && setError("3D 查看器加载失败，请检查网络后重试。"),
@@ -188,8 +190,18 @@ export function EvidenceModelStage({
     setScanSerial((value) => value + 1);
     setExamining(true);
   }
+  function focusPoint(point) {
+    if (!viewer.current) return;
+    onInvestigate?.();
+    setInspectedPoint(point);
+    setAutoRotate(false);
+    viewer.current.cameraTarget = point.position.map((n) => `${n}m`).join(" ");
+    viewer.current.cameraOrbit = point.orbit;
+    setZoom(24);
+  }
   function reset() {
     if (!viewer.current) return;
+    setInspectedPoint(null);
     viewer.current.cameraOrbit = "0deg 65deg auto";
     viewer.current.cameraTarget = "auto auto auto";
     viewer.current.fieldOfView = "30deg";
@@ -273,7 +285,7 @@ export function EvidenceModelStage({
             key={`${source}:${retry}:${publicView ? "public" : "private"}:${mode}`}
             ref={viewer}
             src={source}
-            alt={`${clue?.title || "物证"}的剧情示例模型。拖动旋转，双指或滚轮缩放。`}
+            alt={`${clue?.title || "物证"}的3D调查模型。拖动旋转，双指或滚轮缩放。`}
             camera-controls=""
             touch-action="pan-y"
             camera-orbit={
@@ -300,6 +312,23 @@ export function EvidenceModelStage({
           >
             {/* An empty custom slot suppresses the library's automatic AR button. */}
             <span slot="ar-button" hidden />
+            {loaded &&
+              inspectedPoint &&
+              clue?.inspection_points
+                ?.filter((point) => point.id === inspectedPoint.id)
+                .map((point) => (
+                  <button
+                    key={point.id}
+                    slot={`hotspot-${point.id}`}
+                    className="model-observation-point"
+                    data-position={point.position.map((n) => `${n}m`).join(" ")}
+                    data-normal={point.normal.join(" ")}
+                    aria-label={`定位${point.label}`}
+                    onClick={() => focusPoint(point)}
+                  >
+                    <Crosshair size={13} /> {point.label}
+                  </button>
+                ))}
           </model-viewer>
         )}
         {!source ? (
@@ -333,6 +362,24 @@ export function EvidenceModelStage({
           </span>
         )}
       </div>
+      {loaded && clue?.inspection_points?.length > 0 && (
+        <div className="model-observation-actions" aria-label="证物观察点">
+          {clue.inspection_points.map((point) => (
+            <Button
+              key={point.id}
+              kind="ghost compact"
+              onClick={() => focusPoint(point)}
+            >
+              观察{point.label}
+            </Button>
+          ))}
+        </div>
+      )}
+      {inspectedPoint && (
+        <p className="model-observation-note" role="status">
+          <strong>{inspectedPoint.label}</strong> · {inspectedPoint.note}
+        </p>
+      )}
       <div className="evidence-model-primary">
         {mode === "ar" && (
           <Button

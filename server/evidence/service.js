@@ -1,5 +1,6 @@
+import { modelInspectionPoints } from "../../src/model-inspection.js";
 import { randomInt } from "node:crypto";
-import { getEvidenceModel } from "../../src/evidence-models.js";
+import { resolveEvidenceModel as getEvidenceModel } from "./models.js";
 
 // Transport and AR engines never decide whether evidence may be awarded.
 export function createEvidenceService({ one, all, run, tx, fail, setting }) {
@@ -28,6 +29,7 @@ export function createEvidenceService({ one, all, run, tx, fail, setting }) {
         ? {
             model_url: `/api/models/${model.filename}.glb`,
             model_label: model.label,
+            inspection_points: modelInspectionPoints(model.filename),
           }
         : {}),
     };

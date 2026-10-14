@@ -1,0 +1,239 @@
+.invitation-access {
+  position: relative;
+  max-width: 1080px;
+  margin: 50px auto !important;
+  display: grid;
+  grid-template-columns: minmax(250px, 0.8fr) 1fr;
+  gap: 0;
+  padding: 0 !important;
+  background: #142b2b;
+  border: 1px solid #c9ac6a55;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 75px #0005;
+  text-align: left !important;
+}
+.invitation-access-art {
+  position: relative;
+  min-height: 560px;
+  overflow: hidden;
+}
+.invitation-access-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.invitation-access-art span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 18px 20px;
+  background: linear-gradient(transparent, #142b2be8);
+  color: #ffedbd;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-align: center;
+}
+.invitation-access-copy {
+  padding: 60px 42px;
+  background: radial-gradient(ellipse at 80% 0, #53776d38, transparent 65%);
+}
+.invitation-access-copy h1 {
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.4;
+  color: #f9ecd2;
+}
+.invitation-access-copy p {
+  color: #c4cec5;
+  line-height: 1.9;
+}
+.invitation-access-copy .eyebrow {
+  color: #d4b777;
+}
+.invitation-access-copy .seal {
+  margin: 0 0 25px;
+}
+.invitation-access-stamp {
+  display: inline-block;
+  border: 1px solid #d5b77d99;
+  padding: 8px 15px;
+  border-radius: 3px;
+  color: #e6c98d;
+  font-size: 12px;
+  letter-spacing: 2px;
+  transform: rotate(-3deg);
+}
+.invitation-access-whisper {
+  margin: 26px 0 !important;
+  font-family: serif;
+  font-style: italic;
+}
+.invitation-access .hero-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-top: 30px;
+}
+.invitation-access .button {
+  justify-content: center;
+}
+.overlay:has(.sms-auth-body) {
+  background: linear-gradient(135deg, #0b202ae8, #102f29e8);
+  backdrop-filter: blur(12px);
+}
+.modal:has(.sms-auth-body) {
+  border: 1px solid #c9ac6a66;
+  border-radius: 22px;
+  box-shadow: 0 24px 100px #0008;
+  background: linear-gradient(155deg, #f8f3e9, #eeeee4);
+}
+.modal:has(.sms-auth-body) .modal-head {
+  border-bottom: 1px solid #b59c6529;
+}
+.sms-auth-invitation {
+  padding: 22px 24px;
+  margin: 0 0 24px;
+  border-radius: 14px;
+  color: #f7ead1;
+  background:
+    linear-gradient(115deg, #102d2cec, #23483edb),
+    url("/invitation/alaska-poster.jpg") center 48% / cover;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #bb985f;
+}
+.sms-auth-invitation:after {
+  content: "AN";
+  position: absolute;
+  right: 22px;
+  top: 16px;
+  color: #e0c18024;
+  font: italic 70px Georgia;
+  transform: rotate(-12deg);
+}
+.sms-auth-invitation > span {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #dfc58e;
+}
+.sms-auth-invitation h3 {
+  font-family: serif;
+  font-size: 30px;
+  margin: 12px 0 8px;
+  letter-spacing: 5px;
+}
+.sms-auth-invitation p {
+  font-size: 13px;
+  color: #d8ded3;
+  margin: 0 0 14px;
+}
+.sms-auth-invitation small {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #e9d2a0;
+}
+.sms-auth-body input {
+  border-radius: 10px !important;
+  background: #fffdf8 !important;
+  border-color: #b9bcae !important;
+}
+.sms-auth-body .button.full {
+  border-radius: 12px;
+  background: linear-gradient(120deg, #163d35, #315648);
+  box-shadow: 0 6px 18px #14392e24;
+}
+.sms-auth-body .notice {
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.modal:has(.sms-auth-body) {
+  color: #233b32;
+}
+.modal:has(.sms-auth-body) .modal-head h2 {
+  color: #173c32;
+}
+.sms-auth-body .muted {
+  color: #58645a;
+}
+.sms-auth-body .field {
+  color: #344b3f;
+}
+.sms-auth-body .button.ghost {
+  color: #244438;
+  border: 1px solid #a99772;
+  background: #f4efdf;
+  min-width: 112px;
+}
+.sms-auth-body .button.ghost:disabled {
+  color: #7b8376;
+  opacity: 0.65;
+}
+.sms-auth-body .notice {
+  color: #43574a;
+  background: #e4e9dd;
+}
+.sms-auth-invitation {
+  padding: 18px 22px;
+  margin-bottom: 18px;
+}
+.sms-auth-invitation h3 {
+  font-size: 26px;
+  margin: 8px 0;
+}
+.sms-auth-invitation p {
+  margin-bottom: 10px;
+}
+.invitation-accept-accessible {
+  display: block;
+  width: 100%;
+  border: 1px solid #dec28a;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #e9d3a1, #bda06b);
+  color: #18352e;
+  padding: 14px;
+  font-weight: 700;
+  margin: 14px 0;
+}
+@media (max-width: 700px) {
+  .invitation-access {
+    margin: 18px 14px !important;
+    grid-template-columns: 1fr;
+  }
+  .invitation-access-art {
+    min-height: 0;
+    height: 220px;
+  }
+  .invitation-access-art img {
+    object-position: center 20%;
+  }
+  .invitation-access-copy {
+    padding: 32px 24px;
+  }
+  .invitation-access-copy .seal {
+    display: none;
+  }
+  .invitation-access-copy h1 {
+    margin-top: 14px;
+  }
+  .modal:has(.sms-auth-body) {
+    padding: 22px 20px;
+    max-height: 94dvh;
+    overflow-y: auto;
+  }
+  .sms-auth-invitation {
+    padding: 20px;
+  }
+  .sms-auth-invitation h3 {
+    font-size: 26px;
+  }
+}
+
+.sms-auth-body .field > span {
+  color: #4b5e50;
+}
+.sms-auth-body input {
+  color: #203d32;
+}

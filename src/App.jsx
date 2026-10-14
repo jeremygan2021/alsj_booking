@@ -39,6 +39,7 @@ import Player from "./pages/Player";
 import Admin from "./pages/Admin";
 import PublicAR from "./pages/PublicAR";
 import SmsAuth from "./components/SmsAuth";
+import "./invitation-auth.css";
 import { parseClueCode } from "./clue-scan";
 const ArScenePage = lazy(() => import("./pages/ArPage"));
 const viewFromPath = () =>
@@ -107,6 +108,17 @@ function App() {
     const t = setTimeout(() => setToast(""), 5000);
     return () => clearTimeout(t);
   }, [toast]);
+  useEffect(() => {
+    if (
+      !sessionLoaded ||
+      new URLSearchParams(location.search).get("auth") !== "invite"
+    )
+      return;
+    const params = new URLSearchParams(location.search);
+    params.delete("auth");
+    history.replaceState({}, "", `${location.pathname}?${params}`);
+    if (!session) setAuthMode("register");
+  }, [sessionLoaded, session]);
   const navigate = (v) => {
     history.pushState(
       {},
@@ -315,22 +327,49 @@ function App() {
   );
 }
 function Access({ title, text, onLogin, onRegister }) {
+  const invited =
+    new URLSearchParams(location.search).get("invite") === "AR-INV";
   return (
-    <main className="access">
-      <div className="seal small">A</div>
-      <span className="eyebrow">PRIVATE ACCESS</span>
-      <h1>{title}</h1>
-      <p>{text}</p>
-      <div className="hero-buttons">
-        {onRegister && (
-          <Button onClick={onRegister}>
-            第一次来，报名参加 <ArrowRight size={16} />
-          </Button>
+    <main className={`access ${invited ? "invitation-access" : ""}`}>
+      {invited && (
+        <div className="invitation-access-art">
+          <img
+            src="/invitation/alaska-poster.jpg"
+            alt="阿拉斯加之夜：最后的遗嘱"
+          />
+          <span>31 OCT 2026 · THE THORNE ESTATE</span>
+        </div>
+      )}
+      <div className={invited ? "invitation-access-copy" : undefined}>
+        <div className="seal small">A</div>
+        <span className="eyebrow">
+          {invited ? "YOUR INVITATION AWAITS" : "PRIVATE ACCESS"}
+        </span>
+        <h1>{title}</h1>
+        <p>{text}</p>
+        {invited && (
+          <>
+            <span className="invitation-access-stamp">
+              庄园邀请 · 2026.10.31
+            </span>
+            <p className="invitation-access-whisper">
+              有些真相，从不长眠。
+              <br />
+              今晚，故事将由你续写。
+            </p>
+          </>
         )}
-        <Button kind={onRegister ? "ghost" : ""} onClick={onLogin}>
-          {onRegister ? "已经报名，登录" : "工作人员登录"}{" "}
-          <KeyRound size={16} />
-        </Button>
+        <div className="hero-buttons">
+          {onRegister && (
+            <Button onClick={onRegister}>
+              第一次来，报名参加 <ArrowRight size={16} />
+            </Button>
+          )}
+          <Button kind={onRegister ? "ghost" : ""} onClick={onLogin}>
+            {onRegister ? "已经报名，登录" : "工作人员登录"}{" "}
+            <KeyRound size={16} />
+          </Button>
+        </div>
       </div>
     </main>
   );

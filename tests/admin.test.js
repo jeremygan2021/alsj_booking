@@ -108,7 +108,7 @@ test("Admin管理内容、权限、账目锁定和AR持久化", async (t) => {
   });
   assert.equal((await player("/me")).player.coins, before);
   const clue = {
-    id: "E-20",
+    id: "E-90",
     title: "新增证物",
     area: "实验室",
     skill: "技术",
@@ -120,7 +120,7 @@ test("Admin管理内容、权限、账目锁定和AR持久化", async (t) => {
   };
   await admin("/staff/manage/clues", clue);
   await admin("/staff/manage/clues", clue, 400);
-  await admin("/staff/manage/clues/E-20", { ...clue, title: "修改证物" });
+  await admin("/staff/manage/clues/E-90", { ...clue, title: "修改证物" });
   await player("/staff/manage/clues", clue, 401);
   await admin("/staff/manage/npcs", {
     id: "archivist",
@@ -206,7 +206,7 @@ test("Admin管理内容、权限、账目锁定和AR持久化", async (t) => {
   assert.ok(pub.npcs.every((item) => !("secret" in item)));
   const scene = structuredClone(defaultArScenes[0]);
   scene.title = "新版墙面";
-  scene.hotspots = [{ ...scene.hotspots[0], clueId: "E-20" }];
+  scene.hotspots = [{ ...scene.hotspots[0], clueId: "E-90" }];
   await admin("/staff/manage/scenes/wall-study", scene);
   await admin("/staff/phase", { phase: 3 });
   assert.equal((await player("/ar/scenes/wall-study")).title, "新版墙面");
@@ -214,7 +214,7 @@ test("Admin管理内容、权限、账目锁定和AR持久化", async (t) => {
     "/ar/scenes/wall-study/hotspots/document/collect",
     {},
   );
-  assert.equal(acquired.id, "E-20");
+  assert.equal(acquired.id, "E-90");
   await admin("/staff/manage/scenes/wall-study", { ...scene, enabled: false });
   await player("/ar/scenes/wall-study", undefined, 404);
   await admin(
