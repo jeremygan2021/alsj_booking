@@ -3,7 +3,15 @@ import { randomInt } from "node:crypto";
 import { resolveEvidenceModel as getEvidenceModel } from "./models.js";
 
 // Transport and AR engines never decide whether evidence may be awarded.
-export function createEvidenceService({ one, all, run, tx, fail, setting }) {
+export function createEvidenceService({
+  one,
+  all,
+  run,
+  tx,
+  fail,
+  setting,
+  audio,
+}) {
   const find = async (id) => {
     const clue = await one("SELECT * FROM clues WHERE id=?", id);
     if (!clue) fail("证物不存在", 404);
@@ -16,15 +24,20 @@ export function createEvidenceService({ one, all, run, tx, fail, setting }) {
       p.group_id,
       clue.area,
     );
+    const detailAllowed =
+      check && (check.roll === 20 || check.roll + check.bonus >= clue.dc);
     return {
       id: clue.id,
       title: clue.title,
       body: clue.body,
-      detail:
-        check && (check.roll === 20 || check.roll + check.bonus >= clue.dc)
-          ? clue.detail
-          : null,
+      detail: detailAllowed ? clue.detail : null,
       check,
+      ...(await audio.describe(clue, {
+        body: `/api/clues/${clue.id}/audio/body`,
+        ...(detailAllowed
+          ? { detail: `/api/clues/${clue.id}/audio/detail` }
+          : {}),
+      })),
       ...(model
         ? {
             model_url: `/api/models/${model.filename}.glb`,
@@ -43,6 +56,28 @@ export function createEvidenceService({ one, all, run, tx, fail, setting }) {
       ),
     );
   return {
+    result,
+    async audio(p, id, part) {
+      if (!["body", "detail"].includes(part)) fail("录音不存在", 404);
+      const clue = await find(id);
+      if (!(await collected(p, id))) fail("请先翻开证物", 403);
+      if (part === "detail") {
+        const check = await one(
+          "SELECT * FROM checks WHERE group_id=? AND area=?",
+          p.group_id,
+          clue.area,
+        );
+        if (!check || (check.roll !== 20 && check.roll + check.bonus < clue.dc))
+          fail("请先通过该区域的鉴定", 403);
+      }
+      const track = await audio.get(
+        clue,
+        part,
+        `/api/clues/${clue.id}/audio/${part}`,
+      );
+      if (!track) fail("录音不存在或内容已更新", 404);
+      return track;
+    },
     async list(p) {
       return {
         clues: await all(

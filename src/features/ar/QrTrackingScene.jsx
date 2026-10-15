@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { createQrSceneRuntime } from "./qr-scene-runtime.js";
 import "./qr-tracking.css";
+import ClueAudio from "../../components/ClueAudio";
 import { createCastleAudio } from "../../audio/castle-audio.js";
 
 // Call synchronously in the entry button's click handler, before mounting the scene.
@@ -206,7 +207,7 @@ export default function QrTrackingScene({
       },
       onState: ({ status, error, clue: nextClue }) => {
         setView({ status, error: error || null });
-        if (nextClue) setClue(nextClue);
+        if (nextClue !== undefined) setClue(nextClue);
       },
     });
     return () => {
@@ -493,6 +494,15 @@ export default function QrTrackingScene({
             </span>
             <ChevronDown size={19} aria-hidden="true" />
           </button>
+          {clue.presentation !== "invitation" && clue.model_url && (
+            <ClueAudio
+              key={clue.id}
+              track={clue.audio?.body}
+              label="现场线索演绎"
+              compact
+              available={identified}
+            />
+          )}
           {drawer && (
             <div id="qr-evidence-body" className="qr-tracking-evidence-body">
               <p>

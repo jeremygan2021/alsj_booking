@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { createEvidenceService } from "./evidence/service.js";
 import { mountEvidenceRoutes } from "./evidence/routes.js";
+import { createClueAudioCatalog, sendClueAudio } from "./audio/catalog.js";
 import { createSceneCatalog } from "./ar/catalog.js";
 import { mountArRoutes } from "./ar/routes.js";
 import { defaultArScenes, demoEvidence } from "./ar/scenes.js";
@@ -59,6 +60,7 @@ export async function createApp({
   smsDevLogin = false,
   environment = process.env.NODE_ENV || "development",
   allowLegacyRegistration = false,
+  audioRoot,
 }) {
   if (smsDevLogin && (!["development", "test"].includes(environment) || secure))
     throw new Error("通用测试验证码只允许用于开发/测试环境，生产环境禁止启用");
@@ -651,7 +653,44 @@ export async function createApp({
     });
     s.json(await completeGeneration(p.id, draft.revision, draft.lock, draft.c));
   });
-  const evidence = createEvidenceService({ one, all, run, tx, fail, setting });
+  const clueAudio = createClueAudioCatalog(audioRoot);
+  const evidence = createEvidenceService({
+    one,
+    all,
+    run,
+    tx,
+    fail,
+    setting,
+    audio: clueAudio,
+  });
+  const publicClue = async (rawId) => {
+    const id = rawId.toUpperCase();
+    if (!/^E-\d{2}$/.test(id)) fail("证物不存在", 404);
+    const clue = await one(
+      "SELECT id,title,area,category,body FROM clues WHERE id=?",
+      id,
+    );
+    if (!clue) fail("证物不存在", 404);
+    return clue;
+  };
+  const publicNode = (rawId) => {
+    const node = findPublicInvestigationNode(rawId.toUpperCase());
+    if (!node) fail("调查节点不存在", 404);
+    return node;
+  };
+  const publicAudio = async (r, s, source) => {
+    if ("part" in r.query || "detail" in r.query)
+      fail("公开录音仅提供基础线索", 400);
+    const track = await clueAudio.get(source, "body", r.path);
+    if (!track) fail("录音不存在或内容已更新", 404);
+    sendClueAudio(s, track);
+  };
+  app.get("/api/ar/clues/:id/audio", async (r, s) =>
+    publicAudio(r, s, await publicClue(r.params.id)),
+  );
+  app.get("/api/ar/nodes/:id/audio", async (r, s) =>
+    publicAudio(r, s, publicNode(r.params.id)),
+  );
   app.get("/api/ar/demo", (req, res) => {
     const manifest = demoCatalog.manifest(demoCatalog.get("wall-study"));
     res.json({
@@ -666,16 +705,11 @@ export async function createApp({
   // The standalone scanner exposes only the printed clue's basic evidence.
   // Advanced information, checks and player records remain in the game flow.
   app.get("/api/ar/clues/:id", async (r, s) => {
-    const id = r.params.id.toUpperCase();
-    if (!/^E-\d{2}$/.test(id)) fail("证物不存在", 404);
-    const c = await one(
-      "SELECT id,title,area,category,body FROM clues WHERE id=?",
-      id,
-    );
-    if (!c) fail("证物不存在", 404);
+    const c = await publicClue(r.params.id);
     const model = getEvidenceModel(c.id);
     s.json({
       ...c,
+      ...(await clueAudio.describe(c, { body: `/api/ar/clues/${c.id}/audio` })),
       ...(model
         ? {
             model_url: `/api/ar/models/${model.filename}.glb`,
@@ -686,8 +720,7 @@ export async function createApp({
     });
   });
   app.get("/api/ar/nodes/:id", async (r, s) => {
-    const node = findPublicInvestigationNode(r.params.id.toUpperCase());
-    if (!node) fail("调查节点不存在", 404);
+    const node = publicNode(r.params.id);
     const filename = modelFileExists(node.filename)
       ? node.filename
       : node.fallback;
@@ -696,6 +729,9 @@ export async function createApp({
       title: node.title,
       area: node.area,
       body: node.body,
+      ...(await clueAudio.describe(node, {
+        body: `/api/ar/nodes/${node.id}/audio`,
+      })),
       model_url: `/api/ar/models/${filename}.glb`,
       model_label: node.title,
       ...(node.presentation === "invitation"
@@ -731,32 +767,6 @@ export async function createApp({
     });
     s.sendFile(path.join(modelsRoot, filename));
   });
-  const clueResult = async (p, c) => {
-    const check = await one(
-      "SELECT * FROM checks WHERE group_id=? AND area=?",
-      p.group_id,
-      c.area,
-    );
-    const model = getEvidenceModel(c.id);
-    return {
-      id: c.id,
-      title: c.title,
-      body: c.body,
-      detail:
-        check && (check.roll === 20 || check.roll + check.bonus >= c.dc)
-          ? c.detail
-          : null,
-      check,
-      ...(model
-        ? {
-            model_url: `/api/models/${model.filename}.glb`,
-            model_label: model.label,
-            inspection_points: modelInspectionPoints(model.filename),
-          }
-        : {}),
-    };
-  };
-
   app.get("/api/models/:filename", auth("player", "gm"), async (r, s) => {
     const filename = r.params.filename;
     if (!/^[a-z0-9-]+\.glb$/.test(filename)) fail("模型不存在", 404);

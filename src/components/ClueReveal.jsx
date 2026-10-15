@@ -8,6 +8,7 @@ import {
   Box,
 } from "lucide-react";
 import { Badge, Button, Modal } from "./ui";
+import ClueAudio from "./ClueAudio";
 
 export default function ClueReveal({
   clue,
@@ -72,6 +73,11 @@ export default function ClueReveal({
                   基础证据
                 </h3>
                 <p>{clue.body}</p>
+                <ClueAudio
+                  key={`${clue.id}-body`}
+                  track={clue.audio?.body}
+                  label="基础证据演绎"
+                />
                 {onModel && (
                   <Button
                     kind="ghost model-detail-button"
@@ -85,6 +91,11 @@ export default function ClueReveal({
                   <div className="advanced">
                     <span className="eyebrow">ADVANCED ANALYSIS</span>
                     <p>{clue.detail}</p>
+                    <ClueAudio
+                      key={`${clue.id}-detail`}
+                      track={clue.audio?.detail}
+                      label="鉴定细节演绎"
+                    />
                   </div>
                 ) : (
                   <div className="notice">

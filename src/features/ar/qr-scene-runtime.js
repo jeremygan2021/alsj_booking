@@ -105,7 +105,7 @@ export function createQrSceneRuntime({
   const state = (name, extras = {}) => {
     if (stopped) return;
     container.dataset.trackingState = name;
-    if (name !== lastState || extras.error || extras.clue) {
+    if (name !== lastState || extras.error || Object.hasOwn(extras, "clue")) {
       lastState = name;
       onState({ status: name, ...extras });
     }
@@ -292,7 +292,7 @@ export function createQrSceneRuntime({
     requestController?.abort();
     requestController = new AbortController();
     const requestSignal = requestController.signal;
-    state("loading");
+    state("loading", { clue: null });
     try {
       let clue = metadata.get(id);
       if (!clue) {
@@ -453,7 +453,7 @@ export function createQrSceneRuntime({
       container.dataset.clueId = id;
       hide();
       if (modelId !== id) void loadClue(id);
-      else if (currentClue?.id !== id) {
+      else {
         currentClue = metadata.get(id);
         state("searching", { clue: currentClue });
       }

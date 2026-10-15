@@ -26,6 +26,8 @@
 
 使用官方 `node:24.21.0-bookworm-slim` 作为运行镜像，复用构建缓存。
 
+线索音频随`server/audio/clue-audio.json`和`server/audio/files`发布；现有Docker的`COPY server`会包含这些媒体。不要将音频目录配置为公开静态路径，鉴定录音必须经过应用权限核对。仅发布已生成MP3，生产不调用语音生成服务。
+
 ## 日常操作
 
 ```sh

@@ -13,6 +13,7 @@ import {
 import { api } from "../api";
 import "../features/ar/ar.css";
 import EvidenceViewer from "../features/ar/EvidenceViewer";
+import ClueAudio from "../components/ClueAudio";
 
 export default function ArPage({ session, onLogin }) {
   const sceneId = location.pathname.split("/")[2] || "demo";
@@ -345,7 +346,21 @@ export default function ArPage({ session, onLogin }) {
               hotspotId={selected.hotspotId}
             />
             <p>{selected.body}</p>
-            {selected.detail && <p>{selected.detail}</p>}
+            <ClueAudio
+              key={`${selected.id}-body`}
+              track={selected.audio?.body}
+              label="基础证据演绎"
+            />
+            {selected.detail && (
+              <>
+                <p>{selected.detail}</p>
+                <ClueAudio
+                  key={`${selected.id}-detail`}
+                  track={selected.audio?.detail}
+                  label="鉴定细节演绎"
+                />
+              </>
+            )}
             <button className="ar-primary" onClick={() => setSelected(null)}>
               继续探索
             </button>

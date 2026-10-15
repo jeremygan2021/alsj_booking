@@ -1,3 +1,5 @@
+import { CLUE_AUDIO_EVENT, isClueAudioActive } from "./clue-audio.js";
+
 const PREFERENCE_KEY = "alsj.ar-investigation.audio";
 const DEFAULT_VOLUME = 0.4;
 const BEAT_SECONDS = 60 / 68;
@@ -71,13 +73,19 @@ export function createInvestigationAudio(options = {}) {
   let revision = 0;
   let disposed = false;
   let intendedPlayback = false;
+  let clueSuspended = isClueAudioActive();
   let playing = false;
   let error = "";
   let eventIndex = 0;
   let loopStart = 0;
   const voices = new Set();
 
-  const snapshot = () => ({ ...preference, playing, error });
+  const snapshot = () => ({
+    ...preference,
+    playing,
+    error,
+    suspended: clueSuspended && intendedPlayback && preference.enabled,
+  });
   const notify = () => {
     if (!disposed) onChange?.(snapshot());
   };
@@ -232,6 +240,10 @@ export function createInvestigationAudio(options = {}) {
     if (disposed || !preference.enabled) return false;
     intendedPlayback = true;
     if (playing) return true;
+    if (clueSuspended) {
+      notify();
+      return false;
+    }
     if (browserDocument?.hidden) return false;
     const activeRevision = ++revision;
     try {
@@ -245,11 +257,15 @@ export function createInvestigationAudio(options = {}) {
         revision !== activeRevision ||
         !intendedPlayback ||
         !preference.enabled ||
+        clueSuspended ||
         browserDocument?.hidden
       ) {
         if (
           context === activeContext &&
-          (!intendedPlayback || !preference.enabled || browserDocument?.hidden)
+          (!intendedPlayback ||
+            !preference.enabled ||
+            clueSuspended ||
+            browserDocument?.hidden)
         ) {
           Promise.resolve(activeContext.suspend()).catch(() => {});
         }
@@ -302,12 +318,28 @@ export function createInvestigationAudio(options = {}) {
       void start();
     }
   };
+  const cluePlaybackChanged = (event) => {
+    clueSuspended = Boolean(event.detail?.active);
+    if (clueSuspended) {
+      revision++;
+      playing = false;
+      stopTimeline();
+      if (context?.state === "running")
+        Promise.resolve(context.suspend()).catch(() => {});
+      notify();
+    } else if (intendedPlayback && preference.enabled) {
+      void start();
+    } else {
+      notify();
+    }
+  };
   const pageExited = () => {
     pause(false);
     closeContext();
   };
   browserDocument?.addEventListener("visibilitychange", visibilityChanged);
   browserWindow?.addEventListener("pagehide", pageExited);
+  browserWindow?.addEventListener(CLUE_AUDIO_EVENT, cluePlaybackChanged);
 
   return {
     getSnapshot: snapshot,
@@ -356,6 +388,7 @@ export function createInvestigationAudio(options = {}) {
         visibilityChanged,
       );
       browserWindow?.removeEventListener("pagehide", pageExited);
+      browserWindow?.removeEventListener(CLUE_AUDIO_EVENT, cluePlaybackChanged);
       stopTimeline();
       closeContext();
     },

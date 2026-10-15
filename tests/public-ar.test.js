@@ -57,7 +57,9 @@ test("匿名AR只返回指定公开线索和示例模型，原玩家搜证接口
   assert.equal(card.category, source.category);
   assert.equal(card.body, source.body);
   assert.deepEqual(
-    Object.keys(card).sort(),
+    Object.keys(card)
+      .filter((key) => key !== "audio")
+      .sort(),
     [
       "id",
       "title",

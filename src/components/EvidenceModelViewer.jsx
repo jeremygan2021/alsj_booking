@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { Box, Crosshair, Maximize2, RotateCcw, ScanLine } from "lucide-react";
 import { Badge, Button, Modal } from "./ui";
+import ClueAudio from "./ClueAudio";
 import InvestigationAudio, {
   useInvestigationAudio,
 } from "./InvestigationAudio";
@@ -513,9 +514,19 @@ export default function EvidenceModelViewer({ clue, onClose, mode = "ar" }) {
       <div className="model-evidence-copy">
         <h3>{mode === "ar" ? "现场记录" : clue?.title}</h3>
         <p>{clue?.body}</p>
+        <ClueAudio
+          key={`${clue?.id}-body`}
+          track={clue?.audio?.body}
+          label="基础证据演绎"
+        />
         {clue?.detail && (
           <div className="advanced">
             <p>{clue.detail}</p>
+            <ClueAudio
+              key={`${clue.id}-detail`}
+              track={clue.audio?.detail}
+              label="鉴定细节演绎"
+            />
           </div>
         )}
       </div>

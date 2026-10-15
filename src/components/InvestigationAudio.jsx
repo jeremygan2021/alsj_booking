@@ -48,6 +48,7 @@ export default function InvestigationAudio({ audio, className = "" }) {
   const [expanded, setExpanded] = useState(false);
   const volumeId = useId();
   const statusId = useId();
+  const requested = audio.playing || audio.suspended;
   return (
     <div
       className={`investigation-audio ${audio.playing ? "is-playing" : ""} ${className}`.trim()}
@@ -58,8 +59,8 @@ export default function InvestigationAudio({ audio, className = "" }) {
         className="investigation-audio-toggle"
         type="button"
         onClick={audio.toggle}
-        aria-label={audio.playing ? "暂停氛围音乐" : "播放氛围音乐"}
-        aria-pressed={audio.playing}
+        aria-label={requested ? "暂停氛围音乐" : "播放氛围音乐"}
+        aria-pressed={requested}
         aria-describedby={audio.error ? statusId : undefined}
       >
         <span className="investigation-audio-symbol" aria-hidden="true">
@@ -74,9 +75,11 @@ export default function InvestigationAudio({ audio, className = "" }) {
             <Music2 size={15} strokeWidth={1.6} />
           )}
         </span>
-        <span className="investigation-audio-label">庄园留声</span>
+        <span className="investigation-audio-label">
+          {audio.suspended ? "聆听时暂歇" : "庄园留声"}
+        </span>
         <span className="investigation-audio-action" aria-hidden="true">
-          {audio.playing ? (
+          {requested ? (
             <Pause size={12} fill="currentColor" />
           ) : (
             <Play size={12} fill="currentColor" />
