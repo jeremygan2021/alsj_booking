@@ -1,0 +1,52 @@
+{
+  "model": "qwen3.8-omni-flash-realtime",
+  "voice": "Tina",
+  "sample_rate": 16000,
+  "channels": 1,
+  "opus_frame_ms": 60,
+  "loudness_lufs": -18,
+  "true_peak_db": -3,
+  "limiter_peak": 0.78,
+  "clips": [
+    {
+      "id": "here",
+      "voice": "Tina",
+      "text": "在的，你说吧。",
+      "transcript": "在的，你说吧。",
+      "duration_s": 1.8465,
+      "opus_frames": 31,
+      "bytes": 3691,
+      "sha256": "d6108854047a8ded5242f9f735dafcd1d727640a3af99edc5481df0229a782e4"
+    },
+    {
+      "id": "present",
+      "voice": "Tina",
+      "text": "我在，你说吧。",
+      "transcript": "我在，你说吧。",
+      "duration_s": 1.8465,
+      "opus_frames": 31,
+      "bytes": 3908,
+      "sha256": "9e7381cce4f23bb0188027d949ed5414d0fc38214abb261eb45f3d80067b157d"
+    },
+    {
+      "id": "say",
+      "voice": "Tina",
+      "text": "你说，我听着呢。",
+      "transcript": "你说，我听着呢。",
+      "duration_s": 1.8465,
+      "opus_frames": 31,
+      "bytes": 3960,
+      "sha256": "63bfe2c4bac33e1a7d4cfa58b89e0739a8fd363cf1e37ea817cd91540b8f5421"
+    },
+    {
+      "id": "listening",
+      "voice": "Tina",
+      "text": "嗯，我在听。",
+      "transcript": "嗯，我在听。",
+      "duration_s": 1.6865,
+      "opus_frames": 29,
+      "bytes": 3461,
+      "sha256": "441277e89bb39343fbd421001fcc0bd4575bbab5604652924c36c974416b3544"
+    }
+  ]
+}

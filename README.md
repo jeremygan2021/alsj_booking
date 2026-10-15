@@ -103,3 +103,7 @@ TEST_DATABASE_URL='postgresql://USER:PASSWORD@localhost:5432/DATABASE' npm run t
 26条证据的基础/鉴定说明及6个AR节点已配音，共58段。扫码后对应3D模型的AR操作区提供播放按钮，主页面不显示线索播放器；玩家已打开的线索卡及物证弹窗也可聆听，支持暂停、继续、重播与错误重试；播放期间原氛围音乐临时暂停。鉴定录音沿用文字权限，GM修改正文后隐藏旧配音。原二维码不变。
 
 媒体放在`server/audio/files`并由受控接口提供，不要映射为公开静态目录；发布包须包含整个`server/audio`。角色语音使用MiniMax固定系统音色，配乐采用下载的CC BY4.0作品，播放器内提供署名。制作、权限与验收见 [线索音频说明](docs/CLUE-AUDIO-20261015.md)。
+
+## ECHO实体游戏机器人
+
+[ECHO档案助理](game-robot/README.md)的ESP32固件、云端Realtime后端和Function Call游戏知识库均放在本游戏仓库的 `game-robot/`。ESP32连接游戏云端 `/echo/ws/device`，后端只提供推理引导，不泄露关键线索或终局答案；原小智/XLeRobot配置独立，刷回匹配资源的原应用即可恢复。部署与验证见 [模块验证记录](game-robot/VALIDATION.md)。

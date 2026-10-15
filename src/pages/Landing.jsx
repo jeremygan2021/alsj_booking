@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { api } from "../api";
 import NpcPortrait from "../components/NpcPortrait";
+import EchoCharacterIntro from "../components/EchoCharacterIntro";
 import { phases, factions } from "../constants";
 import {
   Icon,
@@ -247,6 +248,7 @@ function Landing({ pub, onRegister, onPlay }) {
           ))}
         </div>
       </section>
+      <EchoCharacterIntro />
       <section className="final-invite">
         <span className="eyebrow">YOUR NAME IS ON THE GUEST LIST</span>
         <h2>

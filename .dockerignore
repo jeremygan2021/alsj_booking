@@ -7,3 +7,10 @@ docs
 test-results
 output
 *.log
+game-robot/firmware
+game-robot/server/.venv
+game-robot/server/.env
+game-robot/server/state
+game-robot/server/**/__pycache__
+game-robot/releases
+game-robot/.private

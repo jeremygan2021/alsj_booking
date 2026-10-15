@@ -1,0 +1,113 @@
+{
+  "version": "1.0.2-game",
+  "deployed_at": "2026-10-15 23:18（北京时间）",
+  "release": "20261015T151352Z-echo-npc",
+  "service": "alsj-echo-game.service",
+  "runtime": "native-python-systemd",
+  "public_base": "https://alsj.luna.ski/echo",
+  "device_endpoint": "wss://alsj.luna.ski/echo/ws/device",
+  "state": {
+    "revision": 1,
+    "phase": 1,
+    "released_evidence": []
+  },
+  "knowledge_policy": "reasoning_only",
+  "voice_verified": {
+    "synthetic_input": true,
+    "knowledge_rounds": 1,
+    "audio_frames": 284
+  },
+  "esp32_flash": {
+    "date": "2026-10-15 23:19（北京时间）",
+    "profile": "echo-game",
+    "version": "1.0.1-game",
+    "application_offset": "0x20000",
+    "application_sha256": "04a8d28fe19308b0760c93fde58338aec14c38e84fa30f0ecbfae3c398c13bdc",
+    "backup_verified": true,
+    "application_independently_verified": true,
+    "entire_resource_partition_verified_unchanged": true,
+    "config_bytes_preserved_before_boot": 28672,
+    "boot_version_confirmed": true,
+    "lcd_touch_codec_initialized": true,
+    "cloud_protocol_handshake": true,
+    "user_touch_entered_listening": false,
+    "human_speech_and_playback_acceptance": "pending",
+    "original_version": "0.6.6",
+    "application_bytes": 2945776,
+    "real_wake_entered_listening": true,
+    "local_wake_playback_completed": true
+  },
+  "volume_control": {
+    "get_volume": true,
+    "set_volume": true,
+    "adjust_volume": true,
+    "device_ack_required": true,
+    "firmware_reflash_required": false,
+    "server_tests_passed": 19,
+    "physical_voice_acceptance": "pending",
+    "realtime_smoke": {
+      "real_qwen_asr_and_function_call": true,
+      "device_transport": "simulated_mcp",
+      "initial_volume": 55,
+      "confirmed_volume": 45,
+      "write_count": 1,
+      "audio_frames": 62,
+      "resumed_after_playback": true
+    },
+    "physical_device": {
+      "usb_reset_only": true,
+      "firmware_reflashed": false,
+      "mcp_discovery_and_status_confirmed": true,
+      "reported_volume": 35,
+      "confirmed_at": "2026-10-15 23:05（北京时间）",
+      "voice_volume_change_acceptance": "pending"
+    }
+  },
+  "npc_persona": {
+    "character_revision": "echo-npc-20261015",
+    "source": "server/echo_game/character.py",
+    "homepage_story_aligned": true,
+    "public_personal_memories_in_prompt": true,
+    "server_tests_passed": 22,
+    "real_model_scenarios_passed": 8,
+    "continuous_dialogue_turns": 3,
+    "deployed_gm_auditions_passed": 2,
+    "human_device_voice_acceptance": "pending",
+    "firmware_reflash_required": false
+  },
+  "esp32_flash_history": [
+    {
+      "date": "2026-10-15 22:51（北京时间）",
+      "profile": "echo-game",
+      "version": "1.0.0-game",
+      "application_offset": "0x20000",
+      "application_sha256": "c267eb32a0950580ce5b35f3a6f3684720d1a662d4c6dc18ff59b9d4d76eebdb",
+      "backup_verified": true,
+      "application_independently_verified": true,
+      "entire_resource_partition_verified_unchanged": true,
+      "config_bytes_preserved_before_boot": 28672,
+      "boot_version_confirmed": true,
+      "lcd_touch_codec_initialized": true,
+      "cloud_protocol_handshake": true,
+      "user_touch_entered_listening": true,
+      "human_speech_and_playback_acceptance": "pending",
+      "original_version": "0.6.6"
+    }
+  ],
+  "offline_response_voice": {
+    "previous_voice": "Zane",
+    "voice": "Tina",
+    "same_as_cloud_dialogue": true,
+    "embedded_clips": 4,
+    "transcripts_unchanged": true,
+    "firmware_version": "1.0.1-game",
+    "firmware_ogg_demuxer_passed": true,
+    "host_tests_passed": 100,
+    "old_zane_cues_absent_from_application": true,
+    "hardware_listening_acceptance": "pending",
+    "hardware_wake_playback_frames": 31,
+    "hardware_dma_tail_completed": true,
+    "resumed_listening_after_local_playback": true,
+    "subsequent_cloud_dialogue_seen": true
+  }
+}

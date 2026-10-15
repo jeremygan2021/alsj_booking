@@ -1,0 +1,22 @@
+{
+  "manufacturer": "echo-game",
+  "type": "game-disp-v1",
+  "target": "esp32s3",
+  "builds": [
+    {
+      "name": "echo-game-disp-v1",
+      "default_wake_word": "wn9_nihaoxiaozhi_tts",
+      "sdkconfig_append": [
+        "CONFIG_BOARD_TYPE_ECHO_GAME_DISP_V1=y",
+        "CONFIG_USE_AFE_WAKE_WORD=y",
+        "CONFIG_USE_DEVICE_AEC=n",
+        "CONFIG_USE_SERVER_AEC=n",
+        "CONFIG_USE_AUDIO_PROCESSOR=y",
+        "CONFIG_SPIRAM_FETCH_INSTRUCTIONS=y",
+        "CONFIG_SPIRAM_RODATA=y",
+        "CONFIG_LV_USE_KEYBOARD=y",
+        "CONFIG_LV_USE_TEXTAREA=y"
+      ]
+    }
+  ]
+}

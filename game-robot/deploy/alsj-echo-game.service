@@ -1,0 +1,30 @@
+[Unit]
+Description=ALSJ ECHO Realtime game assistant
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+DynamicUser=true
+WorkingDirectory=/opt/alsj-echo-game/current/server
+EnvironmentFile=/etc/alsj-echo-game.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=ECHO_HOST=127.0.0.1
+Environment=ECHO_PORT=8901
+Environment=ECHO_STORY_FILE=/opt/alsj-echo-game/current/story-materials.json
+Environment=ECHO_STATE_FILE=/var/lib/alsj-echo-game/game.json
+ExecStart=/opt/alsj-echo-game/venv/bin/python -m echo_game
+Restart=on-failure
+RestartSec=3
+StateDirectory=alsj-echo-game
+StateDirectoryMode=0700
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+MemoryMax=256M
+TasksMax=64
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target
