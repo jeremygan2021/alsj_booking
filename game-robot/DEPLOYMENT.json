@@ -1,7 +1,7 @@
 {
   "version": "1.0.2-game",
-  "deployed_at": "2026-10-15 23:18（北京时间）",
-  "release": "20261015T151352Z-echo-npc",
+  "deployed_at": "2026-10-15 23:42（北京时间）",
+  "release": "20261015T153557Z-e73d19f3-echo",
   "service": "alsj-echo-game.service",
   "runtime": "native-python-systemd",
   "public_base": "https://alsj.luna.ski/echo",
@@ -109,5 +109,40 @@
     "hardware_dma_tail_completed": true,
     "resumed_listening_after_local_playback": true,
     "subsequent_cloud_dialogue_seen": true
+  },
+  "source_commit": "e73d19f3f23883924ccf507f95869438eb8acafa",
+  "website": {
+    "url": "https://alsj.luna.ski",
+    "release": "20261015T153641Z",
+    "source_commit": "e73d19f3f23883924ccf507f95869438eb8acafa",
+    "container": "alsj-booking",
+    "status": "healthy",
+    "web_tests_passed": 61,
+    "browser_widths_verified": [
+      1440,
+      390
+    ],
+    "echo_story_chapters": 3,
+    "original_npcs_preserved": 6,
+    "database_backup_result": "success",
+    "database_backup_exit_status": 0
+  },
+  "published_source": {
+    "repository": "https://github.com/jeremygan2021/alsj_booking",
+    "branch": "main",
+    "code_commit": "e73d19f3f23883924ccf507f95869438eb8acafa",
+    "firmware_source_included": true,
+    "private_credentials_and_credential_binaries_excluded": true
+  },
+  "deployment_checks": {
+    "echo_runtime_modules_matched": 14,
+    "echo_service_active": true,
+    "nginx_configuration_valid": true,
+    "realtime_auditions_passed": 2,
+    "gm_requires_token": true,
+    "web_api_status": 200,
+    "ar_api_status": 200,
+    "echo_server_tests_passed": 22,
+    "firmware_host_tests_passed": 100
   }
 }
