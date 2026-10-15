@@ -20,7 +20,7 @@ async function installClueAudio(page, { failFirst = false } = {}) {
         audio: {
           body: {
             url: `/api/ar/clues/${clue.id}/audio`,
-            duration: 110,
+            duration: clue.audio?.body?.duration || 15,
             speakers: ["叙述者", "索恩"],
             credits: "配乐：Kevin MacLeod · CC BY 4.0",
           },
