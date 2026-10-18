@@ -1,0 +1,408 @@
+[
+  {
+    "id": "E-01",
+    "part": "body",
+    "duration": 15.287,
+    "lufs": -18.38,
+    "truePeak": -3.29
+  },
+  {
+    "id": "E-01",
+    "part": "detail",
+    "duration": 17.95,
+    "lufs": -17.07,
+    "truePeak": -2.25
+  },
+  {
+    "id": "E-02",
+    "part": "body",
+    "duration": 15.85,
+    "lufs": -17.88,
+    "truePeak": -2.22
+  },
+  {
+    "id": "E-02",
+    "part": "detail",
+    "duration": 16.018,
+    "lufs": -17.42,
+    "truePeak": -2.52
+  },
+  {
+    "id": "E-03",
+    "part": "body",
+    "duration": 12.35,
+    "lufs": -18.92,
+    "truePeak": -2.22
+  },
+  {
+    "id": "E-03",
+    "part": "detail",
+    "duration": 17.446,
+    "lufs": -17.85,
+    "truePeak": -2.95
+  },
+  {
+    "id": "E-04",
+    "part": "body",
+    "duration": 18.526,
+    "lufs": -17.06,
+    "truePeak": -2.34
+  },
+  {
+    "id": "E-04",
+    "part": "detail",
+    "duration": 16.15,
+    "lufs": -18.24,
+    "truePeak": -2.76
+  },
+  {
+    "id": "E-05",
+    "part": "body",
+    "duration": 19.05,
+    "lufs": -17.49,
+    "truePeak": -3.51
+  },
+  {
+    "id": "E-05",
+    "part": "detail",
+    "duration": 16.622,
+    "lufs": -18.19,
+    "truePeak": -2.98
+  },
+  {
+    "id": "E-06",
+    "part": "body",
+    "duration": 12.75,
+    "lufs": -18.54,
+    "truePeak": -2.85
+  },
+  {
+    "id": "E-06",
+    "part": "detail",
+    "duration": 16.15,
+    "lufs": -17.68,
+    "truePeak": -2.98
+  },
+  {
+    "id": "E-07",
+    "part": "body",
+    "duration": 17.045,
+    "lufs": -16.76,
+    "truePeak": -2.76
+  },
+  {
+    "id": "E-07",
+    "part": "detail",
+    "duration": 17.75,
+    "lufs": -16.92,
+    "truePeak": -3.07
+  },
+  {
+    "id": "E-08",
+    "part": "body",
+    "duration": 13.95,
+    "lufs": -17.9,
+    "truePeak": -4.18
+  },
+  {
+    "id": "E-08",
+    "part": "detail",
+    "duration": 17.55,
+    "lufs": -17.6,
+    "truePeak": -2.64
+  },
+  {
+    "id": "E-09",
+    "part": "body",
+    "duration": 9.725,
+    "lufs": -18.18,
+    "truePeak": -2.03
+  },
+  {
+    "id": "E-09",
+    "part": "detail",
+    "duration": 12.35,
+    "lufs": -18.38,
+    "truePeak": -2.96
+  },
+  {
+    "id": "E-10",
+    "part": "body",
+    "duration": 14.85,
+    "lufs": -16.96,
+    "truePeak": -2.21
+  },
+  {
+    "id": "E-10",
+    "part": "detail",
+    "duration": 16.35,
+    "lufs": -17.3,
+    "truePeak": -2.46
+  },
+  {
+    "id": "E-11",
+    "part": "body",
+    "duration": 15.382,
+    "lufs": -18.37,
+    "truePeak": -3.04
+  },
+  {
+    "id": "E-11",
+    "part": "detail",
+    "duration": 15.75,
+    "lufs": -17.97,
+    "truePeak": -3.64
+  },
+  {
+    "id": "E-12",
+    "part": "body",
+    "duration": 21.45,
+    "lufs": -17.31,
+    "truePeak": -2.6
+  },
+  {
+    "id": "E-12",
+    "part": "detail",
+    "duration": 14.25,
+    "lufs": -18.18,
+    "truePeak": -2.3
+  },
+  {
+    "id": "E-13",
+    "part": "body",
+    "duration": 12.837,
+    "lufs": -17.71,
+    "truePeak": -2.25
+  },
+  {
+    "id": "E-13",
+    "part": "detail",
+    "duration": 15.124,
+    "lufs": -17.46,
+    "truePeak": -2.2
+  },
+  {
+    "id": "E-14",
+    "part": "body",
+    "duration": 12.535,
+    "lufs": -18.51,
+    "truePeak": -4.7
+  },
+  {
+    "id": "E-14",
+    "part": "detail",
+    "duration": 15.95,
+    "lufs": -17.63,
+    "truePeak": -4.11
+  },
+  {
+    "id": "E-15",
+    "part": "body",
+    "duration": 37.15,
+    "lufs": -16.76,
+    "truePeak": -2.19
+  },
+  {
+    "id": "E-15",
+    "part": "detail",
+    "duration": 15.55,
+    "lufs": -17.73,
+    "truePeak": -2.24
+  },
+  {
+    "id": "E-16",
+    "part": "body",
+    "duration": 15.65,
+    "lufs": -17.67,
+    "truePeak": -2.24
+  },
+  {
+    "id": "E-16",
+    "part": "detail",
+    "duration": 14.55,
+    "lufs": -17.0,
+    "truePeak": -2.48
+  },
+  {
+    "id": "E-17",
+    "part": "body",
+    "duration": 12.95,
+    "lufs": -17.93,
+    "truePeak": -3.31
+  },
+  {
+    "id": "E-17",
+    "part": "detail",
+    "duration": 16.459,
+    "lufs": -17.63,
+    "truePeak": -3.59
+  },
+  {
+    "id": "E-18",
+    "part": "body",
+    "duration": 17.95,
+    "lufs": -17.67,
+    "truePeak": -2.2
+  },
+  {
+    "id": "E-18",
+    "part": "detail",
+    "duration": 15.38,
+    "lufs": -17.62,
+    "truePeak": -2.46
+  },
+  {
+    "id": "E-19",
+    "part": "body",
+    "duration": 17.072,
+    "lufs": -17.24,
+    "truePeak": -2.13
+  },
+  {
+    "id": "E-19",
+    "part": "detail",
+    "duration": 17.318,
+    "lufs": -17.81,
+    "truePeak": -3.16
+  },
+  {
+    "id": "E-20",
+    "part": "body",
+    "duration": 11.95,
+    "lufs": -17.61,
+    "truePeak": -2.2
+  },
+  {
+    "id": "E-20",
+    "part": "detail",
+    "duration": 14.219,
+    "lufs": -17.3,
+    "truePeak": -2.22
+  },
+  {
+    "id": "E-21",
+    "part": "body",
+    "duration": 16.5,
+    "lufs": -18.26,
+    "truePeak": -2.11
+  },
+  {
+    "id": "E-21",
+    "part": "detail",
+    "duration": 15.287,
+    "lufs": -17.66,
+    "truePeak": -2.3
+  },
+  {
+    "id": "E-22",
+    "part": "body",
+    "duration": 14.85,
+    "lufs": -17.65,
+    "truePeak": -2.76
+  },
+  {
+    "id": "E-22",
+    "part": "detail",
+    "duration": 14.85,
+    "lufs": -17.62,
+    "truePeak": -2.29
+  },
+  {
+    "id": "E-23",
+    "part": "body",
+    "duration": 16.15,
+    "lufs": -17.41,
+    "truePeak": -2.27
+  },
+  {
+    "id": "E-23",
+    "part": "detail",
+    "duration": 17.527,
+    "lufs": -18.06,
+    "truePeak": -2.9
+  },
+  {
+    "id": "E-24",
+    "part": "body",
+    "duration": 18.896,
+    "lufs": -17.34,
+    "truePeak": -2.1
+  },
+  {
+    "id": "E-24",
+    "part": "detail",
+    "duration": 13.05,
+    "lufs": -18.05,
+    "truePeak": -2.22
+  },
+  {
+    "id": "E-25",
+    "part": "body",
+    "duration": 17.35,
+    "lufs": -17.9,
+    "truePeak": -3.04
+  },
+  {
+    "id": "E-25",
+    "part": "detail",
+    "duration": 16.459,
+    "lufs": -18.02,
+    "truePeak": -2.22
+  },
+  {
+    "id": "E-26",
+    "part": "body",
+    "duration": 20.75,
+    "lufs": -17.82,
+    "truePeak": -3.07
+  },
+  {
+    "id": "E-26",
+    "part": "detail",
+    "duration": 16.05,
+    "lufs": -17.74,
+    "truePeak": -2.88
+  },
+  {
+    "id": "AR-01",
+    "part": "body",
+    "duration": 16.25,
+    "lufs": -17.58,
+    "truePeak": -3.1
+  },
+  {
+    "id": "AR-02",
+    "part": "body",
+    "duration": 17.35,
+    "lufs": -16.9,
+    "truePeak": -2.58
+  },
+  {
+    "id": "AR-03",
+    "part": "body",
+    "duration": 16.15,
+    "lufs": -17.04,
+    "truePeak": -2.32
+  },
+  {
+    "id": "AR-04",
+    "part": "body",
+    "duration": 16.25,
+    "lufs": -17.9,
+    "truePeak": -2.21
+  },
+  {
+    "id": "AR-05",
+    "part": "body",
+    "duration": 17.35,
+    "lufs": -17.57,
+    "truePeak": -2.04
+  },
+  {
+    "id": "AR-06",
+    "part": "body",
+    "duration": 16.924,
+    "lufs": -17.21,
+    "truePeak": -2.79
+  }
+]

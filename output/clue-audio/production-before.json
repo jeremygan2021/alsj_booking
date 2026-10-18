@@ -1,0 +1,1259 @@
+{
+  "E-01": {
+    "id": "E-01",
+    "title": "数字人格处置声明",
+    "area": "极光档案室",
+    "category": "动机",
+    "body": "草案拟公开ECHO局限与未授权数据问题，暂停未经充分授权的逝者模拟，移交独立审查。",
+    "model_url": "/api/ar/models/archive-folios.glb",
+    "model_label": "档案文件与双遗嘱套件",
+    "inspection_points": [
+      {
+        "id": "seal",
+        "label": "封蜡信件",
+        "position": [
+          -0.091,
+          0.078,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "财富遗嘱与数字处置文件须分开理解。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "folder",
+        "label": "数字档案夹",
+        "position": [
+          0.073,
+          0.06,
+          -0.01
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "文书内容以当前线索记录为准。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-02": {
+    "id": "E-02",
+    "title": "股权收购协议",
+    "area": "董事交易室",
+    "category": "动机",
+    "body": "里昂秘密联络投资人，准备启动董事会改选与股权收购。",
+    "model_url": "/api/ar/models/archive-folios.glb",
+    "model_label": "档案文件与双遗嘱套件",
+    "inspection_points": [
+      {
+        "id": "seal",
+        "label": "封蜡信件",
+        "position": [
+          -0.091,
+          0.078,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "财富遗嘱与数字处置文件须分开理解。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "folder",
+        "label": "数字档案夹",
+        "position": [
+          0.073,
+          0.06,
+          -0.01
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "文书内容以当前线索记录为准。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-03": {
+    "id": "E-03",
+    "title": "档案室刷卡日志",
+    "area": "极光档案室",
+    "category": "时间",
+    "body": "20:48，阿德里安·索恩正常刷卡进入极光档案室。",
+    "model_url": "/api/ar/models/access-console.glb",
+    "model_label": "门禁控制台",
+    "inspection_points": [
+      {
+        "id": "mode",
+        "label": "显示屏",
+        "position": [
+          0,
+          0.19,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "核对模式记录和正常刷卡记录的区别。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "reader",
+        "label": "读卡器",
+        "position": [
+          0,
+          0.09,
+          0.012
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "正常刷卡与安全通行属于不同出入方式。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-04": {
+    "id": "E-04",
+    "title": "安全通行模式日志",
+    "area": "极光档案室",
+    "category": "机会",
+    "body": "20:51—21:02，档案室为临时安全通行模式，无需刷卡。21:02恢复门禁，21:05静默锁闭。",
+    "model_url": "/api/ar/models/access-console.glb",
+    "model_label": "门禁控制台",
+    "inspection_points": [
+      {
+        "id": "mode",
+        "label": "显示屏",
+        "position": [
+          0,
+          0.19,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "核对模式记录和正常刷卡记录的区别。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "reader",
+        "label": "读卡器",
+        "position": [
+          0,
+          0.09,
+          0.012
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "正常刷卡与安全通行属于不同出入方式。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-05": {
+    "id": "E-05",
+    "title": "音频播放日志",
+    "area": "ADS数字控制中心",
+    "category": "手段",
+    "body": "THORNE_ECHO_DEMO_V7：20:41:16导出，21:07:00本地缓存播放，实时麦克风未连接。",
+    "model_url": "/api/ar/models/audio-console.glb",
+    "model_label": "ECHO音频播控终端",
+    "inspection_points": [
+      {
+        "id": "file",
+        "label": "播控屏幕",
+        "position": [
+          -0.033,
+          0.16,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "核对文件来源、播放安排及麦克风状态。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "port",
+        "label": "接口",
+        "position": [
+          0.123,
+          0.075,
+          -0.116
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "note": "观察终端接口；模型不替代正式播控记录。",
+        "orbit": "160deg 65deg auto"
+      }
+    ]
+  },
+  "E-06": {
+    "id": "E-06",
+    "title": "极光奖杯破损照片",
+    "area": "极光档案室",
+    "category": "手段",
+    "body": "极光之眼奖杯底座背面有新破损，摆放时破损面朝墙。",
+    "model_url": "/api/ar/models/aurora-trophy.glb",
+    "model_label": "极光之眼奖杯",
+    "inspection_points": [
+      {
+        "id": "base",
+        "label": "底座背面",
+        "position": [
+          0.008,
+          0.066,
+          -0.039
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "note": "转到奖杯背面，比较底座轮廓和缺口。",
+        "orbit": "180deg 55deg auto"
+      },
+      {
+        "id": "fiber",
+        "label": "附着物",
+        "position": [
+          0.017,
+          0.074,
+          -0.04
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "note": "放大查看破损边缘的附着物；来源以鉴定报告为准。",
+        "orbit": "160deg 50deg auto"
+      }
+    ]
+  },
+  "E-07": {
+    "id": "E-07",
+    "title": "瑟琳娜生前授权声明",
+    "area": "温特记忆展厅",
+    "category": "证词",
+    "body": "瑟琳娜生前明确拒绝私人记忆在死后被商业化复制人格。",
+    "model_url": "/api/ar/models/memory-recorder.glb",
+    "model_label": "温特记忆与遗言播放装置",
+    "inspection_points": [
+      {
+        "id": "recording",
+        "label": "录音载体",
+        "position": [
+          -0.074,
+          0.127,
+          0.05
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "区分真实录制与数字生成的来源元数据。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "archive",
+        "label": "档案播放面",
+        "position": [
+          0,
+          0.063,
+          0.047
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "记录属于何种来源，应依据档案说明判断。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-08": {
+    "id": "E-08",
+    "title": "21:03舞台照片",
+    "area": "黄金宴会厅",
+    "category": "时间",
+    "body": "21:03:18，伊芙琳与西奥多在主宴会厅舞台同框。",
+    "model_url": "/api/ar/models/photo-frame.glb",
+    "model_label": "舞台与摄影记录相框",
+    "inspection_points": [
+      {
+        "id": "plate",
+        "label": "照片展示面",
+        "position": [
+          0,
+          0.15,
+          -0.009
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "这是一件展示道具；具体照片事实以证据文字或配套原图为准。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-09": {
+    "id": "E-09",
+    "title": "拍卖物品档案",
+    "area": "大厅",
+    "category": "排除",
+    "body": "拍卖登记记载了一件古董手枪舞台模型。",
+    "model_url": "/api/ar/models/evidence-case.glb",
+    "model_label": "物证样本箱 · 剧情示例模型",
+    "inspection_points": []
+  },
+  "E-10": {
+    "id": "E-10",
+    "title": "90天应急冻结条款",
+    "area": "人格实验室",
+    "category": "遗产",
+    "body": "重大数据处置须创始人最后确认；如批准前死亡，进入90天应急冻结及继任审查。",
+    "model_url": "/api/ar/models/archive-folios.glb",
+    "model_label": "档案文件与双遗嘱套件",
+    "inspection_points": [
+      {
+        "id": "seal",
+        "label": "封蜡信件",
+        "position": [
+          -0.091,
+          0.078,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "财富遗嘱与数字处置文件须分开理解。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "folder",
+        "label": "数字档案夹",
+        "position": [
+          0.073,
+          0.06,
+          -0.01
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "文书内容以当前线索记录为准。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-11": {
+    "id": "E-11",
+    "title": "西奥多补充证言",
+    "area": "黄金宴会厅",
+    "category": "证词",
+    "body": "西奥多补充：伊芙琳约21:02才抵达舞台区域。",
+    "model_url": "/api/ar/models/archive-folios.glb",
+    "model_label": "档案文件与双遗嘱套件",
+    "inspection_points": [
+      {
+        "id": "seal",
+        "label": "封蜡信件",
+        "position": [
+          -0.091,
+          0.078,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "财富遗嘱与数字处置文件须分开理解。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "folder",
+        "label": "数字档案夹",
+        "position": [
+          0.073,
+          0.06,
+          -0.01
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "文书内容以当前线索记录为准。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-12": {
+    "id": "E-12",
+    "title": "索恩私人会面通知",
+    "area": "极光档案室",
+    "category": "动机",
+    "body": "20:45索恩通知伊芙琳：“20:55到档案室来找我；23:30前我会完成所有确认。关于莉娅，我很抱歉。”",
+    "model_url": "/api/ar/models/archive-folios.glb",
+    "model_label": "档案文件与双遗嘱套件",
+    "inspection_points": [
+      {
+        "id": "seal",
+        "label": "封蜡信件",
+        "position": [
+          -0.091,
+          0.078,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "财富遗嘱与数字处置文件须分开理解。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "folder",
+        "label": "数字档案夹",
+        "position": [
+          0.073,
+          0.06,
+          -0.01
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "文书内容以当前线索记录为准。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-13": {
+    "id": "E-13",
+    "title": "初步法医报告",
+    "area": "档案室验尸区",
+    "category": "死亡",
+    "body": "死者阿德里安·索恩，现场初检显示头部钝性外伤，未发现枪伤。",
+    "model_url": "/api/ar/models/body-analysis.glb",
+    "model_label": "尸体位置与头部创伤分析模型",
+    "inspection_points": [
+      {
+        "id": "head",
+        "label": "头部轮廓",
+        "position": [
+          0,
+          0.23,
+          -0.7
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "查看非血腥头部示意，与其他物证轮廓比较。",
+        "orbit": "20deg 35deg auto"
+      },
+      {
+        "id": "position",
+        "label": "倒地位置",
+        "position": [
+          0,
+          0.18,
+          -0.15
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "观察身体、礼服和现场相对位置。",
+        "orbit": "0deg 30deg auto"
+      }
+    ]
+  },
+  "E-14": {
+    "id": "E-14",
+    "title": "凶器与创伤对比报告",
+    "area": "档案室验尸区",
+    "category": "手段",
+    "body": "头部钝伤形态与极光之眼奖杯底座边缘及新破损形态相符。",
+    "model_url": "/api/ar/models/body-analysis.glb",
+    "model_label": "尸体位置与头部创伤分析模型",
+    "inspection_points": [
+      {
+        "id": "head",
+        "label": "头部轮廓",
+        "position": [
+          0,
+          0.23,
+          -0.7
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "查看非血腥头部示意，与其他物证轮廓比较。",
+        "orbit": "20deg 35deg auto"
+      },
+      {
+        "id": "position",
+        "label": "倒地位置",
+        "position": [
+          0,
+          0.18,
+          -0.15
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "观察身体、礼服和现场相对位置。",
+        "orbit": "0deg 30deg auto"
+      }
+    ]
+  },
+  "E-15": {
+    "id": "E-15",
+    "title": "21:07索恩语音",
+    "area": "黄金宴会厅",
+    "category": "时间",
+    "body": "21:07，主宴会厅音响播放索恩的声音。声音内容讨论保存声音与生命延续。",
+    "model_url": "/api/ar/models/audio-console.glb",
+    "model_label": "ECHO音频播控终端",
+    "inspection_points": [
+      {
+        "id": "file",
+        "label": "播控屏幕",
+        "position": [
+          -0.033,
+          0.16,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "核对文件来源、播放安排及麦克风状态。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "port",
+        "label": "接口",
+        "position": [
+          0.123,
+          0.075,
+          -0.116
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "note": "观察终端接口；模型不替代正式播控记录。",
+        "orbit": "160deg 65deg auto"
+      }
+    ]
+  },
+  "E-16": {
+    "id": "E-16",
+    "title": "数字人格演出脚本",
+    "area": "ADS数字控制中心",
+    "category": "时间",
+    "body": "演出单：21:07数字人格发言；21:13索恩本人登台揭晓。",
+    "model_url": "/api/ar/models/archive-folios.glb",
+    "model_label": "档案文件与双遗嘱套件",
+    "inspection_points": [
+      {
+        "id": "seal",
+        "label": "封蜡信件",
+        "position": [
+          -0.091,
+          0.078,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "财富遗嘱与数字处置文件须分开理解。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "folder",
+        "label": "数字档案夹",
+        "position": [
+          0.073,
+          0.06,
+          -0.01
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "文书内容以当前线索记录为准。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-17": {
+    "id": "E-17",
+    "title": "银灰色披巾纤维比对",
+    "area": "档案室验尸区",
+    "category": "手段",
+    "body": "奖杯破损处的银灰纤维织法与伊芙琳披巾破损边缘具有显著关联。",
+    "model_url": "/api/ar/models/scarf-samples.glb",
+    "model_label": "银灰披巾与纤维样本",
+    "inspection_points": [
+      {
+        "id": "weave",
+        "label": "织纹样本",
+        "position": [
+          -0.085,
+          0.049,
+          0
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "比较两块样本的织纹与断裂边缘。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "edge",
+        "label": "破损边缘",
+        "position": [
+          0.085,
+          0.05,
+          -0.03
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "观察边缘形状；样本归属以案件证据为准。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-18": {
+    "id": "E-18",
+    "title": "莉娅数字人格档案",
+    "area": "人格实验室",
+    "category": "动机",
+    "body": "LIA_VALE_014：莉娅·维尔于2024年去世；数字实例ACTIVE；架构师EVELYN VALE；授权UNDER REVIEW。",
+    "model_url": "/api/ar/models/personality-terminal.glb",
+    "model_label": "ECHO人格实验终端",
+    "inspection_points": [
+      {
+        "id": "directory",
+        "label": "档案目录",
+        "position": [
+          0,
+          0.16,
+          0.03
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "查看人格实例记录的主体、授权与处置状态。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-19": {
+    "id": "E-19",
+    "title": "安保例外审批单",
+    "area": "极光档案室",
+    "category": "机会",
+    "body": "诺拉按演示要求确认20:51—21:02临时安全通行。",
+    "model_url": "/api/ar/models/access-console.glb",
+    "model_label": "门禁控制台",
+    "inspection_points": [
+      {
+        "id": "mode",
+        "label": "显示屏",
+        "position": [
+          0,
+          0.19,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "核对模式记录和正常刷卡记录的区别。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "reader",
+        "label": "读卡器",
+        "position": [
+          0,
+          0.09,
+          0.012
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "正常刷卡与安全通行属于不同出入方式。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-20": {
+    "id": "E-20",
+    "title": "东侧走廊影像",
+    "area": "极光档案室",
+    "category": "时间",
+    "body": "20:56克拉拉经过东侧走廊，未拍到她进入档案室。",
+    "model_url": "/api/ar/models/security-camera.glb",
+    "model_label": "监控影像终端",
+    "inspection_points": [
+      {
+        "id": "lens",
+        "label": "摄像机",
+        "position": [
+          -0.1,
+          0.27,
+          0.034
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "镜头覆盖范围不等于全场无人进出。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "screen",
+        "label": "影像终端",
+        "position": [
+          0,
+          0.13,
+          -0.021
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "核对影像来源和记录时间。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-21": {
+    "id": "E-21",
+    "title": "私人数据交易合同",
+    "area": "ADS数字控制中心",
+    "category": "动机",
+    "body": "西奥多从部分ADS员工购买私人数据，并向富豪客户出售资料。",
+    "model_url": "/api/ar/models/archive-folios.glb",
+    "model_label": "档案文件与双遗嘱套件",
+    "inspection_points": [
+      {
+        "id": "seal",
+        "label": "封蜡信件",
+        "position": [
+          -0.091,
+          0.078,
+          0.008
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "财富遗嘱与数字处置文件须分开理解。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "folder",
+        "label": "数字档案夹",
+        "position": [
+          0.073,
+          0.06,
+          -0.01
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "文书内容以当前线索记录为准。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-22": {
+    "id": "E-22",
+    "title": "21:09自动代理回复",
+    "area": "ADS数字控制中心",
+    "category": "时间",
+    "body": "21:09索恩账户文字回复来源为ECHO自动代理，而非本人实时输入。",
+    "model_url": "/api/ar/models/audio-console.glb",
+    "model_label": "ECHO音频播控终端",
+    "inspection_points": [
+      {
+        "id": "file",
+        "label": "播控屏幕",
+        "position": [
+          -0.033,
+          0.16,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "核对文件来源、播放安排及麦克风状态。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "port",
+        "label": "接口",
+        "position": [
+          0.123,
+          0.075,
+          -0.116
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "note": "观察终端接口；模型不替代正式播控记录。",
+        "orbit": "160deg 65deg auto"
+      }
+    ]
+  },
+  "E-23": {
+    "id": "E-23",
+    "title": "索恩佩戴设备异常记录",
+    "area": "档案室验尸区",
+    "category": "时间",
+    "body": "20:58:34佩戴设备记录异常冲击；此后生理传感器持续异常并有效数据中断。",
+    "model_url": "/api/ar/models/smart-watch.glb",
+    "model_label": "索恩佩戴设备",
+    "inspection_points": [
+      {
+        "id": "screen",
+        "label": "设备表面",
+        "position": [
+          0,
+          0.078,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "查看设备构造；异常时间与信号含义请阅读对应日志。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "E-24": {
+    "id": "E-24",
+    "title": "里昂交易室视频记录",
+    "area": "董事交易室",
+    "category": "排除",
+    "body": "20:55—21:04投资人视频会议；交易室影像和参会者证言支持里昂20:58仍在室内。",
+    "model_url": "/api/ar/models/security-camera.glb",
+    "model_label": "监控影像终端",
+    "inspection_points": [
+      {
+        "id": "lens",
+        "label": "摄像机",
+        "position": [
+          -0.1,
+          0.27,
+          0.034
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "镜头覆盖范围不等于全场无人进出。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "screen",
+        "label": "影像终端",
+        "position": [
+          0,
+          0.13,
+          -0.021
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "核对影像来源和记录时间。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-25": {
+    "id": "E-25",
+    "title": "克拉拉摄影区记录",
+    "area": "黄金宴会厅",
+    "category": "排除",
+    "body": "20:59克拉拉已在摄影区，留下可核对记录。",
+    "model_url": "/api/ar/models/photo-frame.glb",
+    "model_label": "舞台与摄影记录相框",
+    "inspection_points": [
+      {
+        "id": "plate",
+        "label": "照片展示面",
+        "position": [
+          0,
+          0.15,
+          -0.009
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "这是一件展示道具；具体照片事实以证据文字或配套原图为准。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "E-26": {
+    "id": "E-26",
+    "title": "索恩真实遗言视频",
+    "area": "终局档案",
+    "category": "终局",
+    "body": "预先录制的真人遗言说明ECHO局限、瑟琳娜意愿及数字处置动机。",
+    "model_url": "/api/ar/models/memory-recorder.glb",
+    "model_label": "温特记忆与遗言播放装置",
+    "inspection_points": [
+      {
+        "id": "recording",
+        "label": "录音载体",
+        "position": [
+          -0.074,
+          0.127,
+          0.05
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "区分真实录制与数字生成的来源元数据。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "archive",
+        "label": "档案播放面",
+        "position": [
+          0,
+          0.063,
+          0.047
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "记录属于何种来源，应依据档案说明判断。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "AR-01": {
+    "id": "AR-01",
+    "title": "尸体位置分析",
+    "area": "档案室验尸区",
+    "body": "观察索恩倒地位置与周围环境。现场初步记录显示头部钝性外伤，具体死亡时间应结合其他证据判断。",
+    "model_url": "/api/ar/models/body-analysis.glb",
+    "model_label": "尸体位置分析",
+    "inspection_points": [
+      {
+        "id": "head",
+        "label": "头部轮廓",
+        "position": [
+          0,
+          0.23,
+          -0.7
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "查看非血腥头部示意，与其他物证轮廓比较。",
+        "orbit": "20deg 35deg auto"
+      },
+      {
+        "id": "position",
+        "label": "倒地位置",
+        "position": [
+          0,
+          0.18,
+          -0.15
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "观察身体、礼服和现场相对位置。",
+        "orbit": "0deg 30deg auto"
+      }
+    ]
+  },
+  "AR-02": {
+    "id": "AR-02",
+    "title": "头部创伤鉴定",
+    "area": "档案室验尸区",
+    "body": "查看非血腥创伤示意，比较头部钝伤轮廓与奖杯底座形态。模型仅用于虚构案件分析，结论以对应鉴定报告为准。",
+    "model_url": "/api/ar/models/body-analysis.glb",
+    "model_label": "头部创伤鉴定",
+    "inspection_points": [
+      {
+        "id": "head",
+        "label": "头部轮廓",
+        "position": [
+          0,
+          0.23,
+          -0.7
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "查看非血腥头部示意，与其他物证轮廓比较。",
+        "orbit": "20deg 35deg auto"
+      },
+      {
+        "id": "position",
+        "label": "倒地位置",
+        "position": [
+          0,
+          0.18,
+          -0.15
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "观察身体、礼服和现场相对位置。",
+        "orbit": "0deg 30deg auto"
+      }
+    ]
+  },
+  "AR-03": {
+    "id": "AR-03",
+    "title": "佩戴设备分析",
+    "area": "档案室验尸区",
+    "body": "观察手表、表带与传感器。设备异常和生理数据中断能支持时间分析，但不等于精确医学死亡时刻。",
+    "model_url": "/api/ar/models/smart-watch.glb",
+    "model_label": "佩戴设备分析",
+    "inspection_points": [
+      {
+        "id": "screen",
+        "label": "设备表面",
+        "position": [
+          0,
+          0.078,
+          0.006
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "查看设备构造；异常时间与信号含义请阅读对应日志。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  },
+  "AR-04": {
+    "id": "AR-04",
+    "title": "奖杯微量物证",
+    "area": "极光档案室",
+    "body": "旋转极光之眼奖杯，检查底座背面的破损和附着纤维。纤维来源需通过交叉比对确认，不能只看模型判断。",
+    "model_url": "/api/ar/models/aurora-trophy.glb",
+    "model_label": "奖杯微量物证",
+    "inspection_points": [
+      {
+        "id": "base",
+        "label": "底座背面",
+        "position": [
+          0.008,
+          0.066,
+          -0.039
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "note": "转到奖杯背面，比较底座轮廓和缺口。",
+        "orbit": "180deg 55deg auto"
+      },
+      {
+        "id": "fiber",
+        "label": "附着物",
+        "position": [
+          0.017,
+          0.074,
+          -0.04
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "note": "放大查看破损边缘的附着物；来源以鉴定报告为准。",
+        "orbit": "160deg 50deg auto"
+      }
+    ]
+  },
+  "AR-05": {
+    "id": "AR-05",
+    "title": "酒杯检验",
+    "area": "档案室验尸区",
+    "body": "查看酒杯与模拟检验样本。案件现有资料不支持枪击或酒杯毒物为直接死因；排除性调查仍需与初步法医报告结合。",
+    "model_url": "/api/ar/models/wine-glass.glb",
+    "model_label": "酒杯检验",
+    "inspection_points": [
+      {
+        "id": "rim",
+        "label": "杯口",
+        "position": [
+          0,
+          0.216,
+          0
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "观察酒杯与采样位置，检验结论以记录为准。",
+        "orbit": "0deg 55deg auto"
+      },
+      {
+        "id": "sample",
+        "label": "采样瓶",
+        "position": [
+          0.074,
+          0.084,
+          0.045
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "这是模拟检验样本，不能据外形断定毒物。",
+        "orbit": "0deg 55deg auto"
+      }
+    ]
+  },
+  "AR-06": {
+    "id": "AR-06",
+    "title": "档案室出入路线",
+    "area": "极光档案室",
+    "body": "观察档案室与东西两条通道。东侧摄像机只覆盖东侧，不能据此判断西侧无人进出。门禁时间窗口以记录为准。",
+    "model_url": "/api/ar/models/archive-route.glb",
+    "model_label": "档案室出入路线",
+    "inspection_points": [
+      {
+        "id": "east",
+        "label": "东侧覆盖区",
+        "position": [
+          0.18,
+          0.071,
+          -0.02
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "东侧镜头只覆盖东侧路线。",
+        "orbit": "0deg 20deg auto"
+      },
+      {
+        "id": "west",
+        "label": "西侧通道",
+        "position": [
+          -0.176,
+          0.057,
+          0.015
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "note": "查看独立的西侧通道，再核对门禁时间窗口。",
+        "orbit": "0deg 20deg auto"
+      }
+    ]
+  }
+}

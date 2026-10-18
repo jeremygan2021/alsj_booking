@@ -1,0 +1,101 @@
+{
+  "transcriptIssues": [],
+  "metrics": [
+    {
+      "id": "A01",
+      "file": "现场播放版_MP3/A01_雪夜来客.mp3",
+      "duration": 94.35,
+      "input_i": -15.58,
+      "input_tp": -1.48,
+      "input_lra": 5.0
+    },
+    {
+      "id": "A02",
+      "file": "现场播放版_MP3/A02_索恩登场与撒钱.mp3",
+      "duration": 93.862,
+      "input_i": -16.15,
+      "input_tp": -1.39,
+      "input_lra": 7.4
+    },
+    {
+      "id": "A03",
+      "file": "现场播放版_MP3/A03_宴会暗流.mp3",
+      "duration": 72.144,
+      "input_i": -15.98,
+      "input_tp": -1.48,
+      "input_lra": 5.8
+    },
+    {
+      "id": "A04",
+      "file": "现场播放版_MP3/A04_21点07分的声音.mp3",
+      "duration": 64.447,
+      "input_i": -16.08,
+      "input_tp": -1.47,
+      "input_lra": 9.8
+    },
+    {
+      "id": "A05",
+      "file": "现场播放版_MP3/A05_档案室的门.mp3",
+      "duration": 70.492,
+      "input_i": -15.73,
+      "input_tp": -1.48,
+      "input_lra": 5.2
+    },
+    {
+      "id": "A06",
+      "file": "现场播放版_MP3/A06_瑟琳娜留下的声音.mp3",
+      "duration": 75.3,
+      "input_i": -16.02,
+      "input_tp": -1.5,
+      "input_lra": 5.9
+    },
+    {
+      "id": "A07",
+      "file": "现场播放版_MP3/A07_证言交锋.mp3",
+      "duration": 89.691,
+      "input_i": -16.25,
+      "input_tp": -1.5,
+      "input_lra": 5.4
+    },
+    {
+      "id": "A08",
+      "file": "现场播放版_MP3/A08_重新校准时间.mp3",
+      "duration": 46.579,
+      "input_i": -16.34,
+      "input_tp": -1.49,
+      "input_lra": 10.5
+    },
+    {
+      "id": "A09",
+      "file": "现场播放版_MP3/A09_庭审开始.mp3",
+      "duration": 44.163,
+      "input_i": -15.8,
+      "input_tp": -1.48,
+      "input_lra": 8.1
+    },
+    {
+      "id": "A10",
+      "file": "现场播放版_MP3/A10_档案室最后三分钟.mp3",
+      "duration": 213.129,
+      "input_i": -15.74,
+      "input_tp": -1.49,
+      "input_lra": 4.7
+    },
+    {
+      "id": "A11",
+      "file": "现场播放版_MP3/A11_索恩真实遗言.mp3",
+      "duration": 139.435,
+      "input_i": -15.99,
+      "input_tp": -1.49,
+      "input_lra": 5.4
+    },
+    {
+      "id": "A12",
+      "file": "现场播放版_MP3/A12_下一场雪.mp3",
+      "duration": 65.749,
+      "input_i": -16.34,
+      "input_tp": -1.91,
+      "input_lra": 6.8
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+	{
+		"text": "第六幕，拍卖。西奥多已经把拍品摆上台面。游戏券、金币、承诺和秘密，都可能在今晚换一个主人。",
+		"pronounce_text": "第六幕，拍卖。西奥多已经把拍品摆上台面。游戏券、金币、承诺和秘密，都可能在今晚换一个主人。",
+		"time_begin": 0,
+		"time_end": 12500,
+		"text_begin": 0,
+		"text_end": 45,
+		"pronounce_text_begin": 0,
+		"pronounce_text_end": 45
+	},
+	{
+		"text": "请看一眼你的身份卡，想想你要争取什么，也想想你愿意为此付出多少。宴会即将开始，庄园的主人还没有给出他承诺的答案。",
+		"pronounce_text": "请看一眼你的身份卡，想想你要争取什么，也想想你愿意为此付出多少。宴会即将开始，庄园的主人还没有给出他承诺的答案。",
+		"time_begin": 12700,
+		"time_end": 25800,
+		"text_begin": 45,
+		"text_end": 101,
+		"pronounce_text_begin": 45,
+		"pronounce_text_end": 101
+	}
+]

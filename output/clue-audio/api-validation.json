@@ -1,0 +1,268 @@
+[
+  {
+    "id": "E-01",
+    "duration": 15.287,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-02",
+    "duration": 15.85,
+    "speakers": [
+      "旁白",
+      "里昂"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-03",
+    "duration": 12.35,
+    "speakers": [
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-04",
+    "duration": 18.526,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-05",
+    "duration": 19.05,
+    "speakers": [
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-06",
+    "duration": 12.75,
+    "speakers": [
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-07",
+    "duration": 17.045,
+    "speakers": [
+      "克拉拉",
+      "瑟琳娜"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-08",
+    "duration": 13.95,
+    "speakers": [
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-09",
+    "duration": 9.725,
+    "speakers": [
+      "西奥多"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-10",
+    "duration": 14.85,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-11",
+    "duration": 15.382,
+    "speakers": [
+      "诺拉",
+      "西奥多"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-12",
+    "duration": 21.45,
+    "speakers": [
+      "旁白",
+      "索恩"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-13",
+    "duration": 12.837,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-14",
+    "duration": 12.535,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-15",
+    "duration": 37.15,
+    "speakers": [
+      "旁白",
+      "索恩"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-16",
+    "duration": 15.65,
+    "speakers": [
+      "旁白",
+      "西奥多"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-17",
+    "duration": 12.95,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-18",
+    "duration": 17.95,
+    "speakers": [
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-19",
+    "duration": 17.072,
+    "speakers": [
+      "旁白",
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-20",
+    "duration": 11.95,
+    "speakers": [
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-21",
+    "duration": 16.5,
+    "speakers": [
+      "旁白",
+      "西奥多"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-22",
+    "duration": 14.85,
+    "speakers": [
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-23",
+    "duration": 16.15,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-24",
+    "duration": 18.896,
+    "speakers": [
+      "旁白",
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-25",
+    "duration": 17.35,
+    "speakers": [
+      "诺拉",
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "E-26",
+    "duration": 20.75,
+    "speakers": [
+      "旁白"
+    ],
+    "range": 206
+  },
+  {
+    "id": "AR-01",
+    "duration": 16.25,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "AR-02",
+    "duration": 17.35,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "AR-03",
+    "duration": 16.15,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "AR-04",
+    "duration": 16.25,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "AR-05",
+    "duration": 17.35,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  },
+  {
+    "id": "AR-06",
+    "duration": 16.924,
+    "speakers": [
+      "诺拉"
+    ],
+    "range": 206
+  }
+]
