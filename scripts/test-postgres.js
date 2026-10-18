@@ -20,7 +20,9 @@ try {
         "tests/content.test.js",
         "tests/public-ar.test.js",
         "tests/character-generation.test.js",
+        "tests/inspiration-api.test.js",
         "tests/admin.test.js",
+        "tests/paid-phones.test.js",
         "tests/sms.test.js",
       ]) {
     const schema = "alsj_test_" + randomBytes(8).toString("hex");

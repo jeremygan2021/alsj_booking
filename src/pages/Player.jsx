@@ -54,7 +54,12 @@ function Player({ pub, notify }) {
     detailGeneration = useRef(0),
     galleryGeneration = useRef(0),
     showModelOnUnlock = useRef(false),
-    trackedClues = useRef(new Set());
+    trackedClues = useRef(new Set()),
+    characterApproved = useRef(false);
+  characterApproved.current = data?.character?.status === "approved";
+  const updateCharacterFormState = (updater) => {
+    if (!characterApproved.current) setCharacterFormState(updater);
+  };
   const openClue = (clue, ar = false) => {
     detailGeneration.current++;
     showModelOnUnlock.current = ar;
@@ -312,7 +317,7 @@ function Player({ pub, notify }) {
                   character={c}
                   playerName={p.name}
                   formState={characterFormState}
-                  onFormStateChange={setCharacterFormState}
+                  onFormStateChange={updateCharacterFormState}
                   busy={busy}
                   onSubmit={(draft) =>
                     action(async () => {

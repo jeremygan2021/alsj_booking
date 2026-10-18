@@ -43,8 +43,10 @@ import {
 } from "../clue-qr-download";
 import { phases, factions, formatTime } from "../constants";
 import { Audit, PlayerReview, ContentEditor } from "../components/StaffForms";
-import { RelationCards } from "../components/CharacterProfile";
+import { CharacterAvatar, RelationCards } from "../components/CharacterProfile";
 import ContentManager from "../components/ContentManager";
+import PerformanceAudio from "../components/PerformanceAudio";
+import PaymentImport, { PaymentStatus } from "../components/PaymentImport";
 import {
   Icon,
   Button,
@@ -112,6 +114,7 @@ function Admin({ pub, session, notify }) {
         ["missions", "任务与金币", Coins],
         ["auction", "拍卖管理", Gavel],
         ["events", "全场广播", Radio],
+        ["performance", "现场演绎音频", Radio],
         ["court", "庭审与投票", Shield],
         ["settings", "活动设置", Layers],
       ]
@@ -125,7 +128,7 @@ function Admin({ pub, session, notify }) {
     checked = data.players.filter((p) => p.checked_in);
   const filtered = data.players.filter(
     (p) =>
-      `${p.name} ${p.character || ""}`
+      `${p.name} ${p.character || ""} ${p.cosplay_character || ""} ${gm ? p.contact || "" : ""}`
         .toLowerCase()
         .includes(query.toLowerCase()) &&
       (filter === "all" ||
@@ -146,7 +149,7 @@ function Admin({ pub, session, notify }) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="搜索宾客或角色姓名"
+            placeholder={gm ? "搜索姓名、角色或手机号" : "搜索宾客或角色姓名"}
             aria-label="搜索宾客"
           />
         </div>
@@ -157,13 +160,13 @@ function Admin({ pub, session, notify }) {
         >
           <option value="all">全部宾客</option>
           <option value="pending">待审核角色</option>
-          <option value="paid">已核验票务</option>
+          <option value="paid">已付费宾客</option>
           <option value="checkin">已签到</option>
         </select>
       </div>
       {filtered.length ? (
         <div className="table-wrap">
-          <table>
+          <table data-testid="admin-player-table">
             <thead>
               <tr>
                 <th>宾客 / 角色</th>
@@ -180,18 +183,25 @@ function Admin({ pub, session, notify }) {
               {filtered.map((p) => (
                 <tr key={p.id}>
                   <td>
-                    <strong>{p.name}</strong>
-                    <small>{p.character || "未填写角色"}</small>
+                    <div className="admin-player-identity">
+                      <CharacterAvatar
+                        src={p.avatar_url}
+                        name={p.character || p.name}
+                      />
+                      <div>
+                        <strong>{p.name}</strong>
+                        <small>{p.character || "未填写角色"}</small>
+                        {gm && (
+                          <small className="admin-player-phone">
+                            {p.contact || "未填写联系方式"}
+                          </small>
+                        )}
+                      </div>
+                    </div>
                   </td>
                   <td>G{p.group_id}</td>
                   <td>
-                    <Badge tone={p.payment === "paid" ? "green" : ""}>
-                      {p.payment === "paid"
-                        ? "已核验"
-                        : p.payment === "refunded"
-                          ? "已退款"
-                          : "待核验"}
-                    </Badge>
+                    <PaymentStatus player={p} showSource={gm} />
                   </td>
                   <td>
                     <Badge tone={p.status === "approved" ? "green" : "gold"}>
@@ -501,7 +511,10 @@ function Admin({ pub, session, notify }) {
           />
         )}
         {tab === "players" && (
-          <section className="panel">{playerTable}</section>
+          <>
+            {gm && <PaymentImport notify={notify} onChanged={refresh} />}
+            <section className="panel">{playerTable}</section>
+          </>
         )}
         {tab === "relations" && (
           <>
@@ -797,6 +810,7 @@ function Admin({ pub, session, notify }) {
             ))}
           </div>
         )}
+        {tab === "performance" && gm && <PerformanceAudio />}
         {tab === "events" && (
           <div className="dashboard-columns">
             <section className="panel">

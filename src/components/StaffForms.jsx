@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowUpRight, Check, Lock } from "lucide-react";
 import { Badge, Button, Empty, Field } from "./ui";
 import { phases, factions, formatTime } from "../constants";
+import { PaymentStatus } from "./PaymentImport";
 import {
   CharacterAvatar,
   GenerationStatus,
@@ -34,9 +35,12 @@ function PlayerReview({ data, busy, onUpdate }) {
       <div className="review-header">
         <div>
           <h3>{p.name}</h3>
-          <p className="muted">{p.contact}</p>
+          <p className="muted">联系方式：{p.contact}</p>
         </div>
-        <Badge>第{p.group_id}调查组</Badge>
+        <div className="review-player-status">
+          <Badge>第{p.group_id}调查组</Badge>
+          <PaymentStatus player={p} />
+        </div>
       </div>
       <div className="review-actions">
         <Button
@@ -63,12 +67,13 @@ function PlayerReview({ data, busy, onUpdate }) {
       </div>
       {c ? (
         <section className="review-character">
-          <span className="eyebrow">PRIVATE CHARACTER FILE</span>
+          <span className="eyebrow">已保存的私人角色档案</span>
           <div className="review-avatar-heading">
             <CharacterAvatar src={c.avatar_url} name={c.name} large />
             <div>
               <h3>
-                {c.name} / {c.english}
+                {c.name}
+                {c.english && ` / ${c.english}`}
               </h3>
               <p>
                 {c.profession} · {c.skill} +2
@@ -79,7 +84,7 @@ function PlayerReview({ data, busy, onUpdate }) {
               </p>
             </div>
           </div>
-          <span className="eyebrow">PLAYER'S ORIGINAL STORY</span>
+          <span className="eyebrow">已保存的角色故事</span>
           <p className="character-original-story">{c.story}</p>
           <p>赴宴动机：{c.motive}</p>
           {c.adaptation && (
@@ -103,7 +108,10 @@ function PlayerReview({ data, busy, onUpdate }) {
           />
           <div className="secret-note">
             <Lock size={16} />
-            <p>{c.secret}</p>
+            <div>
+              <small>角色秘密 · GM可见</small>
+              <p>{c.secret || "暂无秘密设定"}</p>
+            </div>
           </div>
           <form
             onSubmit={(e) => {

@@ -7,11 +7,14 @@ import path from "node:path";
 import { createEvidenceService } from "./evidence/service.js";
 import { mountEvidenceRoutes } from "./evidence/routes.js";
 import { createClueAudioCatalog, sendClueAudio } from "./audio/catalog.js";
+import { createPerformanceAudioCatalog, sendPerformanceAudio } from "./audio/performance-catalog.js";
+import { minimaxConfig, isMiniMaxConfigured, generateCharacterDraft } from "./minimax-generation.js";
 import { createSceneCatalog } from "./ar/catalog.js";
 import { mountArRoutes } from "./ar/routes.js";
 import { defaultArScenes, demoEvidence } from "./ar/scenes.js";
 import { createContentStore } from "./admin/content-store.js";
 import { mountManagementRoutes } from "./admin/routes.js";
+import { createPaidPhoneService, mountPaidPhoneRoutes } from "./payments/paid-phones.js";
 import { createSmsAuth } from "./auth/sms.js";
 import { randomBytes, scryptSync, createHmac } from "node:crypto";
 import { openDb } from "./db.js";
@@ -49,6 +52,7 @@ export async function createApp({
   secure = false,
   trustProxy = "loopback",
   llm = {},
+  minimax = {},
   arScenes = [],
   assetBaseUrl = "/ar-assets/",
   smsSender = null,
@@ -58,12 +62,10 @@ export async function createApp({
   smsTestCode = "",
   smsTestExpiresAt = 0,
   smsDevLogin = false,
-  environment = process.env.NODE_ENV || "development",
   allowLegacyRegistration = false,
   audioRoot,
+  performanceAudioRoot,
 }) {
-  if (smsDevLogin && (!["development", "test"].includes(environment) || secure))
-    throw new Error("通用测试验证码只允许用于开发/测试环境，生产环境禁止启用");
   const arCatalog = createSceneCatalog(arScenes, assetBaseUrl);
   const demoCatalog = createSceneCatalog(defaultArScenes, assetBaseUrl);
   const app = express(),
@@ -72,6 +74,7 @@ export async function createApp({
   // Production traffic enters through the local Nginx proxy only.
   app.set("trust proxy", trustProxy);
   app.use("/api/avatar", express.json({ limit: "3mb" }));
+  app.use("/api/staff/paid-phones", express.json({ limit: "128kb" }));
   app.use(
     express.json({
       limit: "32kb",
@@ -91,8 +94,12 @@ export async function createApp({
     return v.trim();
   };
   const tx = (fn) => db.transaction(fn);
+  const paidPhones = createPaidPhoneService({ one, all, run, fail });
   const generation = generationConfig(llm);
   const configured = isGenerationConfigured(generation);
+  const generationLockMs = Math.max(45000, generation.timeoutMs + 5000);
+  const inspirationConfig = minimaxConfig(minimax);
+  const inspirationJobs = new Set();
   let avatarDecodes = 0;
   const relationsFor = async (id, { playerView = false } = {}) => {
     const rows = await all(
@@ -111,7 +118,7 @@ export async function createApp({
     if (
       c.generation_pending &&
       (!generation_started_at ||
-        Date.now() - Number(generation_started_at) >= 45000)
+        Date.now() - Number(generation_started_at) >= generationLockMs)
     ) {
       visible.generation_pending = 0;
       visible.generation_status = "error";
@@ -141,16 +148,17 @@ export async function createApp({
       now,
     );
   };
-  const completeGeneration = async (id, revision, lock, c) => {
+  const completeGeneration = async (id, revision, lock, c, prepared = null) => {
     const npcs = await all(
       `SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`,
     );
     let result,
       error = null;
+    const generated = Boolean(prepared) || configured;
     try {
-      result = configured
+      result = prepared || (configured
         ? await generateStory(c, npcs, generation)
-        : templateStory(c, npcs);
+        : templateStory(c, npcs));
     } catch (e) {
       error = e.message;
     }
@@ -168,8 +176,8 @@ export async function createApp({
       await run(
         "UPDATE characters SET adaptation=?,generation_status=?,generator=?,generation_error=?,generation_pending=0,generation_lock=NULL,generation_started_at=NULL,npc_id=? WHERE player_id=?",
         result?.adaptation || null,
-        error ? "error" : configured ? "ready" : "unconfigured",
-        configured ? "llm" : "curated-template",
+        error ? "error" : generated ? "ready" : "unconfigured",
+        generated ? "llm" : "curated-template",
         error,
         result?.relations[0]?.npc_id || null,
         id,
@@ -198,10 +206,10 @@ export async function createApp({
       }
       return {
         ok: true,
-        generator: configured ? "llm" : "curated-template",
+        generator: generated ? "llm" : "curated-template",
         generation_status: error
           ? "error"
-          : configured
+          : generated
             ? "ready"
             : "unconfigured",
       };
@@ -326,7 +334,7 @@ export async function createApp({
         `SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`,
       ),
       registered: (await one("SELECT COUNT(*) n FROM players")).n,
-      generation: { configured, provider: "OpenAI兼容接口" },
+      generation: { configured, provider: generation.minimax ? "MiniMax" : "OpenAI兼容接口", inspiration: isMiniMaxConfigured(inspirationConfig) },
       events: await all("SELECT * FROM events ORDER BY id DESC LIMIT 8"),
     }),
   );
@@ -389,6 +397,7 @@ export async function createApp({
             (count % 6) + 1,
           );
         }
+        await paidPhones.matchPlayer(p.id);
         await session(res, "player", p.id);
         return { id: p.id, role: "player", registered };
       },
@@ -420,6 +429,7 @@ export async function createApp({
         hashPassword(password),
         ((await one("SELECT COUNT(*) n FROM players")).n % 6) + 1,
       );
+      await paidPhones.matchPlayer(id);
     });
     await session(s, "player", id);
     s.json({
@@ -555,6 +565,45 @@ export async function createApp({
       "Cache-Control": "private, no-store",
     }).send(Buffer.from(avatar.data, "base64"));
   });
+  app.post("/api/character/inspire", auth("player"), async (r, s) => {
+    const p = await player(r);
+    if (!isMiniMaxConfigured(inspirationConfig))
+      fail("角色生成服务尚未配置，请联系GM", 503);
+    if (!r.body || typeof r.body !== "object" || Array.isArray(r.body))
+      fail("角色灵感输入格式无效");
+    const seed = {};
+    for (const [key, max] of [["cosplay_character", 100], ["cosplay_source", 100], ["idea", 2000]]) {
+      const value = r.body[key] ?? "";
+      if (typeof value !== "string" || value.length > max) fail("角色灵感输入无效或过长");
+      seed[key] = value.trim();
+    }
+    if (inspirationJobs.has(p.id)) fail("角色正在生成，请稍候", 409);
+    if (inspirationJobs.size >= 2) fail("角色生成繁忙，请稍后重试", 429);
+    inspirationJobs.add(p.id);
+    try {
+      const snapshot = await tx(async () => {
+        const current = await one("SELECT revision,status FROM characters WHERE player_id=?", p.id);
+        if (current?.status === "approved") fail("已批准角色需由GM重新开放编辑");
+        await limitGeneration(p.id);
+        return { revision: current?.revision || 0, avatar: (await one("SELECT updated_at FROM avatars WHERE player_id=?", p.id))?.updated_at || 0 };
+      });
+      const npcs = await all(`SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`);
+      const result = await generateCharacterDraft(seed, npcs, inspirationConfig);
+      const avatar_url = await tx(async () => {
+        const current = await one("SELECT revision,status FROM characters WHERE player_id=?", p.id);
+        const avatar = await one("SELECT updated_at FROM avatars WHERE player_id=?", p.id);
+        if (current?.status === "approved" || (current?.revision || 0) !== snapshot.revision || (avatar?.updated_at || 0) !== snapshot.avatar)
+          fail("角色档案已更新，请刷新后再生成，已有内容已保留", 409);
+        const updated = Date.now();
+        await run("INSERT INTO avatars(player_id,data,updated_at) VALUES(?,?,?) ON CONFLICT(player_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at", p.id, result.avatarWebp.toString("base64"), updated);
+        await run("INSERT INTO character_inspirations(player_id,data,avatar_version,created_at) VALUES(?,?,?,?) ON CONFLICT(player_id) DO UPDATE SET data=excluded.data,avatar_version=excluded.avatar_version,created_at=excluded.created_at", p.id, JSON.stringify({ character: result.character, adaptation: result.adaptation, relations: result.relations }), updated, updated);
+        return `/api/avatars/${p.id}?v=${updated}`;
+      });
+      s.set("Cache-Control", "private, no-store").json({ ...result.character, avatar_url });
+    } finally {
+      inspirationJobs.delete(p.id);
+    }
+  });
   app.post("/api/character", auth("player"), async (r, s) => {
     const p = await player(r),
       story = required(r.body.story, "虚构人物背景", 2000),
@@ -603,6 +652,18 @@ export async function createApp({
       const revision = (existing?.revision || 0) + 1,
         lock = token();
       const avatar_url = `/api/avatars/${p.id}?v=${avatar.updated_at}`;
+      // Reuse this player's generated relationship cards when the submitted
+      // draft is unchanged. Never expose the NPC-only briefs in the preview.
+      const cached = await one("SELECT * FROM character_inspirations WHERE player_id=?", p.id);
+      let prepared = null;
+      if (cached && cached.avatar_version === avatar.updated_at && Date.now() - cached.created_at < 3 * 86400000) {
+        try {
+          const saved = JSON.parse(cached.data);
+          const submitted = { name, english, profession, skill, story, motive, cosplay_character, cosplay_source };
+          if (Object.entries(submitted).every(([key, value]) => saved.character[key] === value))
+            prepared = { adaptation: saved.adaptation, relations: saved.relations };
+        } catch { /* A missing or unusable cache falls back to normal generation. */ }
+      }
       await run(
         `INSERT INTO characters(player_id,name,english,profession,skill,story,secret,motive,cosplay_character,cosplay_source,avatar_url,revision,generation_pending,generation_lock,generation_started_at,generation_status,generator) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,1,?,?,?,?) ON CONFLICT(player_id) DO UPDATE SET name=excluded.name,english=excluded.english,profession=excluded.profession,skill=excluded.skill,story=excluded.story,secret=excluded.secret,npc_id=NULL,status='pending',motive=excluded.motive,cosplay_character=excluded.cosplay_character,cosplay_source=excluded.cosplay_source,avatar_url=excluded.avatar_url,revision=excluded.revision,generation_pending=1,generation_lock=excluded.generation_lock,generation_started_at=excluded.generation_started_at,generation_status=excluded.generation_status,generator=excluded.generator,generation_error=NULL,adaptation=NULL`,
         p.id,
@@ -624,13 +685,15 @@ export async function createApp({
       );
       await run("DELETE FROM character_relations WHERE player_id=?", p.id);
       await run("DELETE FROM missions WHERE player_id=?", p.id);
+      await run("DELETE FROM character_inspirations WHERE player_id=?", p.id);
       return {
         revision,
         lock,
+        prepared,
         c: await one("SELECT * FROM characters WHERE player_id=?", p.id),
       };
     });
-    s.json(await completeGeneration(p.id, draft.revision, draft.lock, draft.c));
+    s.json(await completeGeneration(p.id, draft.revision, draft.lock, draft.c, draft.prepared));
   });
   app.post("/api/character/generate", auth("player"), async (r, s) => {
     const p = await player(r);
@@ -639,7 +702,7 @@ export async function createApp({
       if (!c || !c.cosplay_character || !c.cosplay_source || !c.avatar_url)
         fail("请先完成Cos角色、故事和头像档案");
       if (c.status === "approved") fail("已批准角色需由GM重新开放编辑");
-      if (c.generation_pending && Date.now() - c.generation_started_at < 45000)
+      if (c.generation_pending && Date.now() - c.generation_started_at < generationLockMs)
         fail("剧情正在生成，请稍候", 409);
       await limitGeneration(p.id);
       const lock = token();
@@ -652,6 +715,15 @@ export async function createApp({
       return { revision: c.revision, lock, c };
     });
     s.json(await completeGeneration(p.id, draft.revision, draft.lock, draft.c));
+  });
+  const performanceAudio = createPerformanceAudioCatalog(performanceAudioRoot);
+  app.get("/api/staff/performance-audio", auth("gm"), async (r, s) => {
+    s.set("Cache-Control", "private, no-store").json(await performanceAudio.describe());
+  });
+  app.get("/api/staff/performance-audio/:id/file", auth("gm"), async (r, s) => {
+    const track = await performanceAudio.get(r.params.id);
+    if (!track) fail("现场音频不存在", 404);
+    sendPerformanceAudio(s, track);
   });
   const clueAudio = createClueAudioCatalog(audioRoot);
   const evidence = createEvidenceService({
@@ -908,7 +980,7 @@ export async function createApp({
       settings: await setting(),
       storyMaterials: staffStoryMaterials(r.auth.role, r.auth.user_id),
       players: await all(
-        `SELECT p.id,p.name,p.payment,p.checked_in,p.coins,p.group_id,c.name AS "character",c.status,c.cosplay_character,c.cosplay_source,c.avatar_url${gm ? ",c.faction,c.generation_status,c.generator,c.generation_error,c.generation_pending" : ""} FROM players p LEFT JOIN characters c ON c.player_id=p.id ${gm ? "" : "WHERE c.status='approved' AND EXISTS (SELECT 1 FROM character_relations r WHERE r.player_id=p.id AND r.npc_id=?)"} ORDER BY p.created_at DESC`,
+        `SELECT p.id,p.name,p.payment,p.checked_in,p.coins,p.group_id,c.name AS "character",c.status,c.cosplay_character,c.cosplay_source,c.avatar_url${gm ? ",p.contact,CASE WHEN EXISTS (SELECT 1 FROM paid_phones pf WHERE pf.phone=p.contact) AND NOT EXISTS (SELECT 1 FROM npc_phones nf WHERE nf.phone=p.contact) THEN 1 ELSE 0 END AS paid_phone_import,c.faction,c.generation_status,c.generator,c.generation_error,c.generation_pending" : ""} FROM players p LEFT JOIN characters c ON c.player_id=p.id ${gm ? "" : "WHERE c.status='approved' AND EXISTS (SELECT 1 FROM character_relations r WHERE r.player_id=p.id AND r.npc_id=?)"} ORDER BY p.created_at DESC`,
         ...(gm ? [] : [r.auth.user_id]),
       ),
       relations: relationRows.map(({ hooks, ...relation }) => ({
@@ -943,7 +1015,7 @@ export async function createApp({
   });
   app.get("/api/staff/players/:id", auth("gm"), async (r, s) => {
     const p = await one(
-      "SELECT id,name,contact,payment,group_id,checked_in,coins FROM players WHERE id=?",
+      "SELECT p.id,p.name,p.contact,p.payment,p.group_id,p.checked_in,p.coins,CASE WHEN EXISTS (SELECT 1 FROM paid_phones pf WHERE pf.phone=p.contact) AND NOT EXISTS (SELECT 1 FROM npc_phones nf WHERE nf.phone=p.contact) THEN 1 ELSE 0 END AS paid_phone_import FROM players p WHERE p.id=?",
       r.params.id,
     );
     if (!p) fail("玩家不存在", 404);
@@ -1222,6 +1294,7 @@ export async function createApp({
       ok: true,
     });
   });
+  mountPaidPhoneRoutes(app, { auth, one, all, run, tx, fail, audit, paidPhones });
   mountManagementRoutes(app, {
     auth,
     one,
@@ -1234,6 +1307,7 @@ export async function createApp({
     token,
     store: contentStore,
     assetBaseUrl,
+    paidPhones,
   });
   app.use("/api", (r, s) =>
     s.status(404).json({

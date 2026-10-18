@@ -2,16 +2,30 @@ import { phases } from "./content.js";
 class GenerationError extends Error {}
 
 export function generationConfig(options = {}) {
+  const minimaxKey = process.env.MINIMAX_API_KEY || "";
+  const baseUrl =
+    options.baseUrl ??
+    (process.env.LLM_BASE_URL ||
+      (minimaxKey
+        ? process.env.MINIMAX_BASE_URL || "https://api.minimax.cn/v1"
+        : ""));
+  const minimax =
+    /^https:\/\/api\.(?:minimax\.(?:cn|io)|minimaxi\.com)(?:\/|$)/i.test(
+      baseUrl,
+    );
   return {
-    baseUrl: options.baseUrl ?? process.env.LLM_BASE_URL ?? "",
-    apiKey: options.apiKey ?? process.env.LLM_API_KEY ?? "",
-    model: options.model ?? process.env.LLM_MODEL ?? "",
+    baseUrl,
+    apiKey: options.apiKey ?? (process.env.LLM_API_KEY || minimaxKey),
+    model:
+      options.model ??
+      (process.env.LLM_MODEL ||
+        (minimax ? process.env.MINIMAX_TEXT_MODEL || "MiniMax-M2.5" : "")),
     responseFormat:
       options.responseFormat ??
-      process.env.LLM_RESPONSE_FORMAT ??
-      "json_schema",
+      (minimax ? "none" : process.env.LLM_RESPONSE_FORMAT || "json_schema"),
     fetch: options.fetch ?? globalThis.fetch,
-    timeoutMs: options.timeoutMs ?? 25000,
+    timeoutMs: options.timeoutMs ?? (minimax ? 90000 : 25000),
+    minimax,
   };
 }
 export const isGenerationConfigured = (config) =>
@@ -69,6 +83,7 @@ export function relationSchema(npcs) {
 
 const safePlot =
   /E-\d{2}|真凶|真正凶手|凶手(?:是|为)|(?:阿德里安·索恩|Adrian Thorne).{0,15}(?:死亡|死去|遇害)|(?:杀害|刺杀).{0,15}(?:阿德里安·索恩|Adrian Thorne)|(?:阵营分配|你的阵营|所属阵营)|(?:奖励|获得|给予|发放).{0,6}\d+\s*(?:枚|个)?金币/i;
+export const hasForbiddenPlot = (value) => safePlot.test(value);
 export function validateGeneratedStory(value, npcs) {
   const error = () => {
     throw new GenerationError(
@@ -90,7 +105,7 @@ export function validateGeneratedStory(value, npcs) {
       typeof v !== "string" ||
       !v.trim() ||
       v.length > max ||
-      safePlot.test(v)
+      hasForbiddenPlot(v)
     )
       error();
     return v.trim();
@@ -206,10 +221,12 @@ export async function generateStory(character, npcs, config) {
   } catch {
     throw new GenerationError("模型接口地址配置无效，请联系GM");
   }
-  if (!["json_schema", "json_object"].includes(config.responseFormat))
+  if (!["json_schema", "json_object", "none"].includes(config.responseFormat))
     throw new GenerationError("模型输出格式配置无效，请联系GM");
   const publicContext = {
-    title: "阿拉斯加之夜 · 万圣节ECHO主题晚宴",
+    title: "阿拉斯加之夜：最后的遗嘱 · 万圣节ECHO主题晚宴",
+    setting:
+      "2026年万圣节，阿拉斯加索恩庄园。ADS创始人阿德里安·索恩邀请客人参加ECHO主题晚宴。ECHO是数字人格模拟，并非已证明的意识延续。",
     phases: phases.map((name, i) => ({ phase: i + 1, name })),
     boundaries:
       "第一幕结识与破冰，第二幕商业谈判与拍卖，第三幕按GM指引调查，第四幕基于现场证据表达判断。只能创造晚宴开始前的交往、合作、分歧与社交动机；不得创造案件事实、幕后真相、死亡事件、证据内容、已知凶手、金币奖励或阵营。不要替玩家决定最终结局。",
@@ -251,17 +268,22 @@ export async function generateStory(character, npcs, config) {
           JSON.stringify(schema),
       },
     ],
-    response_format:
-      config.responseFormat === "json_object"
-        ? { type: "json_object" }
-        : {
-            type: "json_schema",
-            json_schema: {
-              name: "alaska_character_relations",
-              strict: true,
-              schema,
-            },
-          },
+    ...(config.minimax ? { max_tokens: 8192, reasoning_split: true } : {}),
+    ...(config.responseFormat === "none"
+      ? {}
+      : {
+          response_format:
+            config.responseFormat === "json_object"
+              ? { type: "json_object" }
+              : {
+                  type: "json_schema",
+                  json_schema: {
+                    name: "alaska_character_relations",
+                    strict: true,
+                    schema,
+                  },
+                },
+        }),
   };
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
@@ -286,13 +308,22 @@ export async function generateStory(character, npcs, config) {
     } catch {
       throw new GenerationError("模型服务返回无效JSON，请重试");
     }
+    if (data.base_resp?.status_code)
+      throw new GenerationError(
+        `模型服务请求失败（代码 ${Number(data.base_resp.status_code) || "未知"}），请联系GM检查配置`,
+      );
     if (
       data.choices?.[0]?.finish_reason !== "stop" ||
       data.choices[0].message?.refusal
     )
       throw new GenerationError("模型未完成剧情生成，请重试或调整角色故事");
     try {
-      value = JSON.parse(data.choices[0].message.content);
+      let content = data.choices[0].message.content;
+      if (config.minimax && typeof content === "string")
+        content = content
+          .replace(/^\s*<think>[\s\S]*?<\/think>\s*/, "")
+          .replace(/^\s*```(?:json)?\s*([\s\S]*?)\s*```\s*$/, "$1");
+      value = JSON.parse(content);
     } catch {
       throw new GenerationError("模型输出不是完整JSON，请重试");
     }

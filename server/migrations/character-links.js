@@ -45,6 +45,9 @@ export async function applyCharacterLinks(db, postgres = false) {
       "CREATE TABLE IF NOT EXISTS generation_requests(id TEXT PRIMARY KEY,player_id TEXT REFERENCES players(id),requested_at BIGINT NOT NULL)",
     )
     .run();
+  await db.prepare(
+    "CREATE TABLE IF NOT EXISTS character_inspirations(player_id TEXT PRIMARY KEY REFERENCES players(id),data TEXT NOT NULL,avatar_version BIGINT NOT NULL,created_at BIGINT NOT NULL)",
+  ).run();
   const id = "character-links-v1";
   if (await db.prepare("SELECT id FROM content_migrations WHERE id=?").get(id))
     return;

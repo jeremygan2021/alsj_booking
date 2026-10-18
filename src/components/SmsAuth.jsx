@@ -75,7 +75,7 @@ export default function SmsAuth({
         </div>
         {devShortcut && (
           <div className="notice">
-            开发测试模式：所有手机号可直接输入188888，不发送短信。
+            快捷登录模式：所有手机号可直接输入188888，无需发送短信。
           </div>
         )}
         <p className="muted">

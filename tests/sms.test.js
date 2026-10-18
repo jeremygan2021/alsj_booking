@@ -11,12 +11,13 @@ async function setup(
     smsTestCode,
     smsTestExpiresAt,
     smsDevLogin,
+    secure = false,
   } = {},
 ) {
   const sent = [];
   let time = 1700000000000;
   const { app, db } = await createApp({
-    environment: "test",
+    secure,
     databaseUrl: process.env.TEST_DATABASE_URL,
     dbPath: ":memory:",
     gmPassword: "sms-test-gm",
@@ -255,8 +256,19 @@ test("188888仅对指定测试手机号有效，并受测试期限限制", async
   advance(60001);
   await p("/auth/sms/login", { phone, code: "188888" }, 400);
 });
-test("开发快捷码对所有玩家/NPC手机号生效，不需要发送短信", async (t) => {
-  const { client, db } = await setup(t, { sender: null, smsDevLogin: true });
+test("HTTPS部署启用快捷码后可登录所有玩家/NPC手机号，无需发送短信", async (t) => {
+  const { client, db, base } = await setup(t, {
+    sender: null,
+    smsDevLogin: true,
+    secure: true,
+  });
+  const response = await fetch(base + "/auth/sms/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone: "13600136000", code: "188888" }),
+  });
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("set-cookie"), /; Secure(?:;|$)/);
   const first = client(),
     second = client(),
     npc = client();
@@ -288,19 +300,21 @@ test("开发快捷码对所有玩家/NPC手机号生效，不需要发送短信"
     0,
   );
 });
-test("生产环境和安全Cookie部署禁止通用开发验证码", async () => {
-  for (const options of [
-    { environment: "production" },
-    { environment: "development", secure: true },
-  ])
-    await assert.rejects(
-      createApp({
-        dbPath: ":memory:",
-        gmPassword: "test",
-        npcPassword: "test",
-        smsDevLogin: true,
-        ...options,
-      }),
-      /生产环境禁止启用/,
-    );
+test("HTTPS部署默认不启用快捷码，错误验证码不能登录或注册", async (t) => {
+  const { client, db } = await setup(t, { secure: true });
+  const p = client();
+  assert.equal((await p("/public")).auth.devShortcut, false);
+  await p("/auth/sms/login", { phone, code: "188888" }, 400);
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM players").get()).n, 0);
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM sessions").get()).n, 0);
+});
+test("启用快捷码也不接受其他固定验证码", async (t) => {
+  const { client, db } = await setup(t, {
+    sender: null,
+    smsDevLogin: true,
+    secure: true,
+  });
+  const p = client();
+  await p("/auth/sms/login", { phone, code: "188889" }, 400);
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM players").get()).n, 0);
 });

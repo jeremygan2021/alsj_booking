@@ -15,6 +15,7 @@ export function mountManagementRoutes(
     token,
     store,
     assetBaseUrl,
+    paidPhones,
   },
 ) {
   const text = (v, label, max) => required(v, label, max);
@@ -50,7 +51,7 @@ export function mountManagementRoutes(
       votes,
     ] = await Promise.all([
       all(
-        "SELECT id,name,contact,payment,checked_in,coins,group_id,created_at FROM players ORDER BY created_at DESC",
+        "SELECT p.id,p.name,p.contact,p.payment,p.checked_in,p.coins,p.group_id,p.created_at,CASE WHEN EXISTS (SELECT 1 FROM paid_phones pf WHERE pf.phone=p.contact) AND NOT EXISTS (SELECT 1 FROM npc_phones nf WHERE nf.phone=p.contact) THEN 1 ELSE 0 END AS paid_phone_import FROM players p ORDER BY p.created_at DESC",
       ),
       all("SELECT * FROM characters"),
       all(
@@ -101,6 +102,7 @@ export function mountManagementRoutes(
         contact,
         req.params.id,
       );
+      await paidPhones.matchPlayer(req.params.id, req.auth.user_id);
     },
     "编辑报名资料",
   );

@@ -73,6 +73,87 @@
   font-size: 11px;
   margin: -14px 0 18px;
 }
+.character-profile-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.character-inspiration {
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid #786346;
+  border-radius: 9px;
+  background: linear-gradient(130deg, #343025, #22271f);
+}
+.character-inspiration-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 16px;
+}
+.character-inspiration-heading > svg {
+  color: var(--gold-light);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.character-inspiration-heading h3 {
+  font: 21px var(--serif);
+  margin: 0 0 7px;
+  color: var(--gold-light);
+}
+.character-inspiration-heading p,
+.character-inspiration-note,
+.character-inspiration-error,
+.character-inspiration-success {
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.character-inspiration .field {
+  margin-bottom: 14px;
+}
+.character-inspiration .field > span {
+  font-size: 12px;
+}
+.character-inspiration .field textarea {
+  background: #171c1799;
+}
+.character-inspiration-note,
+.character-inspiration-error,
+.character-inspiration-success {
+  margin-top: 12px;
+}
+.character-inspiration-note {
+  color: var(--muted);
+}
+.character-inspiration-error {
+  color: var(--error);
+}
+.character-inspiration-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--green);
+}
+.character-inspiration-success svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.inspiration-spinner {
+  animation: inspiration-spin 1.4s linear infinite;
+}
+@keyframes inspiration-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .inspiration-spinner {
+    animation: none;
+  }
+}
 .generation-status {
   display: flex;
   align-items: flex-start;
@@ -384,6 +465,19 @@
   }
 }
 @media (max-width: 600px) {
+  .character-inspiration {
+    padding: 17px 15px;
+  }
+  .character-inspiration-heading {
+    gap: 10px;
+  }
+  .character-inspiration-heading h3 {
+    font-size: 19px;
+  }
+  .character-inspiration-button {
+    width: 100%;
+    font-size: 12px;
+  }
   .review-refresh {
     align-items: flex-start;
     flex-direction: column;
