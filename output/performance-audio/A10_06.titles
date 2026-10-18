@@ -1,0 +1,22 @@
+[
+	{
+		"text": "两年前，我的女儿死了。我用照片、声音、我们说过的每一句话，把她一点一点地留下来。你知道我每天为什么还会走进那间实验室吗？",
+		"pronounce_text": "两年前，我的女儿死了。我用照片、声音、我们说过的每一句话，把她一点一点地留下来。你知道我每天为什么还会走进那间实验室吗？",
+		"time_begin": 0,
+		"time_end": 15600,
+		"text_begin": 0,
+		"text_end": 60,
+		"pronounce_text_begin": 0,
+		"pronounce_text_end": 60
+	},
+	{
+		"text": "因为她会对我说，妈妈，晚安。",
+		"pronounce_text": "因为她会对我说，妈妈，晚安。",
+		"time_begin": 15800,
+		"time_end": 20300,
+		"text_begin": 60,
+		"text_end": 74,
+		"pronounce_text_begin": 60,
+		"pronounce_text_end": 74
+	}
+]

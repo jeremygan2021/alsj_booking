@@ -1,0 +1,1118 @@
+{
+  "version": "2026-10-15",
+  "model": "speech-2.8-hd",
+  "tracks": [
+    {
+      "id": "E-01",
+      "part": "body",
+      "sourceHash": "70a17b113b0b8c894994e6fedd2eba645472a09b029d56f74dc62439e94cfb7c",
+      "filename": "e-01-body.mp3",
+      "duration": 15.287,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "1233ebd5c0b049e71710acbc20d35b57739ff146e1ddf880509220c3f32f56af"
+    },
+    {
+      "id": "E-01",
+      "part": "detail",
+      "sourceHash": "1ddb4859451d4eeab5e4440f772fd602615172c583dab9de39bd96875388a50c",
+      "filename": "e-01-detail.mp3",
+      "duration": 17.95,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "00b1954d91da9d8d2196213c10482d8cb00704346978236617ce57884c0852e7"
+    },
+    {
+      "id": "E-02",
+      "part": "body",
+      "sourceHash": "b8c0be064499e0941cb9bc0894255b2307468ee955a35815899f10932ceae419",
+      "filename": "e-02-body.mp3",
+      "duration": 15.85,
+      "speakers": [
+        "旁白",
+        "里昂"
+      ],
+      "music": {
+        "title": "Darkest Child",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "5af598c1de29c1d0db478b9170b778c57540df800fa3de68dc15a7529b4a6cc3"
+    },
+    {
+      "id": "E-02",
+      "part": "detail",
+      "sourceHash": "4237761810c2d2c3f6932285553d64751ca5b6456919867bb03b898e910efbea",
+      "filename": "e-02-detail.mp3",
+      "duration": 16.018,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Darkest Child",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "a109dbd3a93ec35361ec51fcb12eca86dec1e17242bf49476a16bb34188eb09e"
+    },
+    {
+      "id": "E-03",
+      "part": "body",
+      "sourceHash": "36f75aa526718cdaf2ea740e40751df12a7f450103a88a6894f5619e3527a69c",
+      "filename": "e-03-body.mp3",
+      "duration": 12.35,
+      "speakers": [
+        "旁白"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "c82a65832af9a1aa481a801ca8e9bf1682f73e7e71bbd49cbee023b9ebf60c1e"
+    },
+    {
+      "id": "E-03",
+      "part": "detail",
+      "sourceHash": "087c553c81ebf798048f5a14f746d17dabe6fcba4252363ec6baa712963a26ff",
+      "filename": "e-03-detail.mp3",
+      "duration": 17.446,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "3fe745e9cf36d1bc368a964cb17c2af016411ddb0a8dd9a57d51e290961571aa"
+    },
+    {
+      "id": "E-04",
+      "part": "body",
+      "sourceHash": "e7e8afe31c185fc2b3f43e5251d9fa9e6776a784d08170fcd82fdb12c4a21df9",
+      "filename": "e-04-body.mp3",
+      "duration": 18.526,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "e72cc1beb2bc6bcf03b125fa29ec9c8137980d328ba4ded3fb1bbe32cd22e9b8"
+    },
+    {
+      "id": "E-04",
+      "part": "detail",
+      "sourceHash": "7b7ad04d40148b9492a51781974d60b02b090608213ed86bfabc9c4e108dd21a",
+      "filename": "e-04-detail.mp3",
+      "duration": 16.15,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "e61095d49ec56d145d622f9df2c98cbcdebae3682023abf54a15ebc67e398ccc"
+    },
+    {
+      "id": "E-05",
+      "part": "body",
+      "sourceHash": "75fb123d946b406fa9d3741d989d0400e258c9f1d8e3326d0de6e8e9bb02c5dc",
+      "filename": "e-05-body.mp3",
+      "duration": 19.05,
+      "speakers": [
+        "旁白"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "d4103099eaee84781f602ff857ad7a757157fef680559443f49e6a15a2edcd4e"
+    },
+    {
+      "id": "E-05",
+      "part": "detail",
+      "sourceHash": "447dcad908d7236255ee9a33fa15810066c2de094da37614f842d61724c789c5",
+      "filename": "e-05-detail.mp3",
+      "duration": 16.622,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "523f6865fa71d070d19abe3fba6370cffaa5d1fabf3f86f48a227742c256ddc9"
+    },
+    {
+      "id": "E-06",
+      "part": "body",
+      "sourceHash": "123e68f68aa56d8c7f255a004814397d476639228447d012c6755b2d42ded288",
+      "filename": "e-06-body.mp3",
+      "duration": 12.75,
+      "speakers": [
+        "旁白"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "cf6ca6e26b09076dae0ad7b9b257f6aeb91ee3c148bb186588fd1c912da09aec"
+    },
+    {
+      "id": "E-06",
+      "part": "detail",
+      "sourceHash": "762c1df6e4ce718d3dcc16bf048aa14879a84756e7aea6511085fcd615137372",
+      "filename": "e-06-detail.mp3",
+      "duration": 16.15,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "430a9ec5f50fdff1e5339fdfd508d8fcb5ebf8668964916964fd2c323fb4e4d0"
+    },
+    {
+      "id": "E-07",
+      "part": "body",
+      "sourceHash": "e265b0a621905c82a800f2a77b52095513a3274c7b7251e61f9823eed38fc888",
+      "filename": "e-07-body.mp3",
+      "duration": 17.045,
+      "speakers": [
+        "克拉拉",
+        "瑟琳娜"
+      ],
+      "music": {
+        "title": "At Rest",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "08ab76acbb0163395a83a03f4e885347a6864b3276e976f0a4c115ffdb592e27"
+    },
+    {
+      "id": "E-07",
+      "part": "detail",
+      "sourceHash": "152cdae8bf33b081d8ed9bf392473f13a6b5394c46a18a11029edf56de5ff5ef",
+      "filename": "e-07-detail.mp3",
+      "duration": 17.75,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "At Rest",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "e6d5d4b36e996f9cb66d65fdce2f12fc4e1bdb105ff5dd5a13883454ae70a9de"
+    },
+    {
+      "id": "E-08",
+      "part": "body",
+      "sourceHash": "312c06dfc2260b38e72cb408391775b983e2c355f6ac522f67cc73c39cab703d",
+      "filename": "e-08-body.mp3",
+      "duration": 13.95,
+      "speakers": [
+        "旁白"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "bc5c9106bd5babe83b5c0f49004f5eb22089ec83cba6f3e46cf1fcdad878791b"
+    },
+    {
+      "id": "E-08",
+      "part": "detail",
+      "sourceHash": "5ae280c78ce4bad20c5069a2e48efcd1a60b692601dd2fb318986d9af2583618",
+      "filename": "e-08-detail.mp3",
+      "duration": 17.55,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "4100f91980f93cbb1843ec6f473e610f2616b16c1111915b77db379be0f43d75"
+    },
+    {
+      "id": "E-09",
+      "part": "body",
+      "sourceHash": "58207358d294f3c762601cfeb09c98c7785d0188eb2f9f51eed31352f7fcac92",
+      "filename": "e-09-body.mp3",
+      "duration": 9.725,
+      "speakers": [
+        "西奥多"
+      ],
+      "music": {
+        "title": "Darkest Child",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "f6f33a48e2dbbcb2c8e8b8ecceefde7ddc17fa3a0fececc8f5abd5ebdcf5d7b1"
+    },
+    {
+      "id": "E-09",
+      "part": "detail",
+      "sourceHash": "1aac91095078c43ddc8cb5f0d87034d22b2424adb3978363b18379a422bd5e88",
+      "filename": "e-09-detail.mp3",
+      "duration": 12.35,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Darkest Child",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "ffcc03e72a02101c254e074941defe67d0434ed62133934dc42fec9efedb29c5"
+    },
+    {
+      "id": "E-10",
+      "part": "body",
+      "sourceHash": "9b553c47fb00129d6e6af1b2ffb32204535d746964128b06eb109b5d64f8d4f0",
+      "filename": "e-10-body.mp3",
+      "duration": 14.85,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "ff66259447997c23135e14de30bae7fa5098554729b9d7ce39fac9a8cfbe89ef"
+    },
+    {
+      "id": "E-10",
+      "part": "detail",
+      "sourceHash": "43da64956798e8ac266f5086d54e220ac4c22036af2536a7c4a33936448b62ea",
+      "filename": "e-10-detail.mp3",
+      "duration": 16.35,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "cd3c7950f4e751a8365510eeb575ade89c8124668ed28ad00b07eee00cad17ba"
+    },
+    {
+      "id": "E-11",
+      "part": "body",
+      "sourceHash": "ccd3a348a4bc2723d6f43bf53bbda0f8ab4b8564036d899126302bb07f03c5b2",
+      "filename": "e-11-body.mp3",
+      "duration": 15.382,
+      "speakers": [
+        "诺拉",
+        "西奥多"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "51563cbcf8f01e06cf5b6b19caa302176ae256bb8db87757bc3125dbb622e38b"
+    },
+    {
+      "id": "E-11",
+      "part": "detail",
+      "sourceHash": "7e23cb267a1e02ae75bcb969be37f4b876c44587822885bf91cb4ceb5e96e370",
+      "filename": "e-11-detail.mp3",
+      "duration": 15.75,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "f30fee7bc9ae9edf4f3d253094993dee3d8962e8e085634d5170c8e0cbdc3ad6"
+    },
+    {
+      "id": "E-12",
+      "part": "body",
+      "sourceHash": "973c6b2b6ee888a436d01803774a6335be99d257d25b8a7cf1ce65b47fe63822",
+      "filename": "e-12-body.mp3",
+      "duration": 21.45,
+      "speakers": [
+        "旁白",
+        "索恩"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "9d29434339b9a30cdf7f96694bf8f39afb75e0c5fb9bab6cdce891a2e898beb5"
+    },
+    {
+      "id": "E-12",
+      "part": "detail",
+      "sourceHash": "b8a4d6e3fc5995814df046eae42c5f9c5520d3a5a2fd5882c87c384aa8e1f130",
+      "filename": "e-12-detail.mp3",
+      "duration": 14.25,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "572d033ff0de32074080f3099ed4b13aa25836a97000df02b6f3003a844c8281"
+    },
+    {
+      "id": "E-13",
+      "part": "body",
+      "sourceHash": "8b859513be18119e6a2e236573addc376e3ffc06eccb61422e4670ccae26c4cf",
+      "filename": "e-13-body.mp3",
+      "duration": 12.837,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "dc06f344e85470cce1bf869414389d21779866a297efbc2b36fc4c935cf4833b"
+    },
+    {
+      "id": "E-13",
+      "part": "detail",
+      "sourceHash": "0720ea340617eafd543f9b022fb7d074bd87529701dd0e7ff6717b1d73ebd42b",
+      "filename": "e-13-detail.mp3",
+      "duration": 15.124,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "532503218eefec8d80b843ae563a0d99280125095e79e6d03d9b4cdfd0f13325"
+    },
+    {
+      "id": "E-14",
+      "part": "body",
+      "sourceHash": "c0f1855e31df8fb12e7109b93826df0d4e4ffca08b0f7a8fff88c0c5c2b181de",
+      "filename": "e-14-body.mp3",
+      "duration": 12.535,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "12b2c76287ee78a177500e48fa0a0b9495e816c86e524d5d0adda39cb4e3a689"
+    },
+    {
+      "id": "E-14",
+      "part": "detail",
+      "sourceHash": "4d5b7f4db21d866845687399dc0fe21f1c5633eb19a932f478ff449f089fb6c1",
+      "filename": "e-14-detail.mp3",
+      "duration": 15.95,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "ac1efb2a2ae5d7b11e92a0ac41b150c8fb9831bc95c96eada47d7ae50d83f179"
+    },
+    {
+      "id": "E-15",
+      "part": "body",
+      "sourceHash": "3d495ac48f7ba27c9212d540061fbdc86dcd3bb6b9ccc7a6a6ea6690cbe94f81",
+      "filename": "e-15-body.mp3",
+      "duration": 37.15,
+      "speakers": [
+        "旁白",
+        "索恩"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "f89d8fb456c67d68c11fa2d626c4b2d2abe5234405da1c5b225adaa27afeb974"
+    },
+    {
+      "id": "E-15",
+      "part": "detail",
+      "sourceHash": "3ea27a038e48718bf0be3548d4b3a1b65b71cec1b8c5e9ef0164a49de34e34b1",
+      "filename": "e-15-detail.mp3",
+      "duration": 15.55,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "ffe81dbc0908836100296ed63c275fcfceb5764b0a6ddba9ce53726b853e6763"
+    },
+    {
+      "id": "E-16",
+      "part": "body",
+      "sourceHash": "0b1fa1d7afff463aa06538d0c50bc5c378abe7c80f929e21d9123679a837c9ec",
+      "filename": "e-16-body.mp3",
+      "duration": 15.65,
+      "speakers": [
+        "旁白",
+        "西奥多"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "1016f15bab928a54187802d01634b71a9033b4a0043ecec252e9ee2c0baa4622"
+    },
+    {
+      "id": "E-16",
+      "part": "detail",
+      "sourceHash": "b146554142411666854686cbcf25b6a84050a361fc6719d40450d263ed346fe0",
+      "filename": "e-16-detail.mp3",
+      "duration": 14.55,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "872b75564898545c7cde4afed7fb4de89c9a990d007cabe796987a757b6b0dcd"
+    },
+    {
+      "id": "E-17",
+      "part": "body",
+      "sourceHash": "241b5507726e4ab1fc5da0962f684e481b143bca62ff04b214e0f9c1f9b7aec4",
+      "filename": "e-17-body.mp3",
+      "duration": 12.95,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "a4d5b99131808e315133ed31d76c95dd16993fac8778e344dc28ffdb1525796f"
+    },
+    {
+      "id": "E-17",
+      "part": "detail",
+      "sourceHash": "22bc6734ddda18efc6f27892a0623d26213cdadad30e604e6ceb2d2e5bc26744",
+      "filename": "e-17-detail.mp3",
+      "duration": 16.459,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "f73e628c7c686b06efd3e8f21313ac33e0378f1b8423efa4b5fe797bbc8f1de7"
+    },
+    {
+      "id": "E-18",
+      "part": "body",
+      "sourceHash": "92f335737c22fb129348c055ba4ec44905eee91c6b6f090908b1c97368f1e474",
+      "filename": "e-18-body.mp3",
+      "duration": 17.95,
+      "speakers": [
+        "旁白"
+      ],
+      "music": {
+        "title": "At Rest",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "da123307f31ac469951af5ca25a1dff3b04e1c0b41a26254baab0efdd0226c30"
+    },
+    {
+      "id": "E-18",
+      "part": "detail",
+      "sourceHash": "63ac1418c2f827d606e769e6d9f1c3372c7a59242bf74fd48a5708b11108ea5c",
+      "filename": "e-18-detail.mp3",
+      "duration": 15.38,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "At Rest",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "c7b2313d544a132ad344df7fd365ae53c1c2161b1b4fa5c3dbb9881e7c1b119d"
+    },
+    {
+      "id": "E-19",
+      "part": "body",
+      "sourceHash": "92337cec575a25aa0f6ca4e49c314ccce13b624c9a7127a8077e5016f0187a83",
+      "filename": "e-19-body.mp3",
+      "duration": 17.072,
+      "speakers": [
+        "旁白",
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "8d91bbfb17807cc499d1dff6717d5e48664055c7b64265e4eb269de9882642f5"
+    },
+    {
+      "id": "E-19",
+      "part": "detail",
+      "sourceHash": "00f64c7d3ecfa4aae2a1645a7093a76fa5d9fc501bb75a7c7468adbe461bd19a",
+      "filename": "e-19-detail.mp3",
+      "duration": 17.318,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "a4be5b4f0507fd122d3619572fe4d2642306a83112609b135a1d5f2c03285739"
+    },
+    {
+      "id": "E-20",
+      "part": "body",
+      "sourceHash": "b158049f9eac48b73b5625ef1dac610ab661df963b2a7a78f479b87c26cb6087",
+      "filename": "e-20-body.mp3",
+      "duration": 11.95,
+      "speakers": [
+        "旁白"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "eb2699b076e7c24e099ca78573786e5a144563b9fe46c4dd2330f99b2f75bfdd"
+    },
+    {
+      "id": "E-20",
+      "part": "detail",
+      "sourceHash": "58cccdfc9c301b6a8b99b3bfc89fcd851120723f7ba5431fdaa1d3d6e402f831",
+      "filename": "e-20-detail.mp3",
+      "duration": 14.219,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "01565144c0b37f47def34fee2c6913c21dabbd06a8a96f2de6ce77fc9167e987"
+    },
+    {
+      "id": "E-21",
+      "part": "body",
+      "sourceHash": "d23a4c4d4daed3fc4b65654da0f3e45a7836718f538c6217ef2900c1021bd2cd",
+      "filename": "e-21-body.mp3",
+      "duration": 16.5,
+      "speakers": [
+        "旁白",
+        "西奥多"
+      ],
+      "music": {
+        "title": "Darkest Child",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "45d1a50bee6de7e0e88432a4db06858bb8bb5c6a80f6482689bdc5d2a55700b3"
+    },
+    {
+      "id": "E-21",
+      "part": "detail",
+      "sourceHash": "fa0734a64dd3b8887bcd07ed2ce7a489a621a2e2470a40906f7d6519ce57119b",
+      "filename": "e-21-detail.mp3",
+      "duration": 15.287,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Darkest Child",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "d350f5ee138982d185e28db2bee874e39a0b09c082caab8fda35090fac4b5dae"
+    },
+    {
+      "id": "E-22",
+      "part": "body",
+      "sourceHash": "25fde568a3ab9c3063f8d0239e0e7f3989ba0c65b190da584fef31b68b953354",
+      "filename": "e-22-body.mp3",
+      "duration": 14.85,
+      "speakers": [
+        "旁白"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "0b95c12c61d0d4759008b20f25346453a90e47c350e3267c442ea8d7a7825510"
+    },
+    {
+      "id": "E-22",
+      "part": "detail",
+      "sourceHash": "aa66aa8e3c31214f36f85828331b0f60bc24f72383e3ee3a5b1931371df47444",
+      "filename": "e-22-detail.mp3",
+      "duration": 14.85,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "b14c75980b20fc0fab5c7fca7ec01efbc96dc579be7377565641ae9bac7b4304"
+    },
+    {
+      "id": "E-23",
+      "part": "body",
+      "sourceHash": "b272c79f94b2c2978f60c9b954dc7c662a5f59330f8998f6415441dc33f9e876",
+      "filename": "e-23-body.mp3",
+      "duration": 16.15,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "3ed8307d3e5876182dcb3b88e77aebe1e35a58e677abf484a294097f53dd77e6"
+    },
+    {
+      "id": "E-23",
+      "part": "detail",
+      "sourceHash": "dfd4b128cdbe77dbd76a9ba1e9df93931196ef98de94b03314d096ff52915d66",
+      "filename": "e-23-detail.mp3",
+      "duration": 17.527,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "b0ad2cdc8c36a64eb77eaf3baae6ef6ea1f4f6e3cb8c7d6fef9f65e7b9691004"
+    },
+    {
+      "id": "E-24",
+      "part": "body",
+      "sourceHash": "fadbdc1e162f939de0e31ef7a07883ba22ad7733db128f39e6a3072260935601",
+      "filename": "e-24-body.mp3",
+      "duration": 18.896,
+      "speakers": [
+        "旁白",
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "25dc4f0e4cad1cf3d5cd141ee7a8a50727b25cf4c2ba906610055f84e5e298c2"
+    },
+    {
+      "id": "E-24",
+      "part": "detail",
+      "sourceHash": "5b22114ac67759ad4b17a64867027743761a9ca3775b6ef67645ed8b05bbc366",
+      "filename": "e-24-detail.mp3",
+      "duration": 13.05,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "e3b3549dda026de810c189746ddb57a9692815eec73edde7a0f345219dee0bc8"
+    },
+    {
+      "id": "E-25",
+      "part": "body",
+      "sourceHash": "3fc9484714283b3b2765276972ba12339a7cb14620b4713f2776fd7f22d10a09",
+      "filename": "e-25-body.mp3",
+      "duration": 17.35,
+      "speakers": [
+        "诺拉",
+        "旁白"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "613849370ed2421d2ab1b10edf9d66b4132896b7143720f2ed13d30d3c2a3c02"
+    },
+    {
+      "id": "E-25",
+      "part": "detail",
+      "sourceHash": "5bbbc9e2278fd7d9065e3c323cdae249d542013c1d9854d83bf2f6b001309272",
+      "filename": "e-25-detail.mp3",
+      "duration": 16.459,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "e646d556e50b202a856af4c84a985d19cd066ab1af680661a118343a2ed851ae"
+    },
+    {
+      "id": "E-26",
+      "part": "body",
+      "sourceHash": "a7950d2bc2a5d050c6f973f1ed659074728444c98b59018b6871e46bb714d14d",
+      "filename": "e-26-body.mp3",
+      "duration": 20.75,
+      "speakers": [
+        "旁白"
+      ],
+      "music": {
+        "title": "At Rest",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "41db9fbe750b69984b912de35e5a7759b2489eb27a7827f6e2fccf8a68e6e08c"
+    },
+    {
+      "id": "E-26",
+      "part": "detail",
+      "sourceHash": "13ca235486c847aa227828f08a1ba7a82069439323ecdd15aa024b11de1e9df5",
+      "filename": "e-26-detail.mp3",
+      "duration": 16.05,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "At Rest",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "86d10f4eb96cad6159d7b8db4fa7d910cf8477491b4a85071dea133ab255f1df"
+    },
+    {
+      "id": "AR-01",
+      "part": "body",
+      "sourceHash": "cee4463d53eeeff38a6a0a05f8df772c95cdc3f8891fc2a51506740fde4f4430",
+      "filename": "ar-01-body.mp3",
+      "duration": 16.25,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "97e75410399363af634617c78013efea95b71dc5f3775c934f2daff5c4063ef8"
+    },
+    {
+      "id": "AR-02",
+      "part": "body",
+      "sourceHash": "931686528053cdd1b6459f5a67b10ad7dfc0631bddf4c3ba77d5f621a2b0138b",
+      "filename": "ar-02-body.mp3",
+      "duration": 17.35,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "9bce86d59fe74719c121abfd61f3890a450b4c210bf061e7b3c85da651622991"
+    },
+    {
+      "id": "AR-03",
+      "part": "body",
+      "sourceHash": "97b7972811138f71657d13a43065068d8c596c4d8acd3e6bbf349928eefe07ad",
+      "filename": "ar-03-body.mp3",
+      "duration": 16.15,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "d41be1c08e64809d9b712dcb7151f6fe37c446197e26c1398ed39d0a102eff02"
+    },
+    {
+      "id": "AR-04",
+      "part": "body",
+      "sourceHash": "f8534c7a53b0dce38d98d6e8d298f0a0087db3290a3396274cb0ce20b3fcd49d",
+      "filename": "ar-04-body.mp3",
+      "duration": 16.25,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "3f4f72c421ba36dbea43d0c4e10d8ce959b6a6b56c2a2c8790bc97f4d5202a89"
+    },
+    {
+      "id": "AR-05",
+      "part": "body",
+      "sourceHash": "9c60b045b5558d1b6afdbd7cd86254cb4a114bfcf9434d7d0fef33c9aa1c1d37",
+      "filename": "ar-05-body.mp3",
+      "duration": 17.35,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "d83bb3b95209dd18e8e32467279afbe3c4a7f277d0198978d71fd369818c9ccc"
+    },
+    {
+      "id": "AR-06",
+      "part": "body",
+      "sourceHash": "18da17f13fe195edf1bc4e577393997ee58de3df0f4b9ae721d62bb517bde05c",
+      "filename": "ar-06-body.mp3",
+      "duration": 16.924,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "b37aa2d3a7a4948a318a0f530f920c16dee882190964a64246a3528d76cf5d9b"
+    }
+  ]
+}

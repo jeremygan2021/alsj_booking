@@ -271,16 +271,7 @@ export async function createApp({
       maxAge: 7 * 864e5,
     });
   };
-  app.use("/api", async (req, res, next) => {
-    res.set("Cache-Control", "no-store");
-    if (!["GET", "HEAD"].includes(req.method) && req.headers.origin) {
-      try {
-        if (new URL(req.headers.origin).host !== req.headers.host)
-          fail("请求来源无效", 403);
-      } catch (e) {
-        return next(e);
-      }
-    }
+  const attachSession = async (req, res, next) => {
     const t = req.headers.cookie
       ?.split(";")
       .map((x) => x.trim())
@@ -294,6 +285,19 @@ export async function createApp({
         )
       : null;
     next();
+  };
+  app.use("/reading", attachSession);
+  app.use("/api", async (req, res, next) => {
+    res.set("Cache-Control", "no-store");
+    if (!["GET", "HEAD"].includes(req.method) && req.headers.origin) {
+      try {
+        if (new URL(req.headers.origin).host !== req.headers.host)
+          fail("请求来源无效", 403);
+      } catch (e) {
+        return next(e);
+      }
+    }
+    return attachSession(req, res, next);
   });
   const auth =
     (...roles) =>
@@ -303,6 +307,23 @@ export async function createApp({
         : res.status(401).json({
             error: "请使用对应账号登录",
           });
+  const readingFiles = {
+    gm: fileURLToPath(new URL("./reading/brief-gm.html", import.meta.url)),
+    npc: fileURLToPath(new URL("./reading/brief-npc.html", import.meta.url)),
+  };
+  app.get(["/reading", "/reading/"], (req, res) => {
+    res.set({
+      "Cache-Control": "private, no-store",
+      "X-Robots-Tag": "noindex, nofollow, noarchive",
+    });
+    const file = readingFiles[req.auth?.role];
+    if (!file) return res.redirect(302, "/admin?next=%2Freading");
+    res.sendFile(file);
+  });
+  app.get("/reading/hero.webp", auth("gm", "npc"), (req, res) => {
+    res.set({ "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex" });
+    res.sendFile(fileURLToPath(new URL("./reading/hero.webp", import.meta.url)));
+  });
   const attempts = new Map();
   app.use(["/api/login", "/api/register"], (req, res, next) => {
     const key = req.ip,

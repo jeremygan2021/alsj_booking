@@ -143,11 +143,18 @@ function App() {
     }
   };
   const authSuccess = async (role, registered) => {
+    const returnToReading =
+      new URLSearchParams(location.search).get("next") === "/reading" &&
+      ["gm", "npc"].includes(role);
     const pendingAr = isArView ? location.pathname + location.search : null;
     const welcome = registered ?? authMode === "register";
     const pendingClue = new URLSearchParams(location.search).get("clue");
     setAuthMode(null);
     await load();
+    if (returnToReading) {
+      location.assign("/reading");
+      return;
+    }
     if (pendingAr && role === "player") {
       history.replaceState({}, "", pendingAr);
       setView(viewFromPath());
@@ -219,6 +226,11 @@ function App() {
               onClick={() => navigate("admin")}
             >
               管理后台
+            </button>
+          )}
+          {["gm", "npc"].includes(session?.role) && (
+            <button onClick={() => location.assign("/reading")}>
+              案情速览
             </button>
           )}
         </nav>
