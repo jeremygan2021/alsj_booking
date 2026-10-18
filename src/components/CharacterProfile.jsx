@@ -1,4 +1,4 @@
-import React, { useId, useRef } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import {
   ArrowUpRight,
   CheckCircle2,
@@ -8,7 +8,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { api } from "../api";
+import { api, inspireCharacter } from "../api";
 import { Badge, Button, Empty, Field } from "./ui";
 import { phases } from "../constants";
 import "./character-profile.css";
@@ -283,6 +283,8 @@ export default function CharacterForm({
     inspiring = false,
     inspirationError = "",
     inspirationReady = false,
+    generationPreview = {},
+    generationMessage = "",
   } = formState || initialState();
   const updateState = (updater) =>
     onFormStateChange((old) => updater(old || initialState()));
@@ -291,6 +293,14 @@ export default function CharacterForm({
   const avatarInput = useRef(null);
   const avatarErrorId = useId();
   const inspirationStatusId = useId();
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!inspiring) return;
+    const tick = () => setElapsed(Math.floor((Date.now() - (formState?.generationStarted || Date.now())) / 1000));
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [inspiring, formState?.generationStarted]);
   const locked = c?.status === "approved";
   const setField = (event) => {
     const { name, value } = event.target;
@@ -304,12 +314,24 @@ export default function CharacterForm({
       ...old,
       inspiring: true,
       inspirationError: "",
+      inspirationReady: false,
+      generationPreview: {},
+      generationMessage: "正在连接角色创作服务…",
+      generationStarted: Date.now(),
     }));
     try {
-      const result = await api("/character/inspire", {
+      const result = await inspireCharacter({
         cosplay_character: draft.cosplay_character.trim(),
         cosplay_source: draft.cosplay_source.trim(),
         idea: inspirationIdea.trim() || draft.story.trim(),
+      }, (event) => {
+        if (event.type === "heartbeat") return;
+        updateState((old) => ({
+          ...old,
+          ...(event.type === "stage" ? { generationMessage: event.message } : {}),
+          ...(event.type === "text" ? { generationPreview: { ...old.generationPreview, ...event.character }, generationMessage: "正在书写你的身份与故事…" } : {}),
+          ...(event.type === "avatar" ? { generationPreview: { ...old.generationPreview, avatar_url: event.preview }, generationMessage: "头像已完成，正在保存草稿…" } : {}),
+        }));
       });
       const generated = {};
       for (const field of [
@@ -411,7 +433,7 @@ export default function CharacterForm({
       <span className="eyebrow">万圣节 · 角色报名</span>
       <h2>{c ? "修改你的角色故事" : "今晚，你要扮演谁？"}</h2>
       <p className="muted">
-        用MiniMax生成专属头像、姓名和故事，也可以自行填写或上传。你的角色将与舞会背景和现场NPC产生联系。
+        写一点灵感，生成专属头像与故事；预览满意后，提交GM确认。也可以直接手动填写。
       </p>
       <form
         onSubmit={(e) => {
@@ -449,7 +471,7 @@ export default function CharacterForm({
             <div>
               <h3>一键生成今晚的身份</h3>
               <p>
-                根据舞会背景和NPC设定编织故事。可先填下方Cos设定，也可直接生成。
+                写下想Cos的人物、作品或性格；留空也能生成原创角色。
               </p>
             </div>
           </div>
@@ -501,8 +523,8 @@ export default function CharacterForm({
           <div id={inspirationStatusId} aria-live="polite" role="status">
             {inspiring ? (
               <p className="character-inspiration-note">
-                正在编写与NPC相连的身份，并绘制专属头像，通常需要一些时间。
-                你可以切换页面内的其他栏目，回来查看结果。
+                {generationMessage} · 已用 {elapsed} 秒
+                {elapsed >= 20 && !generationPreview.story && " · 模型仍在创作，文字返回后会逐字显示。"}
               </p>
             ) : inspirationError ? (
               <p className="character-inspiration-error" role="alert">
@@ -521,7 +543,23 @@ export default function CharacterForm({
               </p>
             )}
           </div>
+          {(inspiring || inspirationReady) && !inspirationError && (
+            <article className="character-live-preview" aria-label="角色实时预览">
+              <div className="character-live-heading">
+                {(generationPreview.avatar_url || inspirationReady) ? (
+                  <CharacterAvatar src={inspirationReady ? preview : generationPreview.avatar_url} name={generationPreview.name || draft.name} large />
+                ) : <div className="character-avatar large generation-image-placeholder"><Sparkles size={26} /><span>头像绘制中</span></div>}
+                <div><span className="eyebrow">{inspiring ? "正在创作 · 实时预览" : "你的角色草稿"}</span>
+                  <h3>{(inspirationReady ? draft.name : generationPreview.name) || "身份正在浮现…"}</h3>
+                  <p>{inspirationReady ? draft.profession : generationPreview.profession}</p>
+                </div>
+              </div>
+              <p className={"character-live-story" + (inspiring ? " is-streaming" : "")}>{(inspirationReady ? draft.story : generationPreview.story) || "故事将在这里逐字展开…"}</p>
+            </article>
+          )}
         </section>
+        <details className="character-edit-details" key={inspirationReady ? "generated" : "manual"} open={c && !inspirationReady ? true : undefined}>
+          <summary>{inspirationReady ? "修改头像与角色设定（可选）" : "手动填写 / 指定Cos角色"}</summary>
         <fieldset
           className="character-profile-fields"
           disabled={inspiring || busy || locked}
@@ -649,6 +687,8 @@ export default function CharacterForm({
               </Field>
             </div>
           </details>
+        </fieldset>
+        </details>
           <div className="notice">
             <Shield size={17} />
             <span>
@@ -658,6 +698,7 @@ export default function CharacterForm({
           <Button
             type="submit"
             disabled={
+              !draft.avatar_url || !draft.cosplay_character.trim() || !draft.cosplay_source.trim() || draft.story.trim().length < 20 ||
               busy ||
               uploading ||
               inspiring ||
@@ -672,7 +713,6 @@ export default function CharacterForm({
                 : "提交角色，等待GM确认"}
             <ArrowUpRight size={16} />
           </Button>
-        </fieldset>
       </form>
     </section>
   );

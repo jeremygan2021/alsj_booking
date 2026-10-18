@@ -46,7 +46,7 @@ test("Admin管理内容、权限、账目锁定和AR持久化", async (t) => {
       if (res.headers.get("set-cookie"))
         cookie = res.headers.get("set-cookie").split(";")[0];
       assert.equal(res.status, status, await res.clone().text());
-      assert.equal(res.headers.get("Cache-Control"), "no-store");
+      assert.match(res.headers.get("Cache-Control"), /(?:^|,\s*)no-store(?:,|$)/);
       return res.json();
     };
   };

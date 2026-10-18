@@ -13,6 +13,9 @@ test("角色生成保留失败前的草稿，可重试、跨栏目查看并人�
   });
   expect(registration.ok()).toBeTruthy();
   await page.goto("/play");
+  await page.getByRole("radio", { name: /服从安排/ }).check();
+  await page.getByRole("button", { name: "保存偏好，继续创建角色" }).click();
+  await page.getByText("手动填写 / 指定Cos角色", { exact: true }).click();
   await page.locator('[name="cosplay_character"]').fill("原创女记者");
   await page.locator('[name="cosplay_source"]').fill("原创");
   const originalStory =
@@ -50,12 +53,11 @@ test("角色生成保留失败前的草稿，可重试、跨栏目查看并人�
     if (attempts === 1) {
       await failureGate;
       return route.fulfill({
-        status: 503,
-        json: { error: "头像服务暂时繁忙" },
+        contentType: "text/event-stream",
+        body: 'data: {"type":"stage","message":"正在绘制头像"}\n\ndata: {"type":"error","message":"头像服务暂时繁忙"}\n\n',
       });
     }
-    await route.fulfill({
-      json: {
+    const character = {
         name: "伊芙·温特",
         english: "Eve Winter",
         profession: "调查记者",
@@ -65,7 +67,16 @@ test("角色生成保留失败前的草稿，可重试、跨栏目查看并人�
         cosplay_character: "原创女记者",
         cosplay_source: "原创",
         avatar_url: avatarUrl,
-      },
+    };
+    await route.fulfill({
+      contentType: "text/event-stream",
+      body: [
+        { type: "text", character: { name: character.name, story: generatedStory.slice(0, 12) } },
+        { type: "text", character },
+        { type: "stage", message: "故事已写好，正在绘制角色头像…" },
+        { type: "avatar", preview: avatarUrl },
+        { type: "complete", character },
+      ].map((event) => `data: ${JSON.stringify(event)}\n\n`).join(""),
     });
   });
   await page
@@ -103,6 +114,7 @@ test("角色生成保留失败前的草稿，可重试、跨栏目查看并人�
   expect(
     (await (await page.request.get("/api/me")).json()).character,
   ).toBeUndefined();
+  await page.getByText("修改头像与角色设定（可选）", { exact: true }).click();
   await page.getByText("补充设定（可选）", { exact: true }).click();
   await expect(page.locator('[name="name"]')).toHaveValue("伊芙·温特");
   await expect(page.locator('[name="motive"]')).toHaveValue(

@@ -79,7 +79,7 @@ function Landing({ pub, onRegister, onPlay }) {
           <div className="hero-foot">
             <span>
               <Clock size={14} />{" "}
-              {pub.site?.schedule || "10月31日 · 19:00—23:00"}
+              {pub.site?.schedule || "10月31日 · 19:00—24:00"}
             </span>
             <span>
               <Users size={14} /> 限定 {pub.settings.capacity} 位宾客
@@ -180,7 +180,7 @@ function Landing({ pub, onRegister, onPlay }) {
             <span className="eyebrow">FOUR ACTS. ONE UNFORGETTABLE NIGHT.</span>
             <h2>今晚，命运如何展开</h2>
           </div>
-          <span className="muted">19:00 — 23:00</span>
+          <span className="muted">19:00 — 24:00</span>
         </div>
         <div className="acts-grid">
           {[
@@ -193,21 +193,21 @@ function Landing({ pub, onRegister, onPlay }) {
             ],
             [
               "II",
-              "20:15",
+              "19:40",
               "命运拍卖会",
               "竞拍证人承诺与神秘道具。你的每次出价，都可能改变结局。",
               Coins,
             ],
             [
               "III",
-              "20:45",
+              "21:13",
               "午夜命案",
-              "扫描证物，翻开证据，以D20鉴定还原被隐藏的时间线。",
+              "扫描证物、问询人物，核对时间与原件，还原被隐藏的真相。",
               Dices,
             ],
             [
               "IV",
-              "21:50",
+              "22:40",
               "最后的庭审",
               "用动机、手段和机会构建指控，让真相接受最终审判。",
               Gavel,

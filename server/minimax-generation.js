@@ -193,7 +193,58 @@ async function boundedJson(response, maxBytes) {
   }
 }
 
-async function request(config, endpoint, body, maxBytes) {
+// Only the public character object is exposed; reasoning and NPC briefs stay server-side.
+export function partialCharacter(content) {
+  const clean = content.replace(/^\s*<think>[\s\S]*?<\/think>\s*/, "").replace(/^\s*```(?:json)?\s*/, "");
+  if (!clean.trimStart().startsWith("{")) return {};
+  const start = /"character"\s*:\s*\{/.exec(clean);
+  if (!start) return {};
+  let rest = clean.slice(start.index + start[0].length);
+  const result = {};
+  while (rest) {
+    const field = /^\s*,?\s*"([a-z_]+)"\s*:\s*"((?:[^"\\]|\\.)*)("|$)/.exec(rest);
+    if (!field || !characterProperties[field[1]]) break;
+    let value;
+    try { value = JSON.parse('"' + field[2] + '"'); }
+    catch { break; } // An incomplete escape will be decoded with the next chunk.
+    result[field[1]] = value.slice(0, characterProperties[field[1]].maxLength || 60);
+    if (!field[3]) break;
+    rest = rest.slice(field[0].length);
+  }
+  return result;
+}
+
+async function streamedCompletion(response, maxBytes, onProgress) {
+  const decoder = new TextDecoder();
+  let pending = "", content = "", bytes = 0, finish;
+  const consume = (line) => {
+    if (!line.startsWith("data:")) return;
+    const raw = line.slice(5).trim();
+    if (!raw || raw === "[DONE]") return;
+    const data = JSON.parse(raw);
+    if (data.error || data.base_resp?.status_code) throw new MiniMaxGenerationError("MiniMax生成失败，请重试");
+    const choice = data.choices?.[0];
+    if (choice?.delta?.refusal) throw new MiniMaxGenerationError("MiniMax未完成角色生成，请重试");
+    if (typeof choice?.delta?.content === "string") {
+      content += choice.delta.content;
+      onProgress({ type: "text", character: partialCharacter(content) });
+    }
+    if (choice?.finish_reason) finish = choice.finish_reason;
+  };
+  for await (const chunk of response.body) {
+    bytes += chunk.byteLength;
+    if (bytes > maxBytes) throw new MiniMaxGenerationError("模型响应过大，请重试");
+    pending += decoder.decode(chunk, { stream: true });
+    const lines = pending.split("\n");
+    pending = lines.pop();
+    for (const line of lines) consume(line.trimEnd());
+  }
+  pending += decoder.decode();
+  if (pending.trim()) consume(pending.trimEnd());
+  return { choices: [{ finish_reason: finish, message: { content } }] };
+}
+
+async function request(config, endpoint, body, maxBytes, onProgress) {
   let url;
   try {
     url = new URL(config.baseUrl.replace(/\/+$/, "") + endpoint);
@@ -219,7 +270,9 @@ async function request(config, endpoint, body, maxBytes) {
       throw new MiniMaxGenerationError(
         `MiniMax服务请求失败（HTTP ${response.status}），请稍后重试或联系GM`,
       );
-    const data = await boundedJson(response, maxBytes);
+    const data = onProgress && response.headers?.get("content-type")?.includes("text/event-stream")
+      ? await streamedCompletion(response, maxBytes, onProgress)
+      : await boundedJson(response, maxBytes);
     if (data.base_resp?.status_code)
       throw new MiniMaxGenerationError(
         `MiniMax服务请求失败（代码 ${Number(data.base_resp.status_code) || "未知"}），请联系GM检查账户与额度`,
@@ -240,6 +293,7 @@ export async function generateCharacterDraft(
   input,
   npcs,
   config = minimaxConfig(),
+  onProgress,
 ) {
   const seed = validateInspirationInput(input);
   if (!isMiniMaxConfigured(config))
@@ -267,6 +321,7 @@ export async function generateCharacterDraft(
     "/chat/completions",
     {
       model: config.textModel,
+      ...(onProgress ? { stream: true } : {}),
       max_tokens: 8192,
       reasoning_split: true,
       temperature: 0.9,
@@ -288,6 +343,7 @@ export async function generateCharacterDraft(
       ],
     },
     150000,
+    onProgress,
   );
   const choice = data.choices?.[0];
   if (
@@ -306,6 +362,8 @@ export async function generateCharacterDraft(
     throw new MiniMaxGenerationError("MiniMax角色输出不是完整JSON，请重试");
   }
   const draft = validateGeneratedCharacterDraft(value, npcs, seed);
+  onProgress?.({ type: "text", character: draft.character });
+  onProgress?.({ type: "stage", message: "故事已写好，正在绘制角色头像…" });
   const image = await request(
     config,
     "/image_generation",
@@ -357,6 +415,7 @@ export async function generateCharacterDraft(
   } catch {
     throw new MiniMaxGenerationError("MiniMax头像无法解码或尺寸过大，请重试");
   }
+  onProgress?.({ type: "avatar", preview: `data:image/webp;base64,${avatarWebp.toString("base64")}` });
   // Only server callers receive NPC briefs; the route must filter before JSON.
   const { avatar_prompt, ...result } = draft;
   return { ...result, avatarWebp };

@@ -82,7 +82,7 @@ export function relationSchema(npcs) {
 }
 
 const safePlot =
-  /E-\d{2}|真凶|真正凶手|凶手(?:是|为)|(?:阿德里安·索恩|Adrian Thorne).{0,15}(?:死亡|死去|遇害)|(?:杀害|刺杀).{0,15}(?:阿德里安·索恩|Adrian Thorne)|(?:阵营分配|你的阵营|所属阵营)|(?:奖励|获得|给予|发放).{0,6}\d+\s*(?:枚|个)?金币/i;
+  /E-\d{2}|真凶|真正凶手|(?:保护|包庇|协助|帮助|掩护).{0,12}(?:凶手|行凶者)|(?:杀手|凶手)同伙|(?:寻找|找到).{0,8}凶手.{0,8}接头|凶手(?:是|为)|(?:阿德里安·索恩|Adrian Thorne).{0,15}(?:死亡|死去|遇害)|(?:杀害|刺杀).{0,15}(?:阿德里安·索恩|Adrian Thorne)|(?:阵营分配|你的阵营|所属阵营)|(?:奖励|获得|给予|发放).{0,6}\d+\s*(?:枚|个)?金币/i;
 export const hasForbiddenPlot = (value) => safePlot.test(value);
 export function validateGeneratedStory(value, npcs) {
   const error = () => {
@@ -229,7 +229,7 @@ export async function generateStory(character, npcs, config) {
       "2026年万圣节，阿拉斯加索恩庄园。ADS创始人阿德里安·索恩邀请客人参加ECHO主题晚宴。ECHO是数字人格模拟，并非已证明的意识延续。",
     phases: phases.map((name, i) => ({ phase: i + 1, name })),
     boundaries:
-      "第一幕结识与破冰，第二幕商业谈判与拍卖，第三幕按GM指引调查，第四幕基于现场证据表达判断。只能创造晚宴开始前的交往、合作、分歧与社交动机；不得创造案件事实、幕后真相、死亡事件、证据内容、已知凶手、金币奖励或阵营。不要替玩家决定最终结局。",
+      "第一幕结识与破冰，第二幕商业谈判与拍卖，第三幕按GM指引调查，第四幕基于现场证据表达判断。只能创造晚宴开始前的交往、合作、分歧与社交动机；不得创造案件事实、幕后真相、死亡事件、证据内容、已知凶手、金币奖励或阵营。模型不得自行创设、暗示或泄露凶手、阵营身份及私有接头任务；这些权限只以GM正式分配及私有简报为准，不由角色背景生成。不要替玩家决定最终结局。",
     npcs: npcs.map(({ id, name, english, role, bio }) => ({
       id,
       name,

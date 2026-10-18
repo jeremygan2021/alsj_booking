@@ -10,3 +10,8 @@ output/playwright/
 output/models/
 output/releases/
 output/transcribe/
+output/clue-audio/
+交付包_阿拉斯加之夜/
+__pycache__/
+*.pyc
+交付包_阿拉斯加之夜/

@@ -16,6 +16,7 @@ export function mountManagementRoutes(
     store,
     assetBaseUrl,
     paidPhones,
+    factionService,
   },
 ) {
   const text = (v, label, max) => required(v, label, max);
@@ -118,16 +119,11 @@ export function mountManagementRoutes(
       )
         fail("角色技能、状态或阵营无效");
       await exists("npcs", d.npc_id);
-      if (
-        d.faction === "conspirator" &&
-        (
-          await one(
-            "SELECT COUNT(*) n FROM characters WHERE faction='conspirator' AND player_id!=?",
-            req.params.id,
-          )
-        ).n >= 3
-      )
-        fail("隐藏同伙最多3人");
+      const old = await one("SELECT faction FROM characters WHERE player_id=?", req.params.id);
+      const factionState = await factionService.getPlayerState(req.params.id);
+      const drawn = (await factionService.getAdminState()).drawn;
+      if (!drawn && d.faction === "conspirator" && old?.faction !== "conspirator")
+        fail("杀手身份须在阵营与暗号中抽签分配", 409);
       await run(
         `INSERT INTO characters(player_id,name,english,profession,skill,faction,story,secret,npc_id,status,motive) VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(player_id) DO UPDATE SET name=excluded.name,english=excluded.english,profession=excluded.profession,skill=excluded.skill,faction=excluded.faction,story=excluded.story,secret=excluded.secret,npc_id=excluded.npc_id,status=excluded.status,motive=excluded.motive`,
         req.params.id,
@@ -142,6 +138,8 @@ export function mountManagementRoutes(
         d.status,
         text(d.motive, "赴宴动机", 100),
       );
+      if (drawn && factionState.assigned !== d.faction)
+        await factionService.setFactionInTransaction(req.params.id, d.faction, req.auth.user_id);
     },
     "编辑完整角色卡",
   );

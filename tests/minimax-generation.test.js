@@ -379,3 +379,49 @@ test("只配置MINIMAX_API_KEY即可启用已有剧情生成，通用Schema缺�
     }
   }
 });
+
+test("真实SSE分片逐步提供公开人物字段，不泄露思考和NPC私稿", async () => {
+  const events = [];
+  const value = output();
+  const content = JSON.stringify(value);
+  const encoder = new TextEncoder();
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  let reached;
+  const first = new Promise((resolve) => { reached = resolve; });
+  let calls = 0;
+  const pending = generateCharacterDraft({}, npcs, config(async (_url, options) => {
+    calls++;
+    if (calls > 1) return imageResponse();
+    assert.equal(JSON.parse(options.body).stream, true);
+    return new Response(new ReadableStream({
+      async start(controller) {
+        const frame = (data) => encoder.encode(`data: ${JSON.stringify(data)}\r\n\r\n`);
+        controller.enqueue(frame({ choices: [{ delta: { reasoning_details: [{ text: "PRIVATE_THINKING" }] } }] }));
+        const split = content.indexOf(value.character.story) + 28;
+        const bytes = frame({ choices: [{ delta: { content: content.slice(0, split) } }] });
+        // Split both SSE framing and multi-byte UTF-8 characters.
+        for (let i = 0; i < bytes.length; i += 7) controller.enqueue(bytes.slice(i, i + 7));
+        await gate;
+        controller.enqueue(frame({ choices: [{ delta: { content: content.slice(split) }, finish_reason: "stop" }] }));
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    }), { headers: { "content-type": "text/event-stream" } });
+  }), (event) => {
+    events.push(event);
+    if (event.character?.story) reached();
+  });
+  await first;
+  assert.equal(calls, 1);
+  assert.equal(events.at(-1).character.name, value.character.name);
+  assert.ok(events.at(-1).character.story.length < value.character.story.length);
+  release();
+  const result = await pending;
+  assert.equal(result.character.name, value.character.name);
+  assert.ok(events.some((event) => event.type === "avatar" && event.preview.startsWith("data:image/webp;base64,")));
+  const serialized = JSON.stringify(events);
+  assert.ok(!serialized.includes("PRIVATE_THINKING"));
+  assert.ok(!serialized.includes("npc_brief"));
+  assert.ok(!serialized.includes("avatar_prompt"));
+});

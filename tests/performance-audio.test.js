@@ -20,11 +20,11 @@ import {
 test("现场演绎只纳入14段更新成片，摘要不携带私稿和服务器路径", async () => {
   const catalog = createPerformanceAudioCatalog();
   const summary = await catalog.describe();
-  assert.equal(summary.version, "2026-10-15-expanded");
+  assert.equal(summary.version, "2026-10-18-story-v5");
   assert.equal(summary.provider, "MiniMax");
   assert.equal(summary.model, "speech-2.8-hd");
   assert.equal(summary.tracks.length, 14);
-  assert.equal(summary.totalDuration, 1363.488);
+  assert.equal(summary.totalDuration, 1462.73);
   assert.equal(summary.voices.length, 8);
   assert.equal(summary.credits.length, 5);
   assert.deepEqual(

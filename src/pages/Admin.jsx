@@ -46,6 +46,8 @@ import { Audit, PlayerReview, ContentEditor } from "../components/StaffForms";
 import { CharacterAvatar, RelationCards } from "../components/CharacterProfile";
 import ContentManager from "../components/ContentManager";
 import PerformanceAudio from "../components/PerformanceAudio";
+import FactionManagement from "../components/FactionManagement";
+import FactionPlay from "../components/FactionPlay";
 import PaymentImport, { PaymentStatus } from "../components/PaymentImport";
 import {
   Icon,
@@ -108,6 +110,7 @@ function Admin({ pub, session, notify }) {
         ["overview", "总览", LayoutDashboard],
         ["content", "内容管理中心", FileText],
         ["players", "宾客与角色", Users],
+        ["factions", "阵营与暗号", KeyRound],
         ["relations", "剧情关系", Compass],
         ["npcs", "NPC档案", Briefcase],
         ["evidence", "证据与二维码", ScanLine],
@@ -213,7 +216,11 @@ function Admin({ pub, session, notify }) {
                     </Badge>
                   </td>
                   {gm && (
-                    <td className="muted">{factions[p.faction] || "—"}</td>
+                    <td className="muted">
+                      {p.faction_assigned
+                        ? factions[p.faction_assigned] || p.faction_assigned
+                        : "等待抽签"}
+                    </td>
                   )}
                   <td>{p.coins}</td>
                   <td>
@@ -811,6 +818,12 @@ function Admin({ pub, session, notify }) {
           </div>
         )}
         {tab === "performance" && gm && <PerformanceAudio />}
+        {tab === "factions" && gm && (
+          <>
+            <FactionManagement notify={notify} onChanged={refresh} />
+            <FactionPlay gm phase={pub.settings.phase} notify={notify} />
+          </>
+        )}
         {tab === "events" && (
           <div className="dashboard-columns">
             <section className="panel">
@@ -963,12 +976,12 @@ function Admin({ pub, session, notify }) {
                   });
                 }}
               >
-                <Field label="报名名额（最多100人）">
+                <Field label="报名名额（最多50人）">
                   <input
                     name="capacity"
                     type="number"
                     min={data.players.length || 1}
-                    max={100}
+                    max={50}
                     defaultValue={data.settings.capacity}
                     required
                   />

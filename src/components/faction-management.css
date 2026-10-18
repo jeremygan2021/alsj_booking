@@ -1,0 +1,255 @@
+.faction-management {
+  display: grid;
+  gap: 20px;
+}
+.faction-management .panel {
+  min-width: 0;
+}
+.faction-control-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.faction-control-heading > div {
+  max-width: 740px;
+}
+.faction-control .eyebrow,
+.faction-control .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.faction-control h2 {
+  margin-top: 12px;
+}
+.faction-draw-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.faction-draw-stats > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 7px 12px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.faction-draw-stats svg {
+  color: var(--gold);
+  align-self: center;
+}
+.faction-draw-stats strong {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.faction-draw-stats span {
+  grid-column: 2;
+  font-size: 12px;
+  color: var(--muted);
+}
+.faction-draw-rule {
+  line-height: 1.8;
+}
+.faction-missing-preference {
+  color: var(--gold-light);
+}
+.faction-draw-notice {
+  margin: 20px 0 0;
+}
+.faction-draw-actions > .button {
+  margin-top: 5px;
+}
+.faction-draw-confirm {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  background: rgba(192, 164, 103, 0.06);
+}
+.faction-draw-confirm > div {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.faction-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.faction-count {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.faction-count span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.faction-count strong {
+  font-size: 27px;
+  font-weight: 500;
+}
+.faction-count.conspirator {
+  border-color: rgba(192, 164, 103, 0.5);
+}
+.faction-table-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.faction-filter {
+  display: grid;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.faction-filter select {
+  font-size: 13px;
+  color: var(--text);
+  min-width: 160px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 9px 12px;
+  border-radius: 3px;
+}
+.faction-player-table {
+  min-width: 690px;
+}
+.faction-player-table td {
+  vertical-align: middle;
+}
+.faction-player-table td small {
+  display: block;
+  margin-top: 5px;
+}
+.faction-code {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.faction-code code {
+  font-family: inherit;
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  user-select: all;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.faction-code .icon-button {
+  flex-shrink: 0;
+}
+.faction-private-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-bottom: 0;
+  line-height: 1.6;
+}
+.faction-private-note svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+@media (max-width: 800px) {
+  .faction-control-heading {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .faction-counts {
+    gap: 10px;
+  }
+  .faction-count {
+    padding: 16px;
+  }
+  .faction-count span {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .faction-count strong {
+    font-size: 23px;
+  }
+  .faction-draw-stats {
+    gap: 8px;
+  }
+  .faction-draw-stats > div {
+    padding: 12px 8px;
+    gap: 7px;
+    grid-template-columns: 1fr;
+  }
+  .faction-draw-stats svg {
+    display: none;
+  }
+  .faction-draw-stats span {
+    grid-column: 1;
+    line-height: 1.5;
+  }
+  .faction-draw-stats strong {
+    font-size: 24px;
+  }
+  .faction-player-panel .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .faction-filter,
+  .faction-filter select {
+    width: 100%;
+  }
+  .faction-player-panel .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .faction-player-panel .search {
+    width: 100%;
+    max-width: none;
+    flex: none;
+  }
+  .faction-player-table {
+    min-width: 0;
+    white-space: normal;
+  }
+  .faction-player-table thead {
+    display: none;
+  }
+  .faction-player-table tbody {
+    display: grid;
+    gap: 14px;
+  }
+  .faction-player-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+  }
+  .faction-player-table td {
+    display: block;
+    border: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .faction-player-table td:first-child,
+  .faction-player-table td:last-child {
+    grid-column: 1 / -1;
+  }
+  .faction-player-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+    margin-bottom: 5px;
+  }
+  .faction-draw-confirm {
+    padding: 15px;
+  }
+  .faction-draw-confirm .button {
+    width: 100%;
+  }
+}

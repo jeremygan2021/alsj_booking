@@ -84,7 +84,7 @@ test("GM名单预览不写入、增量核验、未来注册与登录匹配、退
       if (res.headers.get("set-cookie"))
         cookie = res.headers.get("set-cookie").split(";")[0];
       assert.equal(res.status, status, await res.clone().text());
-      assert.equal(res.headers.get("Cache-Control"), "no-store");
+      assert.match(res.headers.get("Cache-Control"), /(?:^|,\s*)no-store(?:,|$)/);
       return res.json();
     };
   };

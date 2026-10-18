@@ -1,0 +1,158 @@
+.faction-play {
+  min-width: 0;
+  margin-bottom: 18px;
+}
+.faction-play-heading,
+.faction-policy-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.faction-play-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 7px 0 12px;
+  font-size: 20px;
+}
+.faction-play p {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.faction-play-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.faction-play-actions strong {
+  color: var(--gold-light);
+}
+.faction-policy-card {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 15px;
+  margin-top: 12px;
+  min-width: 0;
+}
+.faction-policy-card.own {
+  border-color: var(--gold);
+  background: rgba(180, 146, 81, 0.04);
+}
+.faction-policy-title h3 {
+  font-size: 15px;
+  margin: 0;
+  line-height: 1.6;
+}
+.faction-policy-card p {
+  margin: 9px 0;
+  font-size: 14px;
+}
+.faction-policy-card small {
+  color: var(--muted);
+}
+.faction-policy-reference {
+  border-left: 2px solid var(--gold);
+  padding: 5px 0 5px 12px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.faction-policy-reference p {
+  margin: 6px 0;
+}
+.faction-play summary {
+  cursor: pointer;
+  color: var(--gold-light);
+  font-size: 13px;
+  padding: 10px 0;
+}
+.faction-proposal-form {
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.faction-proposal-form form {
+  display: grid;
+  gap: 12px;
+  padding-top: 7px;
+}
+.faction-proposal-form select,
+.faction-proposal-form textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.faction-policy-list {
+  display: grid;
+  gap: 2px;
+}
+.faction-policy-list > h3 {
+  margin: 20px 0 0;
+  font-size: 15px;
+}
+.faction-support-done {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  color: var(--gold-light);
+}
+.faction-support-confirm {
+  background: var(--surface);
+  padding: 10px;
+  border-radius: 5px;
+}
+.faction-support-confirm > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.faction-play-error {
+  color: #edb6a9;
+}
+.faction-review-note {
+  color: var(--gold-light);
+  border-left: 2px solid var(--gold);
+  padding-left: 10px;
+}
+.faction-review-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.faction-review-form > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.faction-review-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+.faction-play-rules {
+  margin-top: 14px;
+}
+.faction-play-rules ul {
+  margin: 5px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+.faction-play-rules li + li {
+  margin-top: 7px;
+}
+@media (max-width: 520px) {
+  .faction-play-heading h2 {
+    font-size: 18px;
+  }
+  .faction-policy-card {
+    padding: 12px;
+  }
+  .faction-support-confirm .button {
+    width: 100%;
+  }
+}

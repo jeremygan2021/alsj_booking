@@ -25,7 +25,8 @@ for n in DATA['npcs']:
   w=csv.writer(f);w.writerow(['NPC编号','NPC','道具','制作状态','头像与剧本来源'])
   props=next((s['text'] for s in n['sections'] if s['title']=='专属道具'),'')
   for line in props.splitlines():
-   if line.startswith('- '):w.writerow([n['npcId'],n['name'],line[2:],'待制作','角色原稿及代码现有头像'])
+   item=line.strip().removeprefix('- ').strip()
+   if item:w.writerow([n['npcId'],n['name'],item,'待制作','角色原稿及代码现有头像'])
  (folder/'演员剧本.md').write_text(md)
  content=f"<header><img src='头像.webp' alt='{escaped(n['name'])}头像'><div><small>{n['npcId']} · 演员保密</small><h1>{escaped(n['name'])}</h1><p>{escaped(n['english'])} · {n['age']}岁<br>{escaped(n['role'])}</p></div></header><button onclick='window.print()'>打印角色物料</button>"
  for title,text in [('公开故事',n['publicBio']),('第一人称故事',n['story'])]:content+=f'<h2>{title}</h2>'+paragraph(text)

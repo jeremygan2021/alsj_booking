@@ -45,7 +45,7 @@ test("六NPC采用新大纲，公开档案不泄漏真正凶手", async (t) => {
   assert.match(
     (await db.prepare("SELECT secret FROM npcs WHERE id=?").get("attorney"))
       .secret,
-    /真正凶手/,
+    /真正凶手|唯一实施致命袭击者/,
   );
 });
 

@@ -66,7 +66,7 @@ export function findPublicInvestigationNode(id) {
       presentation: "invitation",
       poster_url: "/invitation/alaska-poster.jpg",
       valid_until: "2026-10-31T23:59:59+08:00",
-      body: "致受邀宾客：\n诚邀您于2026年10月31日莅临索恩庄园，参加《阿拉斯加之夜：最后的遗嘱》沉浸式真人TRPG推理体验。\n当AI可以模仿逝者，人类是否真正拥有永生？\n50名玩家 · 6名NPC演员\n破冰交际 → 秘密拍卖 → 死亡与搜证 → 模拟庭审\n实体证据 + VR场景搜证 + 3D AR验尸\nFBI调查阵营 / 索恩遗产阵营 / 杀手同伙阵营\n阿德里安·索恩 · 瑟琳娜·温特 · ADS · ECHO／回声计划\n联合主办：量迹、滇峰青年社、ADS。\n本函为活动邀请展示；入场以报名确认为准。",
+      body: "致受邀宾客：\n诚邀您于2026年10月31日莅临索恩庄园，参加《阿拉斯加之夜：最后的遗嘱》沉浸式真人TRPG推理体验。\n当AI可以模仿逝者，人类是否真正拥有永生？\n50名玩家 · 6名NPC演员\n破冰交际 → 秘密拍卖 → 死亡与搜证 → 模拟庭审\n实体证据 + VR场景搜证 + 3D AR验尸\nFBI调查阵营 / 索恩遗产阵营 / 杀手阵营\n阿德里安·索恩 · 瑟琳娜·温特 · ADS · ECHO／回声计划\n联合主办：量迹、滇峰青年社、ADS。\n本函为活动邀请展示；入场以报名确认为准。",
     };
   return publicInvestigationNodes.find((node) => node.id === id);
 }

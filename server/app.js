@@ -1,4 +1,7 @@
 import { modelInspectionPoints } from "../src/model-inspection.js";
+import { createFactionService } from "./factions/service.js";
+import { createFactionPlayService, mountFactionPlayRoutes } from "./faction-play.js";
+import { MAX_PLAYERS } from "./migrations/event-capacity.js";
 import { staffStoryMaterials } from "./story-materials.js";
 import express from "express";
 import sharp from "sharp";
@@ -94,6 +97,8 @@ export async function createApp({
     return v.trim();
   };
   const tx = (fn) => db.transaction(fn);
+  const factionService = createFactionService({ one, all, run, tx, fail });
+  const factionPlay = createFactionPlayService({ one, all, run, tx, fail });
   const paidPhones = createPaidPhoneService({ one, all, run, fail });
   const generation = generationConfig(llm);
   const configured = isGenerationConfigured(generation);
@@ -381,7 +386,7 @@ export async function createApp({
           registered = false;
         if (!p) {
           const count = (await one("SELECT COUNT(*) n FROM players")).n;
-          if (count >= (await setting()).capacity)
+          if (count >= Math.min(MAX_PLAYERS, (await setting()).capacity))
             fail("本场报名已满，已有玩家仍可登录");
           const name = req.body.name
             ? required(req.body.name, "称呼", 40)
@@ -416,7 +421,7 @@ export async function createApp({
     await tx(async () => {
       if (
         (await one("SELECT COUNT(*) n FROM players")).n >=
-        (await setting()).capacity
+        Math.min(MAX_PLAYERS, (await setting()).capacity)
       )
         fail("本场报名已满");
       if (await one("SELECT id FROM players WHERE contact=?", contact))
@@ -461,9 +466,12 @@ export async function createApp({
       await one("SELECT * FROM characters WHERE player_id=?", p.id),
       true,
     );
-    s.json({
+    const faction = await factionService.getPlayerState(p.id);
+    if (c) c.faction = faction.assigned;
+    s.set("Cache-Control", "private, no-store").json({
       player: p,
       character: c,
+      faction,
       relations: await relationsFor(p.id, { playerView: true }),
       missions:
         c?.status === "approved"
@@ -479,6 +487,23 @@ export async function createApp({
       ),
       vote: await one("SELECT * FROM votes WHERE player_id=?", p.id),
     });
+  });
+  app.post("/api/factions/preference", auth("player"), async (r, s) => {
+    const p = await player(r);
+    s.set("Cache-Control", "private, no-store").json(
+      await factionService.savePreference(p.id, r.body?.preference),
+    );
+  });
+  app.get("/api/staff/factions", auth("gm"), async (r, s) => {
+    s.set("Cache-Control", "private, no-store").json(await factionService.getAdminState());
+  });
+  app.post("/api/staff/factions/draw", auth("gm"), async (r, s) => {
+    await factionService.draw(r.auth.user_id);
+    s.set("Cache-Control", "private, no-store").json(await factionService.getAdminState());
+  });
+  app.post("/api/staff/factions/:id", auth("gm"), async (r, s) => {
+    await factionService.setFaction(r.params.id, r.body?.faction, r.auth.user_id);
+    s.set("Cache-Control", "private, no-store").json(await factionService.getAdminState());
   });
   app.post("/api/avatar", auth("player"), async (r, s) => {
     const p = await player(r);
@@ -580,6 +605,11 @@ export async function createApp({
     if (inspirationJobs.has(p.id)) fail("角色正在生成，请稍候", 409);
     if (inspirationJobs.size >= 2) fail("角色生成繁忙，请稍后重试", 429);
     inspirationJobs.add(p.id);
+    const streaming = r.get("accept")?.includes("text/event-stream");
+    let heartbeat;
+    const send = (event) => {
+      if (!s.destroyed && !s.writableEnded) s.write(`data: ${JSON.stringify(event)}\n\n`);
+    };
     try {
       const snapshot = await tx(async () => {
         const current = await one("SELECT revision,status FROM characters WHERE player_id=?", p.id);
@@ -588,7 +618,13 @@ export async function createApp({
         return { revision: current?.revision || 0, avatar: (await one("SELECT updated_at FROM avatars WHERE player_id=?", p.id))?.updated_at || 0 };
       });
       const npcs = await all(`SELECT id,name,english,role,bio FROM npcs ORDER BY ${npcOrder}`);
-      const result = await generateCharacterDraft(seed, npcs, inspirationConfig);
+      if (streaming) {
+        s.set({ "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "private, no-store", "X-Accel-Buffering": "no" });
+        s.flushHeaders();
+        send({ type: "stage", message: "正在构思角色与庄园的往事…" });
+        heartbeat = setInterval(() => send({ type: "heartbeat" }), 5000);
+      }
+      const result = await generateCharacterDraft(seed, npcs, inspirationConfig, streaming ? send : undefined);
       const avatar_url = await tx(async () => {
         const current = await one("SELECT revision,status FROM characters WHERE player_id=?", p.id);
         const avatar = await one("SELECT updated_at FROM avatars WHERE player_id=?", p.id);
@@ -599,8 +635,16 @@ export async function createApp({
         await run("INSERT INTO character_inspirations(player_id,data,avatar_version,created_at) VALUES(?,?,?,?) ON CONFLICT(player_id) DO UPDATE SET data=excluded.data,avatar_version=excluded.avatar_version,created_at=excluded.created_at", p.id, JSON.stringify({ character: result.character, adaptation: result.adaptation, relations: result.relations }), updated, updated);
         return `/api/avatars/${p.id}?v=${updated}`;
       });
-      s.set("Cache-Control", "private, no-store").json({ ...result.character, avatar_url });
+      if (streaming) {
+        send({ type: "complete", character: { ...result.character, avatar_url } });
+        s.end();
+      } else s.set("Cache-Control", "private, no-store").json({ ...result.character, avatar_url });
+    } catch (error) {
+      if (!s.headersSent) throw error;
+      send({ type: "error", message: error.message || "生成失败，请重试" });
+      s.end();
     } finally {
+      clearInterval(heartbeat);
       inspirationJobs.delete(p.id);
     }
   });
@@ -863,6 +907,7 @@ export async function createApp({
     s.sendFile(path.join(modelsRoot, filename));
   });
   mountEvidenceRoutes(app, { auth, player, playable, evidence });
+  mountFactionPlayRoutes(app, { auth, player, playable, factionPlay });
   mountArRoutes(app, {
     auth,
     playable,
@@ -972,17 +1017,25 @@ export async function createApp({
   });
   app.get("/api/staff", auth("gm", "npc"), async (r, s) => {
     const gm = r.auth.role === "gm";
+    const staffPlayers = await all(
+      `SELECT p.id,p.name,p.payment,p.checked_in,p.coins,p.group_id,c.name AS "character",c.status,c.cosplay_character,c.cosplay_source,c.avatar_url${gm ? ",p.contact,CASE WHEN EXISTS (SELECT 1 FROM paid_phones pf WHERE pf.phone=p.contact) AND NOT EXISTS (SELECT 1 FROM npc_phones nf WHERE nf.phone=p.contact) THEN 1 ELSE 0 END AS paid_phone_import,c.faction,c.generation_status,c.generator,c.generation_error,c.generation_pending" : ""} FROM players p LEFT JOIN characters c ON c.player_id=p.id ${gm ? "" : "WHERE c.status='approved' AND EXISTS (SELECT 1 FROM character_relations r WHERE r.player_id=p.id AND r.npc_id=?)"} ORDER BY p.created_at DESC`,
+      ...(gm ? [] : [r.auth.user_id]),
+    );
+    if (gm) {
+      const assignments = new Map((await factionService.getAdminState()).players.map((p) => [p.id, p]));
+      for (const p of staffPlayers) {
+        p.faction = assignments.get(p.id)?.assigned || null;
+        p.faction_assigned = p.faction;
+      }
+    }
     const relationRows = await all(
       `SELECT r.*,n.name npc_name,p.name player_name,c.name character_name,c.cosplay_character,c.cosplay_source,c.avatar_url,c.status,c.generation_status,c.generator FROM character_relations r JOIN npcs n ON n.id=r.npc_id JOIN players p ON p.id=r.player_id JOIN characters c ON c.player_id=r.player_id ${gm ? "" : "WHERE r.npc_id=? AND c.status='approved'"} ORDER BY p.created_at DESC,r.npc_id`,
       ...(gm ? [] : [r.auth.user_id]),
     );
-    s.json({
+    s.set("Cache-Control", "private, no-store").json({
       settings: await setting(),
       storyMaterials: staffStoryMaterials(r.auth.role, r.auth.user_id),
-      players: await all(
-        `SELECT p.id,p.name,p.payment,p.checked_in,p.coins,p.group_id,c.name AS "character",c.status,c.cosplay_character,c.cosplay_source,c.avatar_url${gm ? ",p.contact,CASE WHEN EXISTS (SELECT 1 FROM paid_phones pf WHERE pf.phone=p.contact) AND NOT EXISTS (SELECT 1 FROM npc_phones nf WHERE nf.phone=p.contact) THEN 1 ELSE 0 END AS paid_phone_import,c.faction,c.generation_status,c.generator,c.generation_error,c.generation_pending" : ""} FROM players p LEFT JOIN characters c ON c.player_id=p.id ${gm ? "" : "WHERE c.status='approved' AND EXISTS (SELECT 1 FROM character_relations r WHERE r.player_id=p.id AND r.npc_id=?)"} ORDER BY p.created_at DESC`,
-        ...(gm ? [] : [r.auth.user_id]),
-      ),
+      players: staffPlayers,
       relations: relationRows.map(({ hooks, ...relation }) => ({
         ...relation,
         hooks: JSON.parse(hooks),
@@ -1019,8 +1072,9 @@ export async function createApp({
       r.params.id,
     );
     if (!p) fail("玩家不存在", 404);
-    s.json({
+    s.set("Cache-Control", "private, no-store").json({
       player: p,
+      faction: await factionService.getPlayerState(p.id),
       character: characterView(
         await one("SELECT * FROM characters WHERE player_id=?", p.id),
       ),
@@ -1064,25 +1118,19 @@ export async function createApp({
           ))
         )
           fail("角色尚未生成有效NPC关联，请先完成生成");
-        const faction = r.body.faction || c.faction;
-        if (!["fbi", "croft", "conspirator"].includes(faction))
+        const faction = r.body.faction ?? c.faction;
+        if (faction && !["fbi", "croft", "conspirator"].includes(faction))
           fail("阵营无效");
-        if (
-          faction === "conspirator" &&
-          (
-            await one(
-              "SELECT COUNT(*) n FROM characters WHERE faction='conspirator' AND player_id!=?",
-              id,
-            )
-          ).n >= 3
-        )
-          fail("隐藏同伙最多3人");
-        await run(
-          "UPDATE characters SET status=?,faction=? WHERE player_id=?",
-          r.body.status,
-          faction,
-          id,
-        );
+        await run("UPDATE characters SET status=? WHERE player_id=?", r.body.status, id);
+        if (r.body.faction) {
+          if ((await factionService.getAdminState()).drawn) {
+            if ((await factionService.getPlayerState(id)).assigned !== r.body.faction)
+              await factionService.setFactionInTransaction(id, r.body.faction, r.auth.user_id);
+          } else if (r.body.faction !== c.faction && r.body.faction === "conspirator")
+            fail("杀手身份须在阵营与暗号中抽签分配", 409);
+          else if (r.body.faction !== c.faction)
+            await run("UPDATE characters SET faction=? WHERE player_id=?", r.body.faction, id);
+        }
       }
       if (r.body.group) {
         if (
@@ -1241,12 +1289,12 @@ export async function createApp({
     if (
       !Number.isInteger(capacity) ||
       capacity < Math.max(1, (await one("SELECT COUNT(*) n FROM players")).n) ||
-      capacity > 100 ||
+      capacity > MAX_PLAYERS ||
       !Number.isInteger(price) ||
       price < 0 ||
       price > 10000
     )
-      fail("请输入有效名额和价格，名额不能少于已报名人数");
+      fail("请输入有效名额和价格，名额最多50人且不能少于已报名人数");
     await run("UPDATE settings SET capacity=?,price=?", capacity, price);
     await audit(r, "更新活动名额与价格");
     s.json({
@@ -1308,6 +1356,7 @@ export async function createApp({
     store: contentStore,
     assetBaseUrl,
     paidPhones,
+    factionService,
   });
   app.use("/api", (r, s) =>
     s.status(404).json({

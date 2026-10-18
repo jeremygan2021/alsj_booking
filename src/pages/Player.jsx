@@ -15,7 +15,7 @@ import {
   Box,
 } from "lucide-react";
 import { api } from "../api";
-import { phases, factions } from "../constants";
+import { phases } from "../constants";
 import { Button, Badge, Field, Modal, QR, useResource } from "../components/ui";
 import ClueImageReader from "../components/ClueImageReader";
 import QrTrackingScene, {
@@ -29,6 +29,11 @@ import CharacterForm, {
 } from "../components/CharacterProfile";
 import EvidenceModelViewer from "../components/EvidenceModelViewer";
 import ImmersiveGallery from "../components/ImmersiveGallery";
+import FactionPlay from "../components/FactionPlay";
+import {
+  FactionAssignment,
+  FactionPreference,
+} from "../components/FactionPreference";
 import { parseClueCode } from "../clue-scan";
 import {
   ARSearchCard,
@@ -59,6 +64,20 @@ function Player({ pub, notify }) {
   characterApproved.current = data?.character?.status === "approved";
   const updateCharacterFormState = (updater) => {
     if (!characterApproved.current) setCharacterFormState(updater);
+  };
+  const saveFactionPreference = async (preference) => {
+    setBusy(true);
+    try {
+      await api("/factions/preference", { preference });
+      await refresh();
+      notify("阵营偏好已保存，正式身份等待GM抽签。");
+      return true;
+    } catch (error) {
+      notify(error.message);
+      return false;
+    } finally {
+      setBusy(false);
+    }
   };
   const openClue = (clue, ar = false) => {
     detailGeneration.current++;
@@ -189,6 +208,8 @@ function Player({ pub, notify }) {
   }, [data]);
   if (!data) return <div className="boot">正在调取私人档案…</div>;
   const { player: p, character: c } = data;
+  const faction = data.faction || {};
+  const canCreateCharacter = Boolean(faction.preference || faction.assigned);
   const identity = new URLSearchParams(location.search).get("identity");
   if (identity && identity !== p.id)
     return (
@@ -311,28 +332,40 @@ function Player({ pub, notify }) {
         )}
         {tab === "identity" && (
           <>
+            <FactionAssignment faction={faction} />
+            {c?.status === "approved" && faction.assigned && (
+              <FactionPlay phase={pub.settings.phase} notify={notify} />
+            )}
+            <FactionPreference
+              faction={faction}
+              hasCharacter={Boolean(c)}
+              busy={busy}
+              onSave={saveFactionPreference}
+            />
             {!c || (editingCharacter && c.status !== "approved") ? (
               <>
-                <CharacterForm
-                  character={c}
-                  playerName={p.name}
-                  formState={characterFormState}
-                  onFormStateChange={updateCharacterFormState}
-                  busy={busy}
-                  onSubmit={(draft) =>
-                    action(async () => {
-                      const result = await api("/character", draft);
-                      setEditingCharacter(false);
-                      notify(
-                        result.stale
-                          ? "故事已在另一处更新，请查看当前故事。"
-                          : result.generation_status === "error"
-                            ? "故事已保存，可稍后重试或请GM协助。"
-                            : "角色已提交，等GM确认。",
-                      );
-                    })
-                  }
-                />
+                {canCreateCharacter && (
+                  <CharacterForm
+                    character={c}
+                    playerName={p.name}
+                    formState={characterFormState}
+                    onFormStateChange={updateCharacterFormState}
+                    busy={busy}
+                    onSubmit={(draft) =>
+                      action(async () => {
+                        const result = await api("/character", draft);
+                        setEditingCharacter(false);
+                        notify(
+                          result.stale
+                            ? "故事已在另一处更新，请查看当前故事。"
+                            : result.generation_status === "error"
+                              ? "故事已保存，可稍后重试或请GM协助。"
+                              : "角色已提交，等GM确认。",
+                        );
+                      })
+                    }
+                  />
+                )}
                 {c && (
                   <Button
                     kind="ghost compact"
@@ -429,7 +462,11 @@ function Player({ pub, notify }) {
                     {c.status === "approved" && (
                       <>
                         <h3>只有你知道的身份</h3>
-                        <Badge tone="gold">{factions[c.faction]}</Badge>
+                        {!faction.assigned && (
+                          <p>
+                            阵营等待GM统一抽签，角色审核不会提前决定你的阵营。
+                          </p>
+                        )}
                         <p>{c.secret}</p>
                       </>
                     )}

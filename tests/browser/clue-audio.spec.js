@@ -135,7 +135,7 @@ test("音频加载失败可重试且文字仍可读", async ({ page }) => {
     .getByTestId("qr-tracking-evidence")
     .locator(".qr-tracking-evidence-toggle")
     .click();
-  await expect(page.locator("#qr-evidence-body")).toContainText("草案");
+  await expect(page.locator("#qr-evidence-body")).toContainText("暂停授权不足的数字人格交互服务");
   await player.getByRole("button", { name: "重试聆听", exact: true }).click();
   await expect
     .poll(() => player.locator("audio").evaluate((a) => a.currentTime))

@@ -122,12 +122,13 @@ async function setup(t) {
       .run(token, role, id, Date.now() + 600000);
   server = app.listen(0, "127.0.0.1");
   await new Promise((resolve) => server.once("listening", resolve));
-  const request = (url, { body, cookie = "draft-session", method } = {}) =>
+  const request = (url, { body, cookie = "draft-session", method, headers = {} } = {}) =>
     fetch(`http://127.0.0.1:${server.address().port}${url}`, {
       method: method || (body === undefined ? "GET" : "POST"),
       headers: {
         "content-type": "application/json",
         cookie: cookie ? `alaska_session=${cookie}` : "",
+        ...headers,
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
@@ -317,4 +318,31 @@ test("真实GM路由隔离现场演绎清单与终局MP3，允许Range和HEAD", 
   assert.equal(head.status, 200);
   assert.equal(head.headers.get("content-type"), "audio/mpeg");
   assert.equal(head.headers.get("cache-control"), "private, no-store");
+});
+
+
+test("流式接口立即返回阶段，完成后才写入头像；错误事件可恢复", async (t) => {
+  const { request, db, block, failImage } = await setup(t);
+  const release = block();
+  const response = await request("/api/character/inspire", { body: {}, headers: { accept: "text/event-stream" } });
+  assert.match(response.headers.get("content-type"), /text\/event-stream/);
+  assert.equal(response.headers.get("x-accel-buffering"), "no");
+  const reader = response.body.getReader();
+  const first = new TextDecoder().decode((await reader.read()).value);
+  assert.match(first, /"type":"stage"/);
+  assert.equal(await db.prepare("SELECT * FROM avatars WHERE player_id=?").get("draft-player"), undefined);
+  release();
+  let rest = "";
+  for (;;) { const { value, done } = await reader.read(); if (done) break; rest += new TextDecoder().decode(value); }
+  assert.match(rest, /"type":"text"/);
+  assert.match(rest, /"type":"avatar"/);
+  assert.match(rest, /"type":"complete"/);
+  assert.ok(!rest.includes("npc_brief"));
+  assert.ok(!rest.includes("server-secret"));
+  failImage();
+  const failure = await request("/api/character/inspire", { body: {}, headers: { accept: "text/event-stream" } });
+  const failed = await failure.text();
+  assert.match(failed, /"type":"error"/);
+  assert.ok(!failed.includes("server-secret"));
+  assert.ok(!failed.includes('"type":"complete"'));
 });

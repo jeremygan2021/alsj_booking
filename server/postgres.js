@@ -1,10 +1,14 @@
 import { applyNpcMaterials } from "./migrations/npc-materials-v4.js";
+import { applyStoryV5 } from "./migrations/story-v5.js";
+import { migrateFactionPlay } from "./faction-play.js";
 import { applyNpcStory } from "./migrations/npc-story-v3.js";
 import pg from "pg";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { applyNpcOutline } from "./migrations/npc-outline-v2.js";
 import { applyCharacterLinks } from "./migrations/character-links.js";
 import { applyPaidPhones } from "./migrations/paid-phones.js";
+import { migrateFactionState } from "./migrations/faction-state.js";
+import { applyEventCapacity } from "./migrations/event-capacity.js";
 import { npcs, evidence, lots } from "./content.js";
 // Keep aggregate counts as numbers to preserve the API's numeric fields.
 pg.types.setTypeParser(20, Number);
@@ -13,7 +17,7 @@ const schema = `
  CREATE TABLE IF NOT EXISTS players(id TEXT PRIMARY KEY,name TEXT NOT NULL,contact TEXT UNIQUE NOT NULL,password TEXT NOT NULL,payment TEXT DEFAULT 'pending',checked_in INTEGER DEFAULT 0,coins INTEGER DEFAULT 0 CHECK(coins>=0),group_id INTEGER DEFAULT 1,created_at TEXT DEFAULT (CURRENT_TIMESTAMP::text));
  CREATE TABLE IF NOT EXISTS characters(player_id TEXT PRIMARY KEY REFERENCES players(id),name TEXT,english TEXT,profession TEXT,skill TEXT,faction TEXT DEFAULT 'croft',story TEXT,secret TEXT,npc_id TEXT,status TEXT DEFAULT 'pending',motive TEXT);
  CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY,role TEXT,user_id TEXT,expires BIGINT);
- CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY CHECK(id=1),phase INTEGER DEFAULT 1,capacity INTEGER DEFAULT 40,price INTEGER DEFAULT 189,voting INTEGER DEFAULT 0);
+ CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY CHECK(id=1),phase INTEGER DEFAULT 1,capacity INTEGER DEFAULT 50,price INTEGER DEFAULT 189,voting INTEGER DEFAULT 0);
  INSERT INTO settings(id) VALUES(1) ON CONFLICT DO NOTHING;
  CREATE TABLE IF NOT EXISTS npcs(id TEXT PRIMARY KEY,name TEXT,english TEXT,role TEXT,bio TEXT,secret TEXT);
  CREATE TABLE IF NOT EXISTS clues(id TEXT PRIMARY KEY,title TEXT,area TEXT,skill TEXT,dc INTEGER,body TEXT,detail TEXT,category TEXT,phase INTEGER DEFAULT 3);
@@ -118,6 +122,10 @@ export async function openPostgres(connectionString) {
     await db.transaction(() => applyNpcMaterials(db));
     await db.transaction(() => applyCharacterLinks(db, true));
     await db.transaction(() => applyPaidPhones(db));
+    await db.transaction(() => migrateFactionState(db));
+    await db.transaction(() => applyEventCapacity(db));
+    await db.transaction(() => applyStoryV5(db));
+    await db.transaction(() => migrateFactionPlay(db));
     return db;
   } catch (error) {
     await pool.end();

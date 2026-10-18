@@ -122,14 +122,10 @@ function PlayerReview({ data, busy, onUpdate }) {
             }}
           >
             <div className="two-grid">
-              <Field label="真实阵营（同伙最多3位）">
-                <select name="faction" defaultValue={c.faction}>
-                  {Object.entries(factions).map(([id, name]) => (
-                    <option key={id} value={id}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
+              <Field label="阵营分配">
+                <p>{factions[data.faction?.assigned] || "等待GM统一抽签"}</p>
+                <small>偏好：{data.faction?.preference === "any" ? "服从分配" : factions[data.faction?.preference] || "尚未选择"}。在“阵营与暗号”完成抽签后生效。</small>
+                {data.faction?.code && <p>专属接头暗号：<strong>{data.faction.code}</strong></p>}
               </Field>
               <Field label="调查小组">
                 <select name="group" defaultValue={p.group_id}>
@@ -157,7 +153,7 @@ function PlayerReview({ data, busy, onUpdate }) {
               </p>
             )}
             <Button type="submit" disabled={busy}>
-              保存并分配身份 <Check size={16} />
+              保存审核结果 <Check size={16} />
             </Button>
           </form>
         </section>

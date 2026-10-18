@@ -20,9 +20,12 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
   expect(registration.ok()).toBeTruthy();
   const { id } = await registration.json();
   await page.goto("/play");
+  await page.getByRole("radio", { name: /服从安排/ }).check();
+  await page.getByRole("button", { name: "保存偏好，继续创建角色" }).click();
   await expect(
     page.getByRole("heading", { name: "今晚，你要扮演谁？" }),
   ).toBeVisible();
+  await page.getByText("手动填写 / 指定Cos角色", { exact: true }).click();
   await page.locator(".avatar-file input").setInputFiles({
     name: "cos-avatar.png",
     mimeType: "image/png",
@@ -78,14 +81,19 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
   const gmPage = await gmContext.newPage();
   await gmPage.goto("/admin");
   await gmPage.getByRole("button", { name: "宾客与角色" }).click();
-  await gmPage.getByRole("button", { name: "管理", exact: true }).click();
+  await gmPage
+    .getByTestId("admin-player-table")
+    .getByRole("row")
+    .filter({ hasText: "browser-cos@example.com" })
+    .getByRole("button", { name: "管理", exact: true })
+    .click();
   const review = gmPage.getByRole("dialog");
   await expect(review).toContainText("蝙蝠侠");
   await expect(review).toContainText("NPC演绎提示");
   await review.getByRole("button", { name: "核验付款", exact: true }).click();
   await review.getByRole("button", { name: "现场签到 · +3金币" }).click();
   await review.getByLabel("角色审核").selectOption("approved");
-  await review.getByRole("button", { name: "保存并分配身份" }).click();
+  await review.getByRole("button", { name: "保存审核结果" }).click();
   await expect
     .poll(
       async () =>
