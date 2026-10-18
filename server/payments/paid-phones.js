@@ -217,8 +217,7 @@ export function mountPaidPhoneRoutes(
     const body = req.body || {};
     if (
       body.sourceName != null &&
-      (typeof body.sourceName !== "string" ||
-        body.sourceName.length > 120)
+      (typeof body.sourceName !== "string" || body.sourceName.length > 120)
     )
       fail("名单来源最多120字");
     const source = (body.sourceName || "管理员导入").trim();
