@@ -249,4 +249,46 @@ test("Admin管理内容、权限、账目锁定和AR持久化", async (t) => {
       item.action.includes("发布AR场景"),
     ),
   );
+  // Deletion removes the complete game identity and invalidates old sessions.
+  const deletion = `/staff/manage/players/${reg.id}/delete`;
+  await anon(deletion, {}, 401);
+  await npc(deletion, {}, 401);
+  await player(deletion, {}, 401);
+  await db.prepare("INSERT INTO paid_phones(phone,imported_by,imported_at) VALUES(?,?,?)")
+    .run("13800138000", "admin", Date.now());
+  await admin(`/staff/manage/players/${reg.id}`, { name: "待删除玩家", contact: "13800138000" });
+  await db.prepare("INSERT INTO faction_policy_proposals(faction,evidence_id,explanation,submitted_by,group_id,updated_at) VALUES('fbi','E-01','测试',?,1,?)")
+    .run(reg.id, Date.now());
+  const otherId = (await db.prepare("SELECT id FROM players WHERE contact=?").get("other-admin@example.com")).id;
+  await db.prepare("INSERT INTO faction_policy_supports(group_id,faction,signed_by,signer_faction,created_at) VALUES(1,'fbi',?,'croft',?)")
+    .run(otherId, Date.now());
+  await db.prepare("INSERT INTO generation_requests(id,player_id,requested_at) VALUES('delete-test',?,?)").run(reg.id, Date.now());
+  await db.prepare("INSERT INTO votes(player_id,suspect) VALUES(?,?)").run(reg.id, "host");
+  await db.prepare("UPDATE lots SET bidder=?,bid=5 WHERE id=?").run(reg.id, lot.id);
+  await db.prepare("INSERT INTO bids(player_id,lot_id,amount) VALUES(?,?,5)").run(reg.id, lot.id);
+  await db.prepare("INSERT INTO character_photos(player_id,version,status,created_at) VALUES(?,'delete-photo','removed',?)").run(reg.id, Date.now());
+  await db.prepare("INSERT INTO character_photo_requests(id,player_id,created_at) VALUES('delete-photo-request',?,?)").run(reg.id, Date.now());
+  await admin(deletion, {});
+  await admin(deletion, {}, 404);
+  await player("/me", undefined, 401);
+  assert.equal(await db.prepare("SELECT id FROM players WHERE id=?").get(reg.id), undefined);
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM players WHERE id=?").get(otherId)).n, 1);
+  for (const table of ["characters", "character_relations", "missions", "ledger", "unlocks", "votes", "bids", "generation_requests", "faction_assignments", "faction_preferences", "character_photos", "character_photo_requests"])
+    assert.equal((await db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE player_id=?`).get(reg.id)).n, 0, table);
+  const clearedLot = await db.prepare("SELECT * FROM lots WHERE id=?").get(lot.id);
+  assert.equal(clearedLot.bidder, null);
+  assert.equal(clearedLot.bid, 0);
+  assert.equal(clearedLot.status, "open");
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM faction_policy_supports").get()).n, 0);
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM paid_phones WHERE phone=?").get("13800138000")).n, 1);
+  await player("/auth/sms/send", { phone: "13800138000" });
+  const recreated = await player("/auth/sms/login", { phone: "13800138000", code: sent.at(-1).code });
+  assert.notEqual(recreated.id, reg.id);
+  assert.equal(recreated.registered, true);
+  const reset = await player("/me");
+  assert.ok(!reset.character);
+  assert.equal(reset.player.payment, "paid");
+  assert.equal(reset.player.checked_in, 0);
+  assert.equal(reset.player.coins, 0);
+  assert.ok((await admin("/staff")).audit.some(item => item.action.includes(`删除玩家及角色 ${reg.id}`)));
 });

@@ -108,6 +108,29 @@ export function mountManagementRoutes(
     "编辑报名资料",
   );
   save(
+    "players/:id/delete",
+    async (req) => {
+      const id = req.params.id;
+      await exists("players", id);
+      // Remove endorsements before their proposal, including other signers.
+      await run("DELETE FROM faction_policy_supports WHERE signed_by=? OR faction IN (SELECT faction FROM faction_policy_proposals WHERE submitted_by=?)", id, id);
+      await run("DELETE FROM faction_policy_proposals WHERE submitted_by=?", id);
+      // Release open bids without reserving another guest's coins implicitly.
+      // Completed lots remain sold, with their former owner removed.
+      await run("UPDATE lots SET bid=CASE WHEN status='sold' THEN bid ELSE 0 END,bidder=NULL WHERE bidder=?", id);
+      for (const table of [
+        "character_voices", "character_recordings", "character_voice_requests",
+        "character_transcription_requests", "character_photos", "character_photo_requests", "avatars",
+        "character_relations", "character_inspirations", "generation_requests",
+        "faction_assignments", "faction_preferences", "unlocks", "ledger",
+        "missions", "bids", "inventory", "votes", "characters",
+      ]) await run(`DELETE FROM ${table} WHERE player_id=?`, id);
+      await run("DELETE FROM sessions WHERE role='player' AND user_id=?", id);
+      await run("DELETE FROM players WHERE id=?", id);
+    },
+    "删除玩家及角色",
+  );
+  save(
     "characters/:id",
     async (req) => {
       await exists("players", req.params.id);

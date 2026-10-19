@@ -46,7 +46,7 @@ import {
   QR,
   useResource,
 } from "../components/ui";
-function Landing({ pub, onRegister, onPlay }) {
+function Landing({ pub, onRegister, onPlay, onPay }) {
   const [npc, setNpc] = useState(null);
   return (
     <main>
@@ -72,6 +72,7 @@ function Landing({ pub, onRegister, onPlay }) {
             <Button onClick={onRegister}>
               领取你的邀请函 <ArrowUpRight size={18} />
             </Button>
+            <Button kind="ghost" onClick={onPay}>微信购票 · ¥{pub.settings.price}</Button>
             <a className="text-link" href="#story">
               走进这个故事 <ArrowRight size={16} />
             </a>
@@ -257,7 +258,7 @@ function Landing({ pub, onRegister, onPlay }) {
           你会成为谁？
         </h2>
         <p>先报名，再写下你的虚构故事。你的专属身份，正在等待揭晓。</p>
-        <Button onClick={onRegister}>
+        <Button onClick={onPay}>
           接受邀请 · ¥{pub.settings.price} <ArrowRight size={17} />
         </Button>
         <small>票务由工作人员核验 · 地点以活动方正式通知为准</small>

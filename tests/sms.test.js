@@ -272,7 +272,7 @@ test("HTTPS部署启用快捷码后可登录所有玩家/NPC手机号，无需�
   const first = client(),
     second = client(),
     npc = client();
-  assert.equal((await first("/public")).auth.devShortcut, true);
+  assert.equal((await first("/public")).auth.devShortcut, undefined);
   assert.equal(
     (await first("/auth/sms/login", { phone, code: "188888" })).registered,
     true,
@@ -303,7 +303,7 @@ test("HTTPS部署启用快捷码后可登录所有玩家/NPC手机号，无需�
 test("HTTPS部署默认不启用快捷码，错误验证码不能登录或注册", async (t) => {
   const { client, db } = await setup(t, { secure: true });
   const p = client();
-  assert.equal((await p("/public")).auth.devShortcut, false);
+  assert.equal((await p("/public")).auth.devShortcut, undefined);
   await p("/auth/sms/login", { phone, code: "188888" }, 400);
   assert.equal((await db.prepare("SELECT COUNT(*) n FROM players").get()).n, 0);
   assert.equal((await db.prepare("SELECT COUNT(*) n FROM sessions").get()).n, 0);

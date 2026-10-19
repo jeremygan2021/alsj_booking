@@ -1,5 +1,8 @@
+import { applyCharacterVoice } from "./migrations/character-voice.js";
+import { applyCharacterPhoto } from "./migrations/character-photo.js";
 import { applyNpcMaterials } from "./migrations/npc-materials-v4.js";
 import { applyStoryV5 } from "./migrations/story-v5.js";
+import { applyAmateurNpc } from "./migrations/amateur-npc.js";
 import { migrateFactionPlay } from "./faction-play.js";
 import { applyNpcStory } from "./migrations/npc-story-v3.js";
 import pg from "pg";
@@ -121,10 +124,13 @@ export async function openPostgres(connectionString) {
     await db.transaction(() => applyNpcStory(db));
     await db.transaction(() => applyNpcMaterials(db));
     await db.transaction(() => applyCharacterLinks(db, true));
+    await db.transaction(() => applyCharacterVoice(db, true));
+    await db.transaction(() => applyCharacterPhoto(db));
     await db.transaction(() => applyPaidPhones(db));
-    await db.transaction(() => migrateFactionState(db));
+    await db.transaction(() => migrateFactionState(db, true));
     await db.transaction(() => applyEventCapacity(db));
     await db.transaction(() => applyStoryV5(db));
+    await db.transaction(() => applyAmateurNpc(db));
     await db.transaction(() => migrateFactionPlay(db));
     return db;
   } catch (error) {

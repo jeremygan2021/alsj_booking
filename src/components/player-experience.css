@@ -541,3 +541,460 @@
     height: 72px;
   }
 }
+/* The private character screen follows the estate's investigation dossier. */
+.player-layout.player-simple {
+  max-width: 980px;
+  background: radial-gradient(ellipse at 85% 0, #b8934f08, transparent 48%);
+}
+.player-mini-header {
+  border-color: #ac946030;
+}
+.player-mini-identity strong {
+  letter-spacing: 0.8px;
+}
+.player-simple-nav {
+  gap: 10px;
+}
+.player-simple-nav button {
+  position: relative;
+  min-height: 52px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  border-radius: 9px;
+}
+.player-simple-nav button.active {
+  background: linear-gradient(135deg, #393425, #242a22);
+  border-color: #ab8c52;
+  box-shadow: inset 0 -2px #b89458;
+}
+.player-simple-nav button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.player-simple .page-heading {
+  margin: 8px 0 23px;
+}
+.player-simple .page-heading h1 {
+  font-size: 27px;
+  letter-spacing: 2px;
+}
+.player-simple .event-banner {
+  background: #23291f;
+  border-color: #8d875538;
+}
+.simple-character-summary.game-character {
+  padding: 24px;
+  border: 1px solid #a48b584d;
+  background:
+    radial-gradient(ellipse at 0 25%, #798c5625, transparent 60%),
+    linear-gradient(140deg, #242b24, #1c211e);
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.game-character::after {
+  content: "✦";
+  position: absolute;
+  right: 30px;
+  top: 68px;
+  font-size: 115px;
+  color: #a48b580a;
+  pointer-events: none;
+}
+.game-character-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid #9a8c642a;
+  padding-bottom: 17px;
+}
+.game-character-top > span {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #bca478;
+}
+.game-character-top i {
+  font-style: normal;
+  margin: 0 6px;
+  color: #7d876b;
+}
+.game-character-top .badge {
+  font-size: 10px;
+  white-space: nowrap;
+}
+.game-character-main {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 28px 0;
+}
+.game-character-portrait {
+  flex-shrink: 0;
+  position: relative;
+}
+.game-character-portrait > .character-avatar.large {
+  width: 136px;
+  height: 160px;
+  border-radius: 9px;
+  border: 1px solid #bc9a6090;
+  box-shadow: 0 6px 20px #0004;
+  object-fit: cover;
+}
+.game-character-portrait > span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px 5px;
+  background: linear-gradient(0deg, #111d19f0, #111d19a0);
+  border: 1px solid #bc9a6040;
+  border-radius: 0 0 8px 8px;
+  text-align: center;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #d2bc93;
+}
+.game-character-identity {
+  min-width: 0;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+.game-character-identity h2 {
+  font-family: var(--serif);
+  font-size: 39px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  line-height: 1.3;
+  margin: 9px 0 3px;
+  overflow-wrap: anywhere;
+}
+.game-character-english {
+  color: #c7b58b;
+  font-size: 12px;
+  font-family: Georgia, serif;
+  letter-spacing: 2px;
+}
+.game-character-identity > p {
+  font-size: 13px;
+  color: #c6ccb7;
+  margin: 13px 0;
+}
+.game-character-identity > .eyebrow {
+  font-size: 9px;
+  color: #a9b09a;
+  letter-spacing: 2.5px;
+}
+.game-character-tags {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.game-character-tags > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #b9a66d40;
+  background: #b9a66d09;
+  color: #caba95;
+  font-size: 10px;
+  line-height: 1.6;
+  padding: 4px 7px;
+  border-radius: 4px;
+}
+.game-character-traits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-bottom: 23px;
+}
+.game-character-traits > div {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 13px 14px;
+  background: #111b1555;
+  border: 1px solid #8d96682e;
+  border-radius: 7px;
+  min-width: 0;
+}
+.game-character-traits svg {
+  color: #b6a273;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.game-character-traits small {
+  display: block;
+  color: #a3af98;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+.game-character-traits strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #d3d6c4;
+  overflow-wrap: anywhere;
+}
+.game-character .simple-character-footer {
+  border-top-color: #9a8c642a;
+  padding-top: 16px;
+}
+.game-character .simple-character-footer > span {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  color: #a9b49b;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.simple-character-footer > span > i {
+  width: 5px;
+  height: 5px;
+  flex-shrink: 0;
+  background: #c8ad7b;
+  border-radius: 50%;
+}
+.simple-character-footer > span > i.ready {
+  background: #a5bc99;
+}
+.game-character .simple-character-footer .button {
+  font-size: 11px;
+  min-height: 38px;
+  background: transparent;
+  border-color: #9c956050;
+  color: #d0c4a5;
+}
+.player-simple .current-story-step {
+  border-radius: 13px;
+  border-color: #68826759;
+  background: linear-gradient(120deg, #26332b, #1b251e);
+}
+.current-story-step .eyebrow {
+  color: #aabc9d;
+  font-size: 10px;
+}
+.current-story-step h3 {
+  font-size: 23px;
+  color: #e3e5d3;
+}
+.current-story-goal {
+  position: relative;
+  margin-left: 6px;
+  padding-left: 19px;
+  border-left: 1px solid #768c694d;
+  border-bottom: 0;
+}
+.current-story-goal::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  background: #a9bd96;
+  border: 2px solid #26332b;
+  transform: rotate(45deg);
+}
+.current-story-goal p {
+  font-size: 13px;
+  line-height: 1.9;
+  color: #c6cdbb;
+}
+.current-story-note {
+  padding-top: 14px;
+  border-top: 1px solid #8da2752b;
+  line-height: 1.8;
+}
+.player-simple .player-fold {
+  border-radius: 10px;
+  border-color: #8e906334;
+}
+.player-simple .cosplay-form {
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse at top right, #a38c4d0e, transparent 50%),
+    var(--surface);
+  border-color: #9b89594d;
+}
+@media (max-width: 600px) {
+  .player-layout.player-simple {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .player-simple-nav {
+    gap: 7px;
+  }
+  .player-simple-nav button {
+    min-height: 48px;
+  }
+  .player-simple .page-heading h1 {
+    font-size: 24px;
+  }
+  .simple-character-summary.game-character {
+    padding: 19px 17px;
+    border-radius: 13px;
+  }
+  .game-character-top {
+    gap: 8px;
+    padding-bottom: 15px;
+  }
+  .game-character-top > span {
+    font-size: 7px;
+    letter-spacing: 1.3px;
+  }
+  .game-character-top .badge {
+    font-size: 8px;
+    padding: 4px 6px;
+  }
+  .game-character-top i {
+    margin: 0 3px;
+  }
+  .game-character-main {
+    gap: 17px;
+    padding: 24px 0;
+  }
+  .game-character-portrait > .character-avatar.large {
+    width: 101px;
+    height: 135px;
+    border-radius: 7px;
+  }
+  .game-character-portrait > span {
+    font-size: 6px;
+    letter-spacing: 1px;
+    padding: 7px 2px;
+  }
+  .game-character-identity h2 {
+    font-size: 29px;
+    letter-spacing: 1.5px;
+    margin: 7px 0 4px;
+  }
+  .game-character-identity > .eyebrow {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .game-character-english {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+  .game-character-identity > p {
+    font-size: 12px;
+    margin: 9px 0;
+  }
+  .game-character-tags {
+    gap: 5px;
+  }
+  .game-character-tags > span {
+    font-size: 8px;
+    padding: 3px 5px;
+  }
+  .game-character-traits {
+    gap: 9px;
+    padding-bottom: 19px;
+    grid-template-columns: 1fr;
+  }
+  .game-character-traits > div {
+    padding: 11px 12px;
+    gap: 10px;
+  }
+  .game-character-traits > div > span {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    align-items: baseline;
+    min-width: 0;
+  }
+  .game-character-traits small {
+    flex-shrink: 0;
+    font-size: 9px;
+    margin-bottom: 0;
+  }
+  .game-character-traits strong {
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .game-character::after {
+    font-size: 85px;
+    right: 13px;
+    top: 60px;
+  }
+  .game-character .simple-character-footer > span {
+    font-size: 9px;
+  }
+  .game-character .simple-character-footer {
+    gap: 8px;
+  }
+  .game-character .simple-character-footer .button {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+  .player-simple .current-story-step {
+    border-radius: 12px;
+  }
+  .current-story-step h3 {
+    font-size: 21px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .player-simple-nav button {
+    transition: none;
+  }
+}
+.onsite-prop-hint {
+  border-left: 2px solid var(--gold);
+  padding: 10px 13px;
+  background: #aa915b12;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.9;
+}
+.creation-ticket-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 1px solid #91876535;
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.creation-ticket-status .button {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 11px;
+  background: transparent;
+  color: var(--gold-light);
+}
+.faction-assignment.compact {
+  padding: 13px 15px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+}
+.faction-assignment.compact .faction-assignment-heading {
+  margin-bottom: 0;
+  align-items: center;
+}
+.faction-assignment.compact .eyebrow {
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.faction-assignment.compact h2 {
+  font-size: 17px;
+  margin: 5px 0 0;
+}
+.faction-assignment.compact .badge {
+  font-size: 9px;
+  padding: 4px 7px;
+  white-space: nowrap;
+}
+.faction-assignment.compact .faction-private-briefing,
+.faction-assignment.compact > p {
+  display: none;
+}

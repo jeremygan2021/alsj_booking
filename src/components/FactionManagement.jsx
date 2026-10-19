@@ -109,6 +109,7 @@ export default function FactionManagement({ notify, onChanged }) {
       </section>
     );
 
+  const creation = catalog.mode === "creation";
   const players = catalog.players || [];
   const killers = players.filter((player) => player.assigned === "conspirator");
   const visible = players.filter(
@@ -132,16 +133,22 @@ export default function FactionManagement({ notify, onChanged }) {
         <div className="faction-control-heading">
           <div>
             <span className="eyebrow">
-              <Shield size={16} /> PRIVATE FACTION DRAW
+              <Shield size={16} /> PRIVATE FACTIONS
             </span>
             <h2>三大阵营 · 接头暗号</h2>
             <p className="muted">
-              玩家先选偏好，GM在活动开始前统一抽签。本场最多50人，已付费、角色已批准且已选择偏好的玩家参与分配。每名杀手会提前获知真凶身份，并获得独立随机暗号，在活动开始前与凶手接头。
+              {creation
+                ? "玩家创建角色时确定正式阵营，再据此生成互动目标。角色重新生成不会改身份。本人通过票务核验与角色审核后开放私密联络简报，由GM核对暗号，再向演员交接已核验的联络。"
+                : "玩家先选偏好，GM在活动开始前统一抽签。本场最多50人，已付费、角色已批准且已选择偏好的玩家参与分配。"}
             </p>
           </div>
           <Badge tone={catalog.drawn ? "green" : "gold"}>
             {catalog.drawn ? <Lock size={13} /> : <Dices size={13} />}
-            {catalog.drawn ? "已抽签 · 阵营已锁定" : "待GM抽签"}
+            {creation
+              ? "创建时确定身份"
+              : catalog.drawn
+                ? "已抽签 · 阵营已锁定"
+                : "待GM抽签"}
           </Badge>
         </div>
         <div className="faction-draw-stats">
@@ -166,7 +173,14 @@ export default function FactionManagement({ notify, onChanged }) {
             ? catalog.rule
             : "活动上限50人。杀手席位随参与人数调整，为2–5人，40人时为3人，50人时为4人。杀手偏好参与抽签，其余玩家平均分到另外两个阵营，并尽量兼顾偏好。"}
         </p>
-        {catalog.drawn ? (
+        {creation ? (
+          <div className="notice faction-draw-notice">
+            <Shield size={18} />
+            <span>
+              阵营随角色创建逐个确定，无需批量抽签。完整名单与暗号仅GM可见；NPC接到“联络已核验”后照读固定回复，不记暗号。
+            </span>
+          </div>
+        ) : catalog.drawn ? (
           <div className="notice faction-draw-notice">
             <Lock size={18} />
             <span>
@@ -349,7 +363,9 @@ export default function FactionManagement({ notify, onChanged }) {
                           {factionLabels[player.assigned] || player.assigned}
                         </Badge>
                       ) : (
-                        <span className="muted">等待抽签</span>
+                        <span className="muted">
+                          {creation ? "待创建时确认" : "等待抽签"}
+                        </span>
                       )}
                     </td>
                     <td data-label="个人接头暗号">
@@ -388,7 +404,9 @@ export default function FactionManagement({ notify, onChanged }) {
         )}
         <p className="small-text muted faction-private-note">
           <Check size={14} />
-          最终阵营以统一抽签为准；个人接头暗号仅用于现场核对，请勿公开广播。
+          {creation
+            ? "正式阵营在创建时确定；暗号由GM私下核验，演员无需记忆暗号名单。"
+            : "最终阵营以统一抽签为准；个人接头暗号仅用于现场核对，请勿公开广播。"}
         </p>
       </section>
     </section>

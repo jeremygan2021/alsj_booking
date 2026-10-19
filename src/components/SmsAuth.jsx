@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { ArrowRight, Smartphone } from "lucide-react";
 import { api } from "../api";
 import { Modal, Field, Button } from "./ui";
@@ -6,7 +6,6 @@ export default function SmsAuth({
   onSuccess,
   onClose,
   enabled = true,
-  devShortcut = false,
 }) {
   const [phone, setPhone] = useState(""),
     [code, setCode] = useState(""),
@@ -18,6 +17,7 @@ export default function SmsAuth({
     [retryAt, setRetryAt] = useState(0),
     [seconds, setSeconds] = useState(0);
   const alive = useRef(true);
+  const codeId = useId();
   useEffect(() => {
     alive.current = true;
     return () => {
@@ -32,7 +32,7 @@ export default function SmsAuth({
     return () => clearInterval(timer);
   }, [retryAt]);
   const send = async () => {
-    if (sending || seconds > 0) return;
+    if (sending || busy || seconds > 0 || !/^1\d{10}$/.test(phone)) return;
     setError("");
     setNotice("");
     setSending(true);
@@ -73,11 +73,6 @@ export default function SmsAuth({
           <p>一封邀请，一段尚未揭晓的故事。</p>
           <small>2026.10.31 · 阿拉斯加之夜</small>
         </div>
-        {devShortcut && (
-          <div className="notice">
-            快捷登录模式：所有手机号可直接输入188888，无需发送短信。
-          </div>
-        )}
         <p className="muted">
           首次验证手机号后自动报名，已有账号直接登录，无需设置密码。
         </p>
@@ -101,9 +96,11 @@ export default function SmsAuth({
               }}
             />
           </Field>
-          <Field label="短信验证码">
-            <div style={{ display: "flex", gap: 10 }}>
+          <div className="field sms-code-field">
+            <label htmlFor={codeId}>短信验证码</label>
+            <div className="sms-code-row">
               <input
+                id={codeId}
                 name="code"
                 required
                 inputMode="numeric"
@@ -123,7 +120,6 @@ export default function SmsAuth({
                   busy ||
                   seconds > 0 ||
                   !enabled ||
-                  devShortcut ||
                   !/^1\d{10}$/.test(phone)
                 }
                 onClick={send}
@@ -135,7 +131,7 @@ export default function SmsAuth({
                     : "获取验证码"}
               </Button>
             </div>
-          </Field>
+          </div>
           <Field label="你的称呼（首次报名可选）">
             <input
               maxLength={40}

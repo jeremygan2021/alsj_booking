@@ -31,9 +31,9 @@ for attempt in {1..40}; do
 done
 test "$healthy" = true
 curl -fsS https://alsj.luna.ski/api/ar/demo | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["demo"] and len(d["hotspots"]) == 3'
-curl -fsS https://alsj.luna.ski/ar-assets/targets/study-wall.mind -o /tmp/alsj-wall-target-check.mind
+curl -fLsS https://alsj.luna.ski/ar-assets/targets/study-wall.mind -o /tmp/alsj-wall-target-check.mind
 test "$(wc -c < /tmp/alsj-wall-target-check.mind)" -gt 1000
-curl -fsS https://alsj.luna.ski/ar-assets/models/study-cabinet.glb -o /tmp/alsj-cabinet-check.glb
+curl -fLsS https://alsj.luna.ski/ar-assets/models/study-cabinet.glb -o /tmp/alsj-cabinet-check.glb
 python3 -c 'from pathlib import Path; assert Path("/tmp/alsj-cabinet-check.glb").read_bytes()[:4] == b"glTF"'
 sudo ln -sfn "$release" /opt/alsj_booking/current
 trap - ERR

@@ -5,7 +5,7 @@ import { createApp } from "../server/app.js";
 async function setup(t, count = 6) {
   const { app, db } = await createApp({
     dbPath: ":memory:", gmPassword: "factions-gm", npcPassword: "factions-npc",
-    allowLegacyRegistration: true, smsDevLogin: true,
+    allowLegacyRegistration: true, smsDevLogin: true, assignFactionsAtCreation: false,
     llm: { baseUrl: "", apiKey: "", model: "" },
   });
   await db.transaction(async () => {

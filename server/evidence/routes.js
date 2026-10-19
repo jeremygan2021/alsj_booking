@@ -3,7 +3,7 @@ import { sendClueAudio } from "../audio/catalog.js";
 export function mountEvidenceRoutes(app, { auth, player, playable, evidence }) {
   app.get("/api/clues/:id/audio/:part", auth("player"), async (req, res) => {
     const { p } = await playable(req);
-    sendClueAudio(
+    return sendClueAudio(
       res,
       await evidence.audio(p, req.params.id, req.params.part),
       { privateAudio: true },

@@ -1,29 +1,84 @@
 import React from "react";
-import { ArrowRight, CheckCircle2, Compass, ScanLine } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Compass,
+  ScanLine,
+  Shield,
+  Sparkles,
+  Target,
+} from "lucide-react";
+import { factions } from "../constants";
 import { Badge, Button } from "./ui";
 import { CharacterAvatar } from "./CharacterProfile";
 import "./player-experience.css";
 
-export function CharacterSummary({ character, player, busy, onEdit }) {
+export function CharacterSummary({ character, player, phase, busy, onEdit }) {
   const approved = character.status === "approved";
   return (
-    <section className="simple-character-summary">
-      <div className="simple-character-title">
-        <CharacterAvatar src={character.avatar_url} name={character.name} />
-        <div>
-          <h2>{character.cosplay_character || character.name}</h2>
-          <p>{character.cosplay_source || "万圣节角色"}</p>
-        </div>
+    <section
+      className="simple-character-summary game-character"
+      aria-label="我的角色档案"
+    >
+      <div className="game-character-top">
+        <span>
+          THORNE ESTATE <i>/</i> PERSONAL DOSSIER
+        </span>
         <Badge tone={approved ? "green" : "gold"}>
-          {approved ? "GM已确认" : "已提交"}
+          {approved ? "身份已确认" : "等待GM确认"}
         </Badge>
       </div>
-      {!approved && <p className="simple-story-preview">{character.story}</p>}
+      <div className="game-character-main">
+        <div className="game-character-portrait">
+          <CharacterAvatar
+            src={character.avatar_url}
+            name={character.name}
+            large
+          />
+          <span>NO. {player.id?.slice(0, 6).toUpperCase() || "GUEST"}</span>
+        </div>
+        <div className="game-character-identity">
+          <span className="eyebrow">你的庄园身份</span>
+          <h2>{character.name}</h2>
+          {character.english && (
+            <span className="game-character-english">{character.english}</span>
+          )}
+          <p>
+            {character.profession || character.cosplay_character || "庄园来客"}
+          </p>
+          <div className="game-character-tags">
+            {character.faction && factions[character.faction] && (
+              <span>
+                <Shield size={12} />
+                {factions[character.faction]}
+              </span>
+            )}
+            <span>第{player.group_id || "—"}调查组</span>
+          </div>
+        </div>
+      </div>
+      <div className="game-character-traits">
+        <div>
+          <Sparkles size={15} />
+          <span>
+            <small>角色专长</small>
+            <strong>{character.skill || "等待故事揭晓"}</strong>
+          </span>
+        </div>
+        <div>
+          <Target size={15} />
+          <span>
+            <small>赴约的理由</small>
+            <strong>{character.motive || "在今夜寻找答案"}</strong>
+          </span>
+        </div>
+      </div>
       <div className="simple-character-footer">
         <span>
+          <i className={approved ? "ready" : ""} />
           {approved
-            ? `现场身份：${character.name} · 第${player.group_id}调查组`
-            : "已提交，等GM确认"}
+            ? `档案已解锁 · 第${phase || 1}幕进行中`
+            : "角色已保存，GM确认后即可参与现场互动"}
         </span>
         {!approved && (
           <Button

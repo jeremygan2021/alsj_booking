@@ -35,6 +35,7 @@ import {
 import { api } from "./api";
 import { Icon, Button, Badge, Empty, Field, Modal } from "./components/ui";
 import Landing from "./pages/Landing";
+import TicketPayment from "./components/TicketPayment";
 import Player from "./pages/Player";
 import Admin from "./pages/Admin";
 import PublicAR from "./pages/PublicAR";
@@ -61,6 +62,7 @@ function App() {
     [pub, setPub] = useState(null),
     [authMode, setAuthMode] = useState(null),
     [toast, setToast] = useState(""),
+    [paymentOpen, setPaymentOpen] = useState(false),
     [error, setError] = useState("");
   const load = useCallback(async () => {
     try {
@@ -271,6 +273,7 @@ function App() {
       ) : view === "home" ? (
         <Landing
           pub={pub}
+          onPay={() => setPaymentOpen(true)}
           onRegister={() =>
             session?.role === "player"
               ? navigate("play")
@@ -280,7 +283,7 @@ function App() {
         />
       ) : view === "play" ? (
         session?.role === "player" ? (
-          <Player pub={pub} notify={setToast} />
+          <Player pub={pub} notify={setToast} onPay={() => setPaymentOpen(true)} />
         ) : (
           <Access
             title="你的故事，从一封邀请开始"
@@ -316,10 +319,16 @@ function App() {
           </a>
         </small>
       </footer>
+      {paymentOpen && (
+        <TicketPayment price={pub.settings.price} onClose={() => setPaymentOpen(false)} onContinue={() => {
+          setPaymentOpen(false);
+          if (session?.role === "player") navigate("play");
+          else setAuthMode("register");
+        }} />
+      )}
       {authMode && (
         <Auth
           smsEnabled={Boolean(pub?.auth?.sms)}
-          devShortcut={Boolean(pub?.auth?.devShortcut)}
           mode={authMode}
           setMode={setAuthMode}
           onSuccess={authSuccess}
@@ -386,12 +395,11 @@ function Access({ title, text, onLogin, onRegister }) {
     </main>
   );
 }
-function Auth({ mode, setMode, onSuccess, onClose, smsEnabled, devShortcut }) {
+function Auth({ mode, setMode, onSuccess, onClose, smsEnabled }) {
   if (mode !== "staff")
     return (
       <SmsAuth
         enabled={smsEnabled}
-        devShortcut={devShortcut}
         onSuccess={onSuccess}
         onClose={onClose}
       />

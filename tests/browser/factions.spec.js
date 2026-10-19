@@ -10,7 +10,7 @@ async function mockPlayer(page, initialFaction, character) {
     },
   });
   expect(registration.ok()).toBeTruthy();
-  let faction = initialFaction;
+  let faction = { assignmentStage: "creation", ...initialFaction };
   const requests = [];
   await page.route("**/api/me", async (route) => {
     const response = await route.fetch();
@@ -23,15 +23,18 @@ async function mockPlayer(page, initialFaction, character) {
   await page.route("**/api/factions/preference", async (route) => {
     const data = route.request().postDataJSON();
     requests.push(data);
-    faction = { ...faction, preference: data.preference };
+    faction = {
+      ...faction,
+      preference: data.preference,
+      assigned: data.preference === "any" ? "croft" : data.preference,
+      preferenceLocked: true,
+    };
     await route.fulfill({ json: { faction } });
   });
   return requests;
 }
 
-test("玩家先选择阵营偏好，杀手报名有抽签提示，保存后才创建角色且可修改", async ({
-  page,
-}) => {
+test("选择意向后立即确定正式阵营，锁定身份再创建角色", async ({ page }) => {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const requests = await mockPlayer(page, {
@@ -41,49 +44,30 @@ test("玩家先选择阵营偏好，杀手报名有抽签提示，保存后才�
   });
   await page.goto("/play");
   await expect(
-    page.getByRole("heading", { name: "先选择你的阵营偏好" }),
+    page.getByRole("heading", { name: "选择阵营，进入你的故事" }),
   ).toBeVisible();
-  await expect(page.locator('[name="cosplay_character"]')).toHaveCount(0);
+  await expect(page.locator(".cosplay-form")).toHaveCount(0);
   await expect(page.getByRole("radio")).toHaveCount(4);
   await expect(
     page.getByRole("button", { name: "保存偏好，继续创建角色" }),
   ).toBeDisabled();
   await expect(page.locator(".faction-lottery-notice")).toContainText(
-    "不保证入选",
+    "剩余席位",
   );
   await expect(page.locator(".faction-lottery-notice")).toContainText(
-    "杀手阵营需要抽签",
-  );
-  await expect(page.locator(".faction-lottery-notice")).toContainText(
-    "其余玩家会尽量平均分到另外两个阵营",
-  );
-  await expect(page.locator(".faction-lottery-notice")).toContainText(
-    "2–5个名额",
+    "正式阵营可能与意向不同",
   );
   await page.getByRole("radio", { name: /杀手阵营/ }).check();
   await page.getByRole("button", { name: "保存偏好，继续创建角色" }).click();
   await expect(page.locator(".cosplay-form")).toBeVisible();
   expect(requests).toEqual([{ preference: "conspirator" }]);
-  await expect(page.locator(".faction-preference-saved")).toContainText(
-    "正式阵营等待GM抽签",
-  );
-  await expect(
-    page.getByText("你是杀手阵营的一员", { exact: true }),
-  ).toHaveCount(0);
+  const assignment = page.getByRole("region", { name: "我的正式阵营" });
+  await expect(assignment).toContainText("你是杀手阵营的一员");
+  await expect(page.getByRole("radio")).toHaveCount(0);
+  await expect(page.locator(".faction-contact-code")).toHaveCount(0);
   await page.getByText("手动填写 / 指定Cos角色", { exact: true }).click();
   await page.locator('[name="cosplay_character"]').fill("原创侦探");
-  await page.getByRole("button", { name: "修改阵营偏好" }).click();
-  await page.getByRole("radio", { name: /服从安排/ }).check();
-  await page.getByRole("button", { name: "保存阵营偏好", exact: true }).click();
-  await expect(page.locator(".faction-preference-saved")).toContainText(
-    "服从安排",
-  );
-  await expect(page.locator('[name="cosplay_character"]')).toHaveValue(
-    "原创侦探",
-  );
-  expect(requests.at(-1)).toEqual({ preference: "any" });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "修改阵营偏好" }).click();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -119,7 +103,7 @@ test("全场已抽签但尚未分配的新增玩家仍先选偏好，不能直�
   });
   await page.goto("/play");
   await expect(
-    page.getByRole("heading", { name: "先选择你的阵营偏好" }),
+    page.getByRole("heading", { name: "选择阵营，进入你的故事" }),
   ).toBeVisible();
   await expect(page.locator('[name="cosplay_character"]')).toHaveCount(0);
   await page.getByRole("radio", { name: /服从安排/ }).check();
@@ -139,7 +123,7 @@ test("抽中杀手后只显示本人的暗号及后端简报，偏好锁定", as
   const assignment = page.getByRole("region", { name: "我的正式阵营" });
   await expect(assignment).toContainText("你是杀手阵营的一员");
   await expect(assignment).toContainText("雪松藏着第七封信");
-  await expect(assignment).toContainText("活动开始前找到凶手");
+  await expect(assignment).toContainText("私下找GM核验");
   await expect(assignment).toContainText("你的专属接头暗号");
   await expect(assignment).toContainText("真正的凶手是测试接头人");
   await expect(assignment).toContainText("佩戴蓝色胸针");
@@ -170,14 +154,14 @@ test("已有角色仍可查看，进入编辑前补选偏好；旧角色阵营�
     "原创旅人",
   );
   await expect(
-    page.getByRole("heading", { name: "先选择你的阵营偏好" }),
+    page.getByRole("heading", { name: "选择阵营，进入你的故事" }),
   ).toBeVisible();
   await expect(page.getByRole("region", { name: "我的正式阵营" })).toHaveCount(
     0,
   );
   await page.getByRole("button", { name: "修改故事" }).click();
   await expect(
-    page.getByRole("heading", { name: "先选择你的阵营偏好" }),
+    page.getByRole("heading", { name: "选择阵营，进入你的故事" }),
   ).toBeVisible();
   await expect(page.locator('[name="cosplay_character"]')).toHaveCount(0);
   await page.getByRole("button", { name: "返回已提交的故事" }).click();
@@ -205,10 +189,12 @@ test("已审批的老玩家可以补选阵营偏好，同时保留可读角色�
     "原创学者",
   );
   await page.getByRole("radio", { name: /杀手阵营/ }).check();
-  await page.getByRole("button", { name: "保存阵营偏好", exact: true }).click();
-  await expect(page.locator(".faction-preference-saved")).toContainText(
-    "杀手阵营",
-  );
+  await page
+    .getByRole("button", { name: "保存偏好，继续创建角色", exact: true })
+    .click();
+  await expect(
+    page.getByRole("region", { name: "我的正式阵营" }),
+  ).toContainText("杀手阵营");
   await expect(page.locator(".simple-character-summary")).toContainText(
     "原创学者",
   );

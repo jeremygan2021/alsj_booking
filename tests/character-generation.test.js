@@ -5,7 +5,7 @@ import sharp from "sharp";
 import pg from "pg";
 import { randomBytes } from "node:crypto";
 import { createApp } from "../server/app.js";
-import { validateGeneratedStory } from "../server/story-generation.js";
+import { validateGeneratedStory, normalizeOnsiteStory } from "../server/story-generation.js";
 import { npcs } from "../server/content.js";
 import { avatarData, cosplay } from "./profile-fixture.js";
 
@@ -299,7 +299,8 @@ test("头像重编码与权限隔离，未配置模型时明确使用模板，�
   assert.equal(me.missions.length, 0);
   assert.ok(me.relations.every((r) => !("npc_brief" in r)));
   assert.equal(me.character.secret, null);
-  assert.equal(me.character.faction, null);
+  assert.equal(me.character.faction, me.faction.assigned);
+  assert.ok(["fbi", "croft", "conspirator"].includes(me.character.faction));
   assert.ok(!("generation_lock" in me.character));
   assert.equal((await npc("/staff")).relations.length, 0);
   assert.equal((await npc("/staff")).players.length, 0);
@@ -373,11 +374,9 @@ test("OpenAI兼容结构化生成仅接收公开世界与Cos资料，保存原�
     ).every((m) => m.reward === 2),
   );
   assert.equal((await p("/public")).generation.configured, true);
-  assert.ok(
-    JSON.stringify(await gm(`/staff/players/${id}`)).includes(
-      "NPC专属演绎提示",
-    ),
-  );
+  const actorBriefs = (await gm(`/staff/players/${id}`)).relations.map((relation) => relation.npc_brief);
+  assert.ok(actorBriefs.every((brief) => brief.includes("照读") && brief.includes("交流已完成") && brief.length <= 120));
+  assert.ok(actorBriefs.every((brief) => !brief.includes("NPC专属演绎提示")));
 });
 
 test("配置后的模型失败保留输入并公开安全错误，重试可恢复且不伪装成模板", async (t) => {
@@ -459,6 +458,66 @@ test("输出校验拒绝未知与重复NPC、额外奖励、非法剧情、超�
     mutate(value);
     assert.throws(() => validateGeneratedStory(value, publicNpcs), /校验/);
   }
+});
+
+test("现场互动把道具、私密事实及临场推理任务改为一分钟照读问答，保留角色核心", () => {
+  const publicNpcs = npcs.map(([id, name, english, role, bio]) => ({ id, name, english, role, bio }));
+  const value = output();
+  value.adaptation += "你需要进入书房查阅封存文件，再演示设备操作。";
+  for (const relation of value.relations) {
+    relation.player_brief = "你知道对方的私人密码 PRIVATE_SENTINEL，去书房索取账本。";
+    relation.npc_brief = "记住玩家十年前的经历，交出内部文件 PRIVATE_SENTINEL，判断他的推理是否聪明。";
+    relation.mission = "进入书房、破解服务器，取得账本并让对方核验时间线真假";
+    relation.hooks = [{ phase: 2, goal: "用设备演示后核对秘密档案" }, { phase: 4, goal: "查证时间线并评判玩家推理是否正确" }];
+  }
+  const before = structuredClone(value);
+  const result = normalizeOnsiteStory(value, publicNpcs, { character: profile });
+  assert.deepEqual(value, before);
+  assert.ok(!/PRIVATE_SENTINEL|书房|账本|服务器|内部文件|设备操作|临场推理|十年前/.test(JSON.stringify(result)));
+  for (const relation of result.relations) {
+    const npc = publicNpcs.find((candidate) => candidate.id === relation.npc_id);
+    assert.ok(relation.mission.includes(npc.name));
+    assert.ok(relation.mission.includes(profile.name));
+    assert.match(relation.mission, /30–60秒/);
+    assert.match(relation.mission, /问“[^”]+？”.*交流已完成/);
+    assert.match(relation.npc_brief, /照读.*交流已完成.*请找GM/);
+    assert.ok(relation.npc_brief.length <= 120);
+    assert.ok(relation.mission.length <= 160);
+    assert.deepEqual(relation.hooks.map((hook) => hook.phase), [1, 2, 4]);
+    assert.ok(relation.hooks.every((hook) => hook.goal.includes("30–60秒") && hook.goal.includes("交流已完成")));
+  }
+  assert.deepEqual(normalizeOnsiteStory(result, publicNpcs, { character: profile }), result);
+  assert.equal(profile.cosplay_character, cosplay.cosplay_character);
+  assert.ok(result.adaptation.includes("保留原角色"));
+  value.relations[0].mission = "真正凶手是某人，保护凶手并与其接头";
+  assert.throws(() => normalizeOnsiteStory(value, publicNpcs, { character: profile }), /校验/);
+});
+
+test("各NPC按当前公开职业匹配不同照读台词，真实阵营只改变玩家交流倾向", () => {
+  const publicNpcs = npcs.map(([id, name, english, role, bio]) => ({ id, name, english, role, bio }));
+  const base = normalizeOnsiteStory(output(), publicNpcs, { character: profile });
+  const fbi = normalizeOnsiteStory(output(), publicNpcs, { character: profile, faction: "fbi" });
+  const croft = normalizeOnsiteStory(output(), publicNpcs, { character: profile, faction: "croft" });
+  const quiet = normalizeOnsiteStory(output(), publicNpcs, { character: profile, faction: "conspirator" });
+  assert.match(fbi.relations[0].player_brief, /复述对方自愿公开的观点/);
+  assert.match(croft.relations[0].player_brief, /宾客互相尊重/);
+  assert.match(quiet.relations[0].player_brief, /先听公开意见/);
+  for (const result of [fbi, croft, quiet]) {
+    assert.deepEqual(result.relations.map((relation) => relation.npc_brief), base.relations.map((relation) => relation.npc_brief));
+    assert.ok(!/fbi|croft|conspirator|杀手阵营|FBI调查阵营|接头暗号/.test(JSON.stringify(result)));
+  }
+  const replies = new Set();
+  for (const npc of publicNpcs) {
+    const value = output();
+    value.relations[0].npc_id = npc.id;
+    value.relations[1].npc_id = npc.id === "host" ? "detective" : "host";
+    const result = normalizeOnsiteStory(value, publicNpcs, { character: { name: "长".repeat(60), profession: "职".repeat(60) } });
+    replies.add(result.relations[0].npc_brief);
+    assert.ok(result.relations[0].npc_brief.length <= 120);
+    assert.ok(result.relations[0].mission.length <= 160);
+  }
+  assert.ok(replies.size >= 5);
+  assert.deepEqual(normalizeOnsiteStory(output(), publicNpcs, { character: profile, faction: "invented" }), base);
 });
 
 test("兼容JSON对象模式与截断、拒绝、连接中断和超时均提供可恢复错误", async (t) => {

@@ -1,0 +1,6 @@
+.ticket-payment { display: grid; justify-items: center; gap: 14px; text-align: center; }
+.ticket-payment p { margin: 0; }
+.ticket-payment .ticket-payment-price { color: var(--gold, #ba954c); font-size: 38px; font-weight: 600; }
+.ticket-payment-price small { font-size: 14px; font-weight: 400; }
+.ticket-payment img { display: block; width: min(100%, 290px); height: auto; border-radius: 12px; background: white; }
+.ticket-payment .muted { max-width: 380px; font-size: 13px; line-height: 1.7; }

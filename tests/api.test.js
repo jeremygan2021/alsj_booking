@@ -47,6 +47,7 @@ test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流�
     contact: "test@example.com",
     password: "test-pass-123",
   });
+  await p("/factions/preference", { preference: "fbi" });
   await p("/avatar", { data: avatarData });
   await p("/character", {
     ...cosplay,
@@ -58,7 +59,7 @@ test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流�
     skill: "洞察",
   });
   const draft = await p("/me");
-  assert.equal(draft.character.faction, null);
+  assert.equal(draft.character.faction, "fbi");
   assert.equal(draft.character.secret, null);
   await p("/clues/E-01/unlock", {}, 403);
   await gm(`/staff/players/${registered.id}`, {
@@ -108,6 +109,7 @@ test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流�
   await gm("/staff/lots/1", { action: "settle" });
   await gm("/staff/lots/1", { action: "settle" }, 400);
   assert.equal((await p("/me")).inventory.length, 1);
+  assert.equal((await p("/me")).inventory[0].hint, null);
   await p("/clues/E-04/unlock", {}, 403);
   const list = await p("/clues");
   assert.ok(list.clues.every((c) => !("body" in c) && !("detail" in c)));
@@ -149,5 +151,6 @@ test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流�
   assert.equal((await gm("/staff")).stats.votes, 1);
   const inv = (await p("/me")).inventory[0];
   await p(`/inventory/${inv.id}/use`, {});
+  assert.match((await p("/me")).inventory[0].hint, /道具观察卡/);
   await p(`/inventory/${inv.id}/use`, {}, 400);
 });

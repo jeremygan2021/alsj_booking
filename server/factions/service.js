@@ -18,7 +18,7 @@ export function killerQuota(participantCount) {
   return Math.max(2, Math.min(5, Math.round(Number(participantCount) / 12)));
 }
 
-export function createFactionService({ one, all, run, tx, fail, now = Date.now, random = randomInt }) {
+export function createFactionService({ one, all, run, tx, fail, now = Date.now, random = randomInt, creationMode = false }) {
   const index = (max) => {
     const value = random(max);
     if (!Number.isInteger(value) || value < 0 || value >= max)
@@ -49,7 +49,7 @@ export function createFactionService({ one, all, run, tx, fail, now = Date.now, 
     preference: player.preference || null,
     assigned: player.assigned || null,
     code: player.assigned === "conspirator" ? player.code : null,
-    eligible: !is_npc && player.payment === "paid" && player.status === "approved" && preferences.has(player.preference),
+    eligible: !is_npc && preferences.has(player.preference) && (creationMode || (player.payment === "paid" && player.status === "approved")),
     awaitingPreference: !is_npc && player.payment === "paid" && player.status === "approved" && !player.preference,
   }));
   const countsFor = (players) => {
@@ -65,27 +65,32 @@ export function createFactionService({ one, all, run, tx, fail, now = Date.now, 
       drawId: state?.draw_id || null,
       drawnAt: state?.drawn_at || null,
       participantCount: state?.participant_count ?? null,
-      quota: state?.draw_id ? state.killer_slots : killerQuota(eligible.length),
+      quota: state?.draw_id ? state.killer_slots : killerQuota(creationMode ? (await one("SELECT capacity FROM settings WHERE id=1"))?.capacity || 50 : eligible.length),
       eligibleCount: eligible.length,
       candidateCount: eligible.filter((player) => ["conspirator", "any"].includes(player.preference)).length,
       missingPreferenceCount: players.filter((player) => player.awaitingPreference).length,
       counts: countsFor(players),
       players,
-      rule,
+      mode: creationMode ? "creation" : state?.mode || "manual",
+      rule: creationMode ? "创建角色时按意向和剩余席位确定正式阵营，之后重生成角色不会重抽。杀手仅从自愿者和服从安排者中分配，名额按活动容量设置且不超5人；其他两方保持人数平衡。GM可以手动调整，已分配身份不被批量重抽。" : rule,
       killerContact,
     };
   };
   const getPlayerState = async (id) => {
     const player = await playerRecord(id), state = await drawState();
     const assigned = player.faction || null;
-    const code = assigned === "conspirator" ? player.contact_code : null;
+    const canReadSecret = !creationMode || (player.payment === "paid" && player.status === "approved");
+    const code = assigned === "conspirator" && canReadSecret ? player.contact_code : null;
     return {
       preference: player.preference || null,
       preferenceLocked: Boolean(assigned),
       assigned,
       code,
-      briefing: assigned === "conspirator"
-        ? `你已分配到杀手阵营，是协助真凶的同伙，并非亲自行凶者。真正的凶手是${killerContact.name}。活动开始前，请私下找到对方，说出你专属的接头暗号：“${code}”。请保密，不要向其他玩家展示此页。`
+      assignmentStage: creationMode ? "creation" : "manual",
+      briefing: assigned === "conspirator" && !canReadSecret
+        ? "你的杀手阵营已确定。私密接头简报将在GM确认角色并核验票务后开放；现在可先完成角色和公开社交目标。"
+        : assigned === "conspirator"
+        ? `你已分配到杀手阵营，是协助真凶的同伙，并非亲自行凶者。真正的凶手是${killerContact.name}。活动开始前，请先私下找GM核验身份与专属接头暗号，再由GM向对方交接已核验的联络。你的专属暗号：“${code}”。请保密，不要向其他玩家展示此页。`
         : assigned ? `你已分配到${factionNames[assigned]}。请按自己的角色档案与NPC互动。` : null,
       drawn: Boolean(state?.draw_id),
       quota: state?.draw_id ? state.killer_slots : null,
@@ -126,7 +131,37 @@ export function createFactionService({ one, all, run, tx, fail, now = Date.now, 
     );
     await run("UPDATE characters SET faction=? WHERE player_id=?", faction, playerId);
   };
+  const assignAtCreation = async (id) => tx(async () => {
+    const player = await playerRecord(id);
+    if (player.faction) return getPlayerState(id);
+    const npc = await one("SELECT npc_id FROM npc_phones WHERE phone=(SELECT contact FROM players WHERE id=?)", id);
+    if (npc) fail("NPC工作人员不参与宾客阵营分配", 403);
+    if (!preferences.has(player.preference)) await run("INSERT INTO faction_preferences(player_id,preference,updated_at) VALUES(?,'any',?) ON CONFLICT(player_id) DO NOTHING", id, now());
+    const preference = preferences.has(player.preference) ? player.preference : "any";
+    let state = await drawState();
+    const capacity = Math.min(50, Math.max(4, Number((await one("SELECT capacity FROM settings WHERE id=1"))?.capacity || 50)));
+    if (!state?.draw_id) {
+      const drawId = randomBytes(16).toString("hex");
+      await run("UPDATE faction_draw_state SET draw_id=?,drawn_at=?,participant_count=0,killer_slots=?,actor='creation',mode='creation' WHERE id=1", drawId, now(), killerQuota(capacity));
+      state = await drawState();
+    }
+    const players = await roster(), counts = countsFor(players);
+    const assignedCount = counts.fbi + counts.croft + counts.conspirator;
+    if (assignedCount >= 50) fail("本场阵营名额已满，请联系GM", 409);
+    const openKiller = Math.max(0, Math.min(5, Number(state.killer_slots || killerQuota(capacity))) - counts.conspirator);
+    let faction;
+    if (preference === "conspirator" && openKiller) faction = "conspirator";
+    else if (preference === "any" && openKiller && index(Math.max(openKiller, capacity - assignedCount)) < openKiller) faction = "conspirator";
+    else if (counts.fbi < counts.croft) faction = "fbi";
+    else if (counts.croft < counts.fbi) faction = "croft";
+    else faction = ["fbi", "croft"].includes(preference) ? preference : index(2) ? "fbi" : "croft";
+    await assign(id, faction, state, "creation");
+    if (state.mode === "creation") await run("UPDATE faction_draw_state SET participant_count=? WHERE id=1", assignedCount + 1);
+    await run("INSERT INTO audit(actor,action) VALUES(?,?)", "system", `玩家 ${id.slice(0,8)} 在创建角色时完成阵营分配`);
+    return getPlayerState(id);
+  });
   const draw = async (actor = "gm") => tx(async () => {
+    if (creationMode) fail("正式阵营在创建角色时确定，无需批量抽签；如需调整请单独处理", 409);
     const state = await drawState();
     if (state?.draw_id) fail("本轮阵营已经抽签，不能重抽；如需补位请由GM单独调整", 409);
     if ((await one("SELECT COUNT(*) n FROM faction_assignments")).n)
@@ -177,7 +212,7 @@ export function createFactionService({ one, all, run, tx, fail, now = Date.now, 
     if (!state?.draw_id) fail("请先由GM完成本轮阵营抽签，再进行单人调整", 409);
     await playerRecord(id);
     const players = await roster(), player = players.find((entry) => entry.id === id);
-    if (!player.eligible) fail("请先确认该玩家已付费、角色已批准并保存阵营偏好", 409);
+    if (!player.eligible) fail(creationMode ? "请先为玩家保存阵营意向" : "请先确认该玩家已付费、角色已批准并保存阵营偏好", 409);
     if (faction === "conspirator" && !["conspirator", "any"].includes(player.preference))
       fail("该玩家没有自愿参与杀手抽签，不能强制加入杀手阵营", 409);
     if (!player.assigned && players.filter((entry) => entry.assigned).length >= 50)
@@ -185,7 +220,7 @@ export function createFactionService({ one, all, run, tx, fail, now = Date.now, 
     const counts = countsFor(players);
     if (player.assigned) counts[player.assigned]--;
     counts[faction]++;
-    if (counts.conspirator < 2 || counts.conspirator > Math.min(5, state.killer_slots))
+    if ((!creationMode && counts.conspirator < 2) || counts.conspirator > Math.min(5, state.killer_slots))
       fail(`本轮杀手必须为2至${Math.min(5, state.killer_slots)}人，抽签席位不会随人数变动`, 409);
     if (Math.abs(counts.fbi - counts.croft) > 1)
       fail("其余两个阵营人数差不能超过1人，请优先为人数较少的阵营补位或调整", 409);
@@ -194,5 +229,5 @@ export function createFactionService({ one, all, run, tx, fail, now = Date.now, 
     return getPlayerState(id);
   };
   const setFaction = async (...args) => tx(() => setFactionInTransaction(...args));
-  return { getPlayerState, savePreference, getAdminState, draw, setFaction, setFactionInTransaction };
+  return { getPlayerState, savePreference, assignAtCreation, getAdminState, draw, setFaction, setFactionInTransaction };
 }

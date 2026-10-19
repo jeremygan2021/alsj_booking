@@ -129,10 +129,10 @@ test("GM核对后手动抽签并锁定，可筛杀手、复制独立暗号且手
   await expect(table.getByText("等待抽签", { exact: true })).toHaveCount(7);
   await expect(table).toContainText("服从分配");
   await expect(page.locator(".faction-control")).toContainText(
-    "每名杀手会提前获知真凶身份",
+    "抽签后将提前告知每名杀手真凶身份",
   );
   await expect(page.locator(".faction-control")).toContainText(
-    "活动开始前与凶手接头",
+    "活动开始前找到凶手",
   );
   await expect(page.locator(".faction-missing-preference")).toContainText(
     "名已付费、角色已批准的玩家尚未选择阵营偏好，不会参加本次抽签",

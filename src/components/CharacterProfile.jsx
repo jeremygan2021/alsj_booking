@@ -8,6 +8,8 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import CharacterReferenceRecorder from "./CharacterReferenceRecorder";
+import CharacterReferencePhoto from "./CharacterReferencePhoto";
 import { api, inspireCharacter } from "../api";
 import { Badge, Button, Empty, Field } from "./ui";
 import { phases } from "../constants";
@@ -285,6 +287,9 @@ export default function CharacterForm({
     inspirationReady = false,
     generationPreview = {},
     generationMessage = "",
+    avatarGenerationError = "",
+    retryingAvatar = false,
+    generationAppearance = "",
   } = formState || initialState();
   const updateState = (updater) =>
     onFormStateChange((old) => updater(old || initialState()));
@@ -296,18 +301,40 @@ export default function CharacterForm({
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
     if (!inspiring) return;
-    const tick = () => setElapsed(Math.floor((Date.now() - (formState?.generationStarted || Date.now())) / 1000));
+    const tick = () =>
+      setElapsed(
+        Math.floor(
+          (Date.now() - (formState?.generationStarted || Date.now())) / 1000,
+        ),
+      );
     tick();
     const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, [inspiring, formState?.generationStarted]);
   const locked = c?.status === "approved";
+  const referenceBlocked = Boolean(
+    formState?.referenceBusy ||
+    formState?.referencePhotoBusy ||
+    formState?.referencePhotoDraft,
+  );
   const setField = (event) => {
     const { name, value } = event.target;
-    updateState((old) => ({ ...old, draft: { ...old.draft, [name]: value } }));
+    updateState((old) => ({
+      ...old,
+      draft: { ...old.draft, [name]: value },
+      draftEditedAt: Date.now(),
+    }));
   };
   const inspire = async () => {
-    if (locked || busy || uploading || inspiring || inspirationRequest.current)
+    if (
+      locked ||
+      busy ||
+      uploading ||
+      inspiring ||
+      retryingAvatar ||
+      referenceBlocked ||
+      inspirationRequest.current
+    )
       return;
     inspirationRequest.current = true;
     updateState((old) => ({
@@ -315,24 +342,59 @@ export default function CharacterForm({
       inspiring: true,
       inspirationError: "",
       inspirationReady: false,
-      generationPreview: {},
+      draftEditedAt: 0,
+      generationPreview: old.inspirationReady
+        ? { ...old.draft }
+        : old.generationPreview || {},
+      avatarGenerationError: "",
+      generationAppearance: "",
       generationMessage: "正在连接角色创作服务…",
       generationStarted: Date.now(),
     }));
     try {
-      const result = await inspireCharacter({
-        cosplay_character: draft.cosplay_character.trim(),
-        cosplay_source: draft.cosplay_source.trim(),
-        idea: inspirationIdea.trim() || draft.story.trim(),
-      }, (event) => {
-        if (event.type === "heartbeat") return;
-        updateState((old) => ({
-          ...old,
-          ...(event.type === "stage" ? { generationMessage: event.message } : {}),
-          ...(event.type === "text" ? { generationPreview: { ...old.generationPreview, ...event.character }, generationMessage: "正在书写你的身份与故事…" } : {}),
-          ...(event.type === "avatar" ? { generationPreview: { ...old.generationPreview, avatar_url: event.preview }, generationMessage: "头像已完成，正在保存草稿…" } : {}),
-        }));
-      });
+      const result = await inspireCharacter(
+        {
+          cosplay_character: draft.cosplay_character.trim(),
+          cosplay_source: draft.cosplay_source.trim(),
+          idea: inspirationIdea.trim() || draft.story.trim(),
+        },
+        (event) => {
+          if (event.type === "heartbeat") return;
+          updateState((old) => ({
+            ...old,
+            ...(event.type === "stage"
+              ? { generationMessage: event.message }
+              : {}),
+            ...(event.type === "appearance_ready"
+              ? {
+                  generationAppearance: event.summary || "",
+                  generationMessage: "装扮已识别，正在构思故事…",
+                }
+              : {}),
+            ...(["text", "text_ready"].includes(event.type)
+              ? {
+                  generationPreview: {
+                    ...old.generationPreview,
+                    ...event.character,
+                  },
+                  generationMessage: "正在书写你的身份与故事…",
+                }
+              : {}),
+            ...(event.type === "avatar_error"
+              ? { avatarGenerationError: event.message }
+              : {}),
+            ...(event.type === "avatar"
+              ? {
+                  generationPreview: {
+                    ...old.generationPreview,
+                    avatar_url: event.preview,
+                  },
+                  generationMessage: "头像已完成，正在保存草稿…",
+                }
+              : {}),
+          }));
+        },
+      );
       const generated = {};
       for (const field of [
         "name",
@@ -352,7 +414,7 @@ export default function CharacterForm({
         !generated.name ||
         !generated.cosplay_character ||
         !generated.cosplay_source ||
-        !generated.avatar_url ||
+        (!generated.avatar_url && !result.avatar_error) ||
         generated.story?.length < 20 ||
         !generated.story
       )
@@ -365,6 +427,9 @@ export default function CharacterForm({
         preview: generated.avatar_url,
         uploadError: "",
         inspirationReady: true,
+        restoredAt: Date.now(),
+        generationPreview: { ...generated },
+        avatarGenerationError: result.avatar_error || "",
       }));
     } catch (error) {
       updateState((old) => ({
@@ -374,6 +439,43 @@ export default function CharacterForm({
     } finally {
       inspirationRequest.current = false;
       updateState((old) => ({ ...old, inspiring: false }));
+    }
+  };
+  const retryAvatar = async () => {
+    if (
+      retryingAvatar ||
+      inspiring ||
+      locked ||
+      busy ||
+      uploading ||
+      referenceBlocked
+    )
+      return;
+    updateState((old) => ({
+      ...old,
+      retryingAvatar: true,
+      avatarGenerationError: "",
+    }));
+    try {
+      const result = await api("/character/inspiration/avatar", {});
+      if (!result.character?.avatar_url)
+        throw new Error("头像尚未完成，请重试");
+      updateState((old) => ({
+        ...old,
+        draft: { ...old.draft, avatar_url: result.character.avatar_url },
+        preview: result.character.avatar_url,
+        generationPreview: {
+          ...old.generationPreview,
+          avatar_url: result.character.avatar_url,
+        },
+        avatarGenerationError: "",
+        restoredAt: Date.now(),
+        draftEditedAt: Date.now(),
+      }));
+    } catch (error) {
+      updateState((old) => ({ ...old, avatarGenerationError: error.message }));
+    } finally {
+      updateState((old) => ({ ...old, retryingAvatar: false }));
     }
   };
   const upload = async (event) => {
@@ -433,12 +535,20 @@ export default function CharacterForm({
       <span className="eyebrow">万圣节 · 角色报名</span>
       <h2>{c ? "修改你的角色故事" : "今晚，你要扮演谁？"}</h2>
       <p className="muted">
-        写一点灵感，生成专属头像与故事；预览满意后，提交GM确认。也可以直接手动填写。
+        拍下你的Cos装扮，说一句想法，生成头像和故事。照片与灵感都可以跳过。
       </p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (locked || inspiring || uploading || busy) return;
+          if (
+            locked ||
+            inspiring ||
+            uploading ||
+            busy ||
+            retryingAvatar ||
+            referenceBlocked
+          )
+            return;
           if (!draft.avatar_url) {
             updateState((old) => ({
               ...old,
@@ -469,250 +579,447 @@ export default function CharacterForm({
           <div className="character-inspiration-heading">
             <Sparkles size={23} aria-hidden="true" />
             <div>
-              <h3>一键生成今晚的身份</h3>
-              <p>
-                写下想Cos的人物、作品或性格；留空也能生成原创角色。
-              </p>
+              <h3>把你的装扮，变成今晚的角色</h3>
+              <p>三件小事，一份专属身份。生成后可以换方案，也可以只换头像。</p>
             </div>
           </div>
-          <Field label="给故事一点灵感（可选）">
-            <textarea
-              name="inspiration_idea"
-              value={inspirationIdea}
-              onChange={(event) =>
+          <div className="character-create-step">
+            <div className="character-create-step-title">
+              <span>1</span>
+              <h4>拍张Cos照</h4>
+              <small>可跳过</small>
+            </div>
+            <CharacterReferencePhoto
+              disabled={
+                inspiring ||
+                uploading ||
+                busy ||
+                locked ||
+                retryingAvatar ||
+                Boolean(formState?.referenceBusy)
+              }
+              value={formState?.referencePhoto}
+              draft={formState?.referencePhotoDraft}
+              onBusyChange={(active) =>
+                updateState((old) => ({ ...old, referencePhotoBusy: active }))
+              }
+              onChange={(photo) =>
                 updateState((old) => ({
                   ...old,
-                  inspirationIdea: event.target.value,
+                  referencePhoto: photo,
+                  referencePhotoEditedAt: Date.now(),
                 }))
               }
-              maxLength={2000}
-              rows={2}
-              placeholder="例如：神秘的女记者，曾为庄园主人保守一个秘密"
-              disabled={inspiring || busy || locked}
+              onDraftChange={(photoDraft) =>
+                updateState((old) => ({
+                  ...old,
+                  referencePhotoDraft: photoDraft,
+                  referencePhotoEditedAt: Date.now(),
+                }))
+              }
             />
-          </Field>
-          <Button
-            kind="character-inspiration-button"
-            onClick={inspire}
-            disabled={
-              inspiring ||
-              uploading ||
-              busy ||
-              locked ||
-              Boolean(c?.generation_pending)
-            }
-            aria-describedby={inspirationStatusId}
-          >
-            {inspiring ? (
-              <RefreshCw
-                size={17}
-                className="inspiration-spinner"
-                aria-hidden="true"
-              />
-            ) : (
-              <Sparkles size={17} aria-hidden="true" />
-            )}
-            {inspiring
-              ? "正在生成头像和故事…"
-              : inspirationError
-                ? "重试生成角色"
-                : inspirationReady
-                  ? "换一个角色方案"
-                  : "MiniMax生成头像、姓名与故事"}
-          </Button>
-          <div id={inspirationStatusId} aria-live="polite" role="status">
-            {inspiring ? (
-              <p className="character-inspiration-note">
-                {generationMessage} · 已用 {elapsed} 秒
-                {elapsed >= 20 && !generationPreview.story && " · 模型仍在创作，文字返回后会逐字显示。"}
-              </p>
-            ) : inspirationError ? (
-              <p className="character-inspiration-error" role="alert">
-                {inspirationError} 你的填写内容和头像已保留，可直接重试。
-              </p>
-            ) : inspirationReady ? (
-              <p className="character-inspiration-success">
-                <CheckCircle2 size={16} aria-hidden="true" />
-                <span>
-                  {draft.name} · 草稿已填入下方。可继续修改，检查后提交GM确认。
-                </span>
-              </p>
-            ) : (
-              <p className="character-inspiration-note">
-                生成结果会填入下方草稿，提交后由GM确认。
-              </p>
-            )}
           </div>
-          {(inspiring || inspirationReady) && !inspirationError && (
-            <article className="character-live-preview" aria-label="角色实时预览">
-              <div className="character-live-heading">
-                {(generationPreview.avatar_url || inspirationReady) ? (
-                  <CharacterAvatar src={inspirationReady ? preview : generationPreview.avatar_url} name={generationPreview.name || draft.name} large />
-                ) : <div className="character-avatar large generation-image-placeholder"><Sparkles size={26} /><span>头像绘制中</span></div>}
-                <div><span className="eyebrow">{inspiring ? "正在创作 · 实时预览" : "你的角色草稿"}</span>
-                  <h3>{(inspirationReady ? draft.name : generationPreview.name) || "身份正在浮现…"}</h3>
-                  <p>{inspirationReady ? draft.profession : generationPreview.profession}</p>
-                </div>
-              </div>
-              <p className={"character-live-story" + (inspiring ? " is-streaming" : "")}>{(inspirationReady ? draft.story : generationPreview.story) || "故事将在这里逐字展开…"}</p>
-            </article>
-          )}
-        </section>
-        <details className="character-edit-details" key={inspirationReady ? "generated" : "manual"} open={c && !inspirationReady ? true : undefined}>
-          <summary>{inspirationReady ? "修改头像与角色设定（可选）" : "手动填写 / 指定Cos角色"}</summary>
-        <fieldset
-          className="character-profile-fields"
-          disabled={inspiring || busy || locked}
-        >
-          <div className="avatar-upload">
-            <CharacterAvatar src={preview} name={draft.name} large />
-            <div>
-              <strong>
-                角色头像 <span className="required-mark">必填</span>
-              </strong>
-              <p>Cos照或角色插画均可，JPG / PNG / WebP，最大2MB。</p>
-              <label
-                className={
-                  "button ghost compact avatar-file " +
-                  (uploading ? "is-uploading" : "")
+          <div className="character-create-step character-idea-input">
+            <div className="character-create-step-title">
+              <span>2</span>
+              <h4>加一句想法</h4>
+              <small>可跳过，也可以录音</small>
+            </div>
+            <Field label="给故事一点灵感（可选）">
+              <textarea
+                name="inspiration_idea"
+                value={inspirationIdea}
+                onChange={(event) =>
+                  updateState((old) => ({
+                    ...old,
+                    inspirationIdea: event.target.value,
+                  }))
                 }
-              >
-                <ImagePlus size={16} />
-                {uploading
-                  ? "正在上传…"
-                  : preview
-                    ? "更换头像"
-                    : "上传角色头像"}
-                <input
-                  ref={avatarInput}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  aria-label="上传角色头像"
-                  aria-required={!draft.avatar_url}
-                  aria-describedby={uploadError ? avatarErrorId : undefined}
-                  disabled={uploading || busy}
-                  onChange={upload}
+                maxLength={2000}
+                rows={2}
+                placeholder="例如：穿黑色礼服的神秘记者，想寻找一段旧日回忆。留空也能生成。"
+                disabled={inspiring || busy || locked}
+              />
+            </Field>
+            <CharacterReferenceRecorder
+              disabled={
+                inspiring ||
+                uploading ||
+                busy ||
+                locked ||
+                retryingAvatar ||
+                Boolean(formState?.referencePhotoBusy)
+              }
+              value={formState?.referenceRecording}
+              onBusyChange={(active) =>
+                updateState((old) => ({ ...old, referenceBusy: active }))
+              }
+              onChange={(recording) =>
+                updateState((old) => ({
+                  ...old,
+                  referenceRecording: recording,
+                }))
+              }
+              onTranscript={(text) =>
+                updateState((old) => ({
+                  ...old,
+                  inspirationIdea: old.inspirationIdea?.includes(text)
+                    ? old.inspirationIdea
+                    : [old.inspirationIdea?.trim(), text]
+                        .filter(Boolean)
+                        .join("\n")
+                        .slice(0, 2000),
+                  lastTranscribedRecordingId: old.referenceRecording?.id,
+                }))
+              }
+            />
+          </div>
+          <div className="character-create-step character-generate-step">
+            <div className="character-create-step-title">
+              <span>3</span>
+              <h4>生成并预览</h4>
+              <small>满意后再确认</small>
+            </div>
+            <Button
+              kind="character-inspiration-button"
+              onClick={inspire}
+              disabled={
+                inspiring ||
+                referenceBlocked ||
+                retryingAvatar ||
+                uploading ||
+                busy ||
+                locked ||
+                Boolean(c?.generation_pending)
+              }
+              aria-describedby={inspirationStatusId}
+              aria-label={
+                inspiring
+                  ? "正在生成头像和故事…"
+                  : inspirationError
+                    ? "重试生成角色"
+                    : inspirationReady
+                      ? "换一个角色方案"
+                      : "MiniMax生成头像、姓名与故事"
+              }
+            >
+              {inspiring ? (
+                <RefreshCw
+                  size={17}
+                  className="inspiration-spinner"
+                  aria-hidden="true"
                 />
-              </label>
-              {uploadError && (
-                <p id={avatarErrorId} className="avatar-error" role="alert">
-                  {uploadError}
+              ) : (
+                <Sparkles size={17} aria-hidden="true" />
+              )}
+              {inspiring
+                ? "正在生成头像和故事…"
+                : formState?.referencePhotoBusy
+                  ? "正在准备照片…"
+                  : formState?.referenceBusy
+                    ? "正在整理语音灵感…"
+                    : inspirationError
+                      ? "重试生成角色"
+                      : inspirationReady
+                        ? "换一个角色方案"
+                        : "生成我的角色"}
+            </Button>
+            <div id={inspirationStatusId} aria-live="polite" role="status">
+              {inspiring ? (
+                <p className="character-inspiration-note">
+                  {generationMessage} · 已用 {elapsed} 秒
+                  {elapsed >= 20 &&
+                    !generationPreview.story &&
+                    " · 模型仍在创作，文字返回后会逐字显示。"}
+                </p>
+              ) : inspirationError ? (
+                <p className="character-inspiration-error" role="alert">
+                  {inspirationError} 你的填写内容和头像已保留，可直接重试。
+                </p>
+              ) : inspirationReady ? (
+                <p className="character-inspiration-success">
+                  <CheckCircle2 size={16} aria-hidden="true" />
+                  <span>
+                    {draft.name} ·
+                    草稿已填入下方。可继续修改，检查后提交GM确认。
+                  </span>
+                </p>
+              ) : (
+                <p className="character-inspiration-note">
+                  生成结果会填入下方草稿，提交后由GM确认。
                 </p>
               )}
             </div>
+            {generationAppearance && (
+              <p className="character-appearance-note">
+                装扮参考：{generationAppearance}
+              </p>
+            )}
+            {(inspiring ||
+              inspirationReady ||
+              generationPreview.story ||
+              generationPreview.name) && (
+              <article
+                className="character-live-preview"
+                aria-label="角色实时预览"
+              >
+                <div className="character-live-heading">
+                  {generationPreview.avatar_url || inspirationReady ? (
+                    <CharacterAvatar
+                      src={
+                        inspirationReady
+                          ? preview
+                          : generationPreview.avatar_url
+                      }
+                      name={generationPreview.name || draft.name}
+                      large
+                    />
+                  ) : (
+                    <div className="character-avatar large generation-image-placeholder">
+                      <Sparkles size={26} />
+                      <span>
+                        {inspiring || retryingAvatar
+                          ? "头像绘制中"
+                          : "待生成头像"}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="eyebrow">
+                      {inspiring ? "正在创作 · 实时预览" : "你的角色草稿"}
+                    </span>
+                    <h3>
+                      {(inspirationReady
+                        ? draft.name
+                        : generationPreview.name) || "身份正在浮现…"}
+                    </h3>
+                    <p>
+                      {inspirationReady
+                        ? draft.profession
+                        : generationPreview.profession}
+                    </p>
+                  </div>
+                </div>
+                <p
+                  className={
+                    "character-live-story" + (inspiring ? " is-streaming" : "")
+                  }
+                >
+                  {(inspirationReady ? draft.story : generationPreview.story) ||
+                    "故事将在这里逐字展开…"}
+                </p>
+                {inspirationError && (
+                  <p className="muted">
+                    已显示的内容已保留。此方案尚未完成，可以重试生成。
+                  </p>
+                )}
+                {avatarGenerationError && (
+                  <p className="form-error" role="alert">
+                    故事已保留，头像暂未完成：{avatarGenerationError}
+                  </p>
+                )}
+                {(inspirationReady ||
+                  avatarGenerationError ||
+                  retryingAvatar) && (
+                  <Button
+                    kind="ghost compact"
+                    onClick={retryAvatar}
+                    disabled={
+                      retryingAvatar ||
+                      inspiring ||
+                      referenceBlocked ||
+                      busy ||
+                      uploading
+                    }
+                  >
+                    {retryingAvatar
+                      ? "正在重新绘制头像…"
+                      : avatarGenerationError
+                        ? "重试生成头像"
+                        : "重新生成头像"}
+                  </Button>
+                )}
+              </article>
+            )}
           </div>
-          <div className="two-grid">
-            <Field label="你将在万圣节Cos哪个角色？">
-              <input
-                name="cosplay_character"
-                value={draft.cosplay_character}
-                onChange={setField}
-                required
-                maxLength={100}
-                placeholder="例如：蝙蝠侠、艾莎、原创吸血鬼"
-              />
-            </Field>
-            <Field label="角色来自哪部作品 / 原创设定？">
-              <input
-                name="cosplay_source"
-                value={draft.cosplay_source}
-                onChange={setField}
-                required
-                maxLength={100}
-                placeholder="例如：DC、冰雪奇缘、原创"
-              />
-            </Field>
-          </div>
-          <Field label="你的角色故事 · 保留你的人物设定">
-            <textarea
-              name="story"
-              value={draft.story}
-              onChange={setField}
-              required
-              minLength={20}
-              maxLength={2000}
-              rows={6}
-              placeholder="你要扮演谁？经历过什么？珍视谁、害怕什么？你可以保留原作品设定，或写自己的改编故事（至少20字）。请只填写虚构人物故事。"
-            />
-          </Field>
-          <div className="story-length">{draft.story.length} / 2000</div>
-          <details className="character-optional">
-            <summary>补充设定（可选）</summary>
-            <div className="character-optional-content">
-              <p>不用填写也能参加。想为现场角色增加细节时，再补充这些设定。</p>
-              <div className="two-grid">
-                <Field label="宴会角色姓名">
+        </section>
+        <details
+          className="character-edit-details"
+          key={inspirationReady ? "generated" : "manual"}
+          open={c && !inspirationReady ? true : undefined}
+        >
+          <summary>
+            {inspirationReady
+              ? "修改头像与角色设定（可选）"
+              : "手动填写 / 指定Cos角色"}
+          </summary>
+          <fieldset
+            className="character-profile-fields"
+            disabled={inspiring || busy || locked}
+          >
+            <div className="avatar-upload">
+              <CharacterAvatar src={preview} name={draft.name} large />
+              <div>
+                <strong>
+                  角色头像 <span className="required-mark">必填</span>
+                </strong>
+                <p>
+                  通常由系统生成。想手动指定头像时，可上传JPG / PNG /
+                  WebP，最大2MB。
+                </p>
+                <label
+                  className={
+                    "button ghost compact avatar-file " +
+                    (uploading ? "is-uploading" : "")
+                  }
+                >
+                  <ImagePlus size={16} />
+                  {uploading
+                    ? "正在上传…"
+                    : preview
+                      ? "更换头像"
+                      : "上传角色头像"}
                   <input
-                    name="name"
-                    value={draft.name}
-                    onChange={setField}
-                    maxLength={60}
-                    placeholder="默认使用你的Cos角色名"
+                    ref={avatarInput}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    aria-label="上传角色头像"
+                    aria-required={!draft.avatar_url}
+                    aria-describedby={uploadError ? avatarErrorId : undefined}
+                    disabled={uploading || busy}
+                    onChange={upload}
                   />
-                </Field>
-                <Field label="英文姓名">
-                  <input
-                    name="english"
-                    value={draft.english}
-                    onChange={setField}
-                    maxLength={60}
-                    placeholder="可留空"
-                  />
-                </Field>
-                <Field label="公开职业">
-                  <input
-                    name="profession"
-                    value={draft.profession}
-                    onChange={setField}
-                    maxLength={60}
-                    placeholder="默认：受邀宾客"
-                  />
-                </Field>
-                <Field label="擅长技能">
-                  <select name="skill" value={draft.skill} onChange={setField}>
-                    <option>洞察</option>
-                    <option>技术</option>
-                    <option>社交</option>
-                  </select>
-                </Field>
+                </label>
+                {uploadError && (
+                  <p id={avatarErrorId} className="avatar-error" role="alert">
+                    {uploadError}
+                  </p>
+                )}
               </div>
-              <Field label="你为什么来到这场舞会？">
+            </div>
+            <div className="two-grid">
+              <Field label="你将在万圣节Cos哪个角色？">
                 <input
-                  name="motive"
-                  value={draft.motive}
+                  name="cosplay_character"
+                  value={draft.cosplay_character}
                   onChange={setField}
+                  required
                   maxLength={100}
-                  placeholder="默认：随邀请赴宴，寻找自己的故事"
+                  placeholder="例如：蝙蝠侠、艾莎、原创吸血鬼"
+                />
+              </Field>
+              <Field label="角色来自哪部作品 / 原创设定？">
+                <input
+                  name="cosplay_source"
+                  value={draft.cosplay_source}
+                  onChange={setField}
+                  required
+                  maxLength={100}
+                  placeholder="例如：DC、冰雪奇缘、原创"
                 />
               </Field>
             </div>
-          </details>
-        </fieldset>
+            <Field label="你的角色故事 · 保留你的人物设定">
+              <textarea
+                name="story"
+                value={draft.story}
+                onChange={setField}
+                required
+                minLength={20}
+                maxLength={2000}
+                rows={6}
+                placeholder="你要扮演谁？经历过什么？珍视谁、害怕什么？你可以保留原作品设定，或写自己的改编故事（至少20字）。请只填写虚构人物故事。"
+              />
+            </Field>
+            <div className="story-length">{draft.story.length} / 2000</div>
+            <details className="character-optional">
+              <summary>补充设定（可选）</summary>
+              <div className="character-optional-content">
+                <p>
+                  不用填写也能参加。想为现场角色增加细节时，再补充这些设定。
+                </p>
+                <div className="two-grid">
+                  <Field label="宴会角色姓名">
+                    <input
+                      name="name"
+                      value={draft.name}
+                      onChange={setField}
+                      maxLength={60}
+                      placeholder="默认使用你的Cos角色名"
+                    />
+                  </Field>
+                  <Field label="英文姓名">
+                    <input
+                      name="english"
+                      value={draft.english}
+                      onChange={setField}
+                      maxLength={60}
+                      placeholder="可留空"
+                    />
+                  </Field>
+                  <Field label="公开职业">
+                    <input
+                      name="profession"
+                      value={draft.profession}
+                      onChange={setField}
+                      maxLength={60}
+                      placeholder="默认：受邀宾客"
+                    />
+                  </Field>
+                  <Field label="擅长技能">
+                    <select
+                      name="skill"
+                      value={draft.skill}
+                      onChange={setField}
+                    >
+                      <option>洞察</option>
+                      <option>技术</option>
+                      <option>社交</option>
+                    </select>
+                  </Field>
+                </div>
+                <Field label="你为什么来到这场舞会？">
+                  <input
+                    name="motive"
+                    value={draft.motive}
+                    onChange={setField}
+                    maxLength={100}
+                    placeholder="默认：随邀请赴宴，寻找自己的故事"
+                  />
+                </Field>
+              </div>
+            </details>
+          </fieldset>
         </details>
-          <div className="notice">
-            <Shield size={17} />
-            <span>
-              提交后等待GM确认。角色确认后，到现场出示身份码签到，就能开始你的故事。
-            </span>
-          </div>
-          <Button
-            type="submit"
-            disabled={
-              !draft.avatar_url || !draft.cosplay_character.trim() || !draft.cosplay_source.trim() || draft.story.trim().length < 20 ||
-              busy ||
-              uploading ||
-              inspiring ||
-              locked ||
-              Boolean(c?.generation_pending)
-            }
-          >
-            {busy
-              ? "正在提交你的故事…"
-              : c
-                ? "保存故事，交给GM确认"
-                : "提交角色，等待GM确认"}
-            <ArrowUpRight size={16} />
-          </Button>
+        <div className="notice">
+          <Shield size={17} />
+          <span>
+            提交即确认此角色，并为你生成专属语音自我介绍。角色仍需GM审核，现场签到后开始游戏。
+          </span>
+        </div>
+        <Button
+          type="submit"
+          disabled={
+            !draft.avatar_url ||
+            !draft.cosplay_character.trim() ||
+            !draft.cosplay_source.trim() ||
+            draft.story.trim().length < 20 ||
+            busy ||
+            uploading ||
+            retryingAvatar ||
+            referenceBlocked ||
+            inspiring ||
+            locked ||
+            Boolean(c?.generation_pending)
+          }
+        >
+          {busy
+            ? "正在提交你的故事…"
+            : c
+              ? "保存故事，交给GM确认"
+              : "提交角色，等待GM确认"}
+          <ArrowUpRight size={16} />
+        </Button>
       </form>
     </section>
   );

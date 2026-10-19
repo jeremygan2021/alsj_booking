@@ -28,7 +28,7 @@ export async function inspireCharacter(body, onProgress) {
     if (!line) return;
     const event = JSON.parse(line.slice(5));
     if (event.type === "error") throw new Error(event.message);
-    if (event.type === "complete") result = event.character;
+    if (event.type === "complete") result = { ...event.character, ...(event.avatar_error ? { avatar_error: event.avatar_error } : {}) };
     else onProgress(event);
   };
   try {

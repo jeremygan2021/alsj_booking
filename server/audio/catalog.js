@@ -1,3 +1,4 @@
+import { sendStoredAsset } from "../asset-storage.js";
 import { createHash } from "node:crypto";
 import { readFile, lstat } from "node:fs/promises";
 import path from "node:path";
@@ -94,5 +95,5 @@ export function sendClueAudio(res, track, { privateAudio = false } = {}) {
     "Cache-Control": privateAudio ? "private, no-store" : "no-store",
     "X-Content-Type-Options": "nosniff",
   });
-  res.sendFile(track.file);
+  return sendStoredAsset(res, track.file);
 }

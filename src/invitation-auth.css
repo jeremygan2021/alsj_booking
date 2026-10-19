@@ -237,3 +237,62 @@
 .sms-auth-body input {
   color: #203d32;
 }
+
+/* Keep both controls within the dialog, including narrow iPhone webviews. */
+.sms-auth-body,
+.sms-auth-body .field,
+.sms-auth-body form {
+  min-width: 0;
+}
+.sms-code-field > label {
+  color: #4b5e50;
+  font-size: 12px;
+}
+.sms-code-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: stretch;
+}
+.sms-code-row input {
+  width: 100%;
+  min-width: 0;
+}
+.sms-code-row .button {
+  white-space: nowrap;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+.sms-auth-invitation > span {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .sms-auth-body .field input {
+    font-size: 16px; /* Prevent iOS from zooming the dialog on input focus. */
+  }
+  .modal:has(.sms-auth-body) {
+    min-width: 0;
+    width: min(490px, 100%);
+    overflow-wrap: anywhere;
+  }
+  .sms-code-row .button.ghost {
+    min-width: 0;
+    padding-inline: 12px;
+  }
+}
+.sms-auth-body .field input {
+  color: #203d32;
+}
+.sms-auth-body .field input::placeholder {
+  color: #737b70;
+  opacity: 1;
+}
+.sms-auth-body .sms-code-row .button.ghost,
+.sms-auth-body .sms-code-row .button.ghost:hover:not(:disabled),
+.sms-auth-body .sms-code-row .button.ghost:active:not(:disabled) {
+  color: #244438;
+  background: #f4efdf;
+  border-color: #a99772;
+  min-height: 44px;
+  transform: none;
+}

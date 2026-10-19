@@ -9,4 +9,9 @@ export async function applyEventCapacity(db) {
     await db.prepare("INSERT INTO content_migrations(id) VALUES(?)").run(id);
   }
   await db.prepare("UPDATE settings SET capacity=? WHERE capacity>?").run(MAX_PLAYERS, MAX_PLAYERS);
+  const priceMigration = "event-price-198-v1";
+  if (!(await db.prepare("SELECT id FROM content_migrations WHERE id=?").get(priceMigration))) {
+    await db.prepare("UPDATE settings SET price=198 WHERE id=1").run();
+    await db.prepare("INSERT INTO content_migrations(id) VALUES(?)").run(priceMigration);
+  }
 }

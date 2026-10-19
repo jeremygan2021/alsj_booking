@@ -3,11 +3,12 @@ import assert from "node:assert/strict";
 import sharp from "sharp";
 import {
   generateCharacterDraft,
+  generateCharacterAvatar,
   minimaxConfig,
   validateGeneratedCharacterDraft,
   validateInspirationInput,
 } from "../server/minimax-generation.js";
-import { generateStory, generationConfig } from "../server/story-generation.js";
+import { generateStory, generationConfig, normalizeOnsiteStory } from "../server/story-generation.js";
 
 const npcs = [
   {
@@ -52,6 +53,10 @@ const output = () => ({
     mission: "与旧识完成一次角色介绍",
   })),
 });
+const onsite = (value = output(), context = {}) => normalizeOnsiteStory(
+  { adaptation: value.adaptation, relations: value.relations }, npcs,
+  { character: value.character, ...context },
+);
 const completion = (value, prefix = "") =>
   new Response(
     JSON.stringify({
@@ -127,6 +132,79 @@ test("MiniMax一键生成姓名故事关联与安全WebP头像，只传公开NPC
   assert.equal(requests[1].req.redirect, "error");
 });
 
+const photoAppearance = () => ({
+  clothing: ["白色翻领外套", "深色高领内搭"], accessories: ["金属圆框眼镜"],
+  props: [], makeup: ["深色舞台眼妆"], palette: ["白色", "黑色"], style: ["复古学院风"],
+});
+const referencePhoto = {
+  dataUrl: `data:image/png;base64,${fixtureImage.toString("base64")}`,
+  mimeType: "image/png", version: "server-owned-photo-version",
+};
+
+test("真实装扮识别后再写故事和参考生图，照片不进入文本模型或公开进度", async () => {
+  const requests = [], events = [];
+  const result = await generateCharacterDraft({}, npcs, config(async (url, req) => {
+    requests.push({ url, req, body: JSON.parse(req.body) });
+    if (requests.length === 1) return Response.json({ content: JSON.stringify(photoAppearance()), base_resp: { status_code: 0 } });
+    if (requests.length === 2) return completion(output());
+    return imageResponse();
+  }), (event) => { events.push(event); }, { referencePhoto, faction: "conspirator" });
+  assert.equal(requests.length, 3);
+  const [vision, story, avatar] = requests;
+  assert.equal(vision.url, "https://minimax.example/v1/coding_plan/vlm");
+  assert.deepEqual(Object.keys(vision.body).sort(), ["image_url", "prompt"]);
+  assert.ok(!vision.req.body.includes("你保持低调"));
+  assert.ok(!vision.req.body.includes("索恩庄园"));
+  assert.ok(!vision.req.body.includes("NEVER_SEND"));
+  assert.equal(story.url, "https://minimax.example/v1/chat/completions");
+  assert.match(story.body.messages[0].content, /visible_costume.*白色翻领外套/);
+  assert.ok(!story.req.body.includes("data:image"));
+  assert.ok(!story.req.body.includes("NEVER_SEND"));
+  assert.match(result.character.story, /白色翻领外套.*深色高领内搭/);
+  assert.equal(result.character.cosplay_character, output().character.cosplay_character);
+  assert.ok(result.relations.every((r) => r.npc_brief.length <= 120));
+  assert.equal(avatar.url, "https://minimax.example/v1/image_generation");
+  assert.match(avatar.body.prompt, /outfit overrides conflicting clothing/);
+  assert.equal(avatar.body.subject_reference.length, 1);
+  assert.equal(avatar.body.subject_reference[0].type, "character");
+  const jpeg = avatar.body.subject_reference[0].image_file;
+  assert.match(jpeg, /^data:image\/jpeg;base64,/);
+  assert.equal((await sharp(Buffer.from(jpeg.split(",")[1], "base64")).metadata()).format, "jpeg");
+  assert.match(events.find((e) => e.type === "appearance_ready").summary, /白色翻领外套/);
+  assert.ok(events.findIndex((e) => e.type === "appearance_ready") < events.findIndex((e) => e.type === "text_ready"));
+  assert.ok(events.filter((e) => e.type !== "avatar").every((e) => !JSON.stringify(e).includes("base64")));
+  assert.ok(Buffer.isBuffer(result.avatarWebp));
+});
+
+test("照片识别失败明确停止，不假装识别成功或继续付费写故事生图", async () => {
+  let calls = 0; const events = [];
+  await assert.rejects(generateCharacterDraft({}, npcs, config(async () => {
+    calls++;
+    return Response.json({ base_resp: { status_code: 1004, status_msg: "test-private-key" } });
+  }), (event) => { events.push(event); }, { referencePhoto }), (error) => {
+    assert.equal(error.status, 502);
+    assert.equal(error.providerCode, 1004);
+    assert.match(error.message, /照片识别/);
+    assert.ok(!error.message.includes("test-private-key"));
+    return true;
+  });
+  assert.equal(calls, 1);
+  assert.ok(!events.some((e) => ["appearance_ready", "text_ready", "avatar"].includes(e.type)));
+});
+
+test("照片头像重试第三参数兼容上下文，只调用一次参考图生图", async () => {
+  let calls = 0, body;
+  const avatar = await generateCharacterAvatar(output().avatar_prompt, config(async (url, req) => {
+    calls++;
+    assert.equal(url, "https://minimax.example/v1/image_generation");
+    body = JSON.parse(req.body);
+    return imageResponse();
+  }), { referencePhoto });
+  assert.equal(calls, 1);
+  assert.match(body.subject_reference[0].image_file, /^data:image\/jpeg;base64,/);
+  assert.ok(Buffer.isBuffer(avatar));
+});
+
 test("空灵感可生成原创角色，显式非法输入不能触发付费调用", async () => {
   assert.deepEqual(validateInspirationInput({}), {
     cosplay_character: "",
@@ -159,6 +237,32 @@ test("空灵感可生成原创角色，显式非法输入不能触发付费调�
     ),
     /尚未配置/,
   );
+  for (const invalidNpcs of [undefined, [], [["host", "主人"], ["detective", "律师"]],
+    [npcs[0], { ...npcs[1], id: null }], [npcs[0], { ...npcs[1], id: npcs[0].id }]])
+    await assert.rejects(generateCharacterDraft({}, invalidNpcs, config(async () => {
+      called++;
+    })), (error) => error.status === 503 && /NPC资料/.test(error.message));
+  assert.equal(called, 0);
+});
+
+test("MiniMax使用服务器指定的交流倾向并生成业余演员可照读的一分钟任务", async () => {
+  let sent, calls = 0;
+  const value = output();
+  const result = await generateCharacterDraft({ faction: "conspirator" }, npcs, config(async (_url, request) => {
+    if (++calls === 1) { sent = JSON.parse(request.body); return completion(value); }
+    return imageResponse();
+  }), undefined, { faction: "fbi" });
+  const prompt = JSON.stringify(sent.messages);
+  assert.ok(prompt.includes("30至60秒"));
+  assert.ok(prompt.includes("不要求记住玩家背景"));
+  assert.ok(prompt.includes("你关注清楚表达"));
+  assert.ok(!prompt.includes("你保持低调"));
+  assert.ok(!prompt.includes("NEVER_SEND"));
+  assert.deepEqual(result.character, value.character);
+  assert.match(result.relations[0].mission, /阿德里安·索恩.*30–60秒.*交流已完成/);
+  assert.match(result.relations[1].mission, /诺拉·里德.*先征得本人同意/);
+  assert.match(result.relations[0].player_brief, /复述对方自愿公开的观点/);
+  assert.ok(result.relations.every((relation) => relation.npc_brief.length <= 120 && !relation.npc_brief.includes("fbi")));
 });
 
 test("校验拒绝泄露主线、缺少庄园背景、改写Cos来源、未知字段及短故事", () => {
@@ -218,6 +322,20 @@ test("校验拒绝泄露主线、缺少庄园背景、改写Cos来源、未知�
   assert.match(connected.character.story, /赴宴联络/);
 });
 
+test("原创角色误抄空Cos输入可规范元数据，显式Cos要求与剧情边界继续严格校验", () => {
+  const original = output();
+  original.character.cosplay_character = "";
+  original.character.cosplay_source = " ";
+  const normalized = validateGeneratedCharacterDraft(original, npcs, {});
+  assert.equal(normalized.character.cosplay_character, original.character.name);
+  assert.equal(normalized.character.cosplay_source, "原创角色");
+  assert.equal(original.character.cosplay_character, "");
+  assert.throws(() => validateGeneratedCharacterDraft(original, npcs, { cosplay_character: "指定角色" }), /校验/);
+  assert.throws(() => validateGeneratedCharacterDraft(original, npcs, { cosplay_source: "指定来源" }), /校验/);
+  original.character.story = "真正凶手是某人".repeat(10);
+  assert.throws(() => validateGeneratedCharacterDraft(original, npcs), /校验/);
+});
+
 test("模型失败、截断与响应过大均返回安全错误，故事失败不会继续付费生图", async () => {
   const failures = [
     () => new Response("provider test-private-key", { status: 401 }),
@@ -266,23 +384,31 @@ test("模型失败、截断与响应过大均返回安全错误，故事失败�
   }
 });
 
-test("头像响应必须为可解码静态图，超时可恢复且不传播底层错误", async () => {
+test("头像失败保留校验通过的角色、私有剧情和头像重试描述", async () => {
   for (const encoded of [
     "not-base64",
     Buffer.from("<svg>bad</svg>").toString("base64"),
     "",
   ]) {
     let called = 0;
-    await assert.rejects(
-      generateCharacterDraft(
+    const events = [];
+    const result = await generateCharacterDraft(
         {},
         npcs,
         config(async () =>
           ++called === 1 ? completion(output()) : imageResponse(encoded),
         ),
-      ),
-      /头像/,
-    );
+        (event) => events.push(event),
+      );
+    assert.deepEqual(result.character, output().character);
+    assert.deepEqual(result.relations, onsite().relations);
+    assert.equal(result.avatarWebp, null);
+    assert.match(result.avatarError, /头像/);
+    const ready = events.find((event) => event.type === "text_ready");
+    assert.equal(ready.avatar_prompt, output().avatar_prompt);
+    assert.deepEqual(ready.relations, result.relations);
+    assert.ok(events.indexOf(ready) < events.findIndex((event) => event.type === "avatar_error"));
+    assert.equal(called, 2);
   }
   await assert.rejects(
     generateCharacterDraft(
@@ -302,6 +428,59 @@ test("头像响应必须为可解码静态图，超时可恢复且不传播底�
     ),
     /超时/,
   );
+});
+
+test("完整故事持久化回调完成后才请求头像", async () => {
+  let release, ready;
+  const saved = new Promise((resolve) => { release = resolve; });
+  const reached = new Promise((resolve) => { ready = resolve; });
+  let calls = 0;
+  const pending = generateCharacterDraft({}, npcs, config(async () =>
+    ++calls === 1 ? completion(output()) : imageResponse(),
+  ), async (event) => {
+    if (event.type !== "text_ready") return;
+    ready();
+    await saved;
+  });
+  await reached;
+  assert.equal(calls, 1);
+  release();
+  const result = await pending;
+  assert.equal(calls, 2);
+  assert.ok(result.avatarWebp);
+});
+
+test("头像单独重试只调用图像接口并保持尺寸与解码边界", async () => {
+  let calls = 0;
+  const events = [];
+  const avatar = await generateCharacterAvatar(output().avatar_prompt, config(async (url) => {
+    calls++;
+    assert.equal(url, "https://minimax.example/v1/image_generation");
+    return imageResponse();
+  }), (event) => events.push(event));
+  assert.equal(calls, 1);
+  assert.equal((await sharp(avatar).metadata()).format, "webp");
+  assert.equal(events.at(-1).type, "avatar");
+  for (const prompt of ["", null, "x".repeat(1001)])
+    await assert.rejects(generateCharacterAvatar(prompt, config(async () => {
+      throw new Error("must not request invalid prompt");
+    })), /头像描述无效/);
+});
+
+test("图像连接失败和超时不撤回完整故事，也不泄露底层异常", async () => {
+  for (const timeout of [false, true]) {
+    let calls = 0;
+    const result = await generateCharacterDraft({}, npcs, config(async (_url, { signal }) => {
+      if (++calls === 1) return completion(output());
+      if (!timeout) throw new Error("test-private-key https://private-endpoint.example");
+      return new Promise((_resolve, reject) => signal.addEventListener("abort", () => reject(new Error("test-private-key")), { once: true }));
+    }, { timeoutMs: 10 }));
+    assert.equal(result.avatarWebp, null);
+    assert.equal(result.character.name, output().character.name);
+    assert.ok(!JSON.stringify(result).includes("test-private-key"));
+    assert.ok(!JSON.stringify(result).includes("private-endpoint"));
+    assert.match(result.avatarError, timeout ? /超时/ : /连接失败/);
+  }
 });
 
 test("现有剧情生成使用MiniMax模式：独立思考、足够token、JSON围栏兼容", async () => {
@@ -331,10 +510,7 @@ test("现有剧情生成使用MiniMax模式：独立思考、足够token、JSON�
   });
   assert.equal(c.model, "MiniMax-M2.5");
   assert.equal(c.responseFormat, "none");
-  assert.deepEqual(await generateStory(output().character, npcs, c), {
-    adaptation,
-    relations,
-  });
+  assert.deepEqual(await generateStory(output().character, npcs, c), normalizeOnsiteStory({ adaptation, relations }, npcs, { character: output().character }));
   assert.equal(sent.max_tokens, 8192);
   assert.equal(sent.response_format, undefined);
   assert.equal(
@@ -420,8 +596,32 @@ test("真实SSE分片逐步提供公开人物字段，不泄露思考和NPC私�
   const result = await pending;
   assert.equal(result.character.name, value.character.name);
   assert.ok(events.some((event) => event.type === "avatar" && event.preview.startsWith("data:image/webp;base64,")));
-  const serialized = JSON.stringify(events);
+  const ready = events.find((event) => event.type === "text_ready");
+  assert.deepEqual(ready.relations, onsite(value).relations);
+  assert.equal(ready.avatar_prompt, value.avatar_prompt);
+  const serialized = JSON.stringify(events.filter((event) => event.type !== "text_ready"));
   assert.ok(!serialized.includes("PRIVATE_THINKING"));
   assert.ok(!serialized.includes("npc_brief"));
   assert.ok(!serialized.includes("avatar_prompt"));
+});
+
+test("无效流式JSON提供明确安全错误，未完成或违规故事不会发出可保存草稿", async () => {
+  const events = [];
+  await assert.rejects(generateCharacterDraft({}, npcs, config(async () =>
+    new Response("data: {broken test-private-key}\n\n", { headers: { "content-type": "text/event-stream" } }),
+  ), (event) => events.push(event)), /无效流式数据/);
+  assert.equal(events.some((event) => event.type === "text_ready"), false);
+  const invalid = output();
+  invalid.relations[0].mission = "找到凶手并接头";
+  let calls = 0;
+  await assert.rejects(generateCharacterDraft({}, npcs, config(async () => {
+    calls++;
+    return completion(invalid);
+  }), (event) => events.push(event)), (error) => {
+    assert.equal(error.validationCode, "story_constraints");
+    assert.ok(!JSON.stringify(error).includes("test-private-key"));
+    return true;
+  });
+  assert.equal(calls, 1);
+  assert.equal(events.some((event) => event.type === "text_ready"), false);
 });

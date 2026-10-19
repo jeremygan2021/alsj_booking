@@ -195,7 +195,8 @@ test("MiniMax角色草稿权限、隐私、WebP保存和手工提交", async (t)
       "SELECT npc_brief FROM character_relations WHERE player_id=? AND npc_id=?",
     )
     .get("draft-player", "host");
-  assert.equal(preserved.npc_brief, output.relations[0].npc_brief);
+  assert.match(preserved.npc_brief, /交流已完成/);
+  assert.ok(preserved.npc_brief.length <= 120);
   assert.equal(
     (
       await db
@@ -274,8 +275,11 @@ test("生成并发、迟到结果与失败不覆盖原有头像，次数受限",
   failImage();
   for (let i = 0; i < 2; i++) {
     const failure = await request("/api/character/inspire", { body: {} });
-    assert.equal(failure.status, 502);
-    assert.ok(!(await failure.text()).includes("server-secret"));
+    assert.equal(failure.status, 200);
+    const partial = await failure.json();
+    assert.equal(partial.name, output.character.name);
+    assert.ok(partial.avatar_error);
+    assert.ok(!JSON.stringify(partial).includes("server-secret"));
   }
   assert.equal(
     (await request("/api/character/inspire", { body: {} })).status,
@@ -342,7 +346,12 @@ test("流式接口立即返回阶段，完成后才写入头像；错误事件�
   failImage();
   const failure = await request("/api/character/inspire", { body: {}, headers: { accept: "text/event-stream" } });
   const failed = await failure.text();
-  assert.match(failed, /"type":"error"/);
+  assert.match(failed, /"type":"avatar_error"/);
   assert.ok(!failed.includes("server-secret"));
-  assert.ok(!failed.includes('"type":"complete"'));
+  assert.ok(failed.includes('"type":"complete"'));
+  const restored = await (await request("/api/character/inspiration")).json();
+  assert.equal(restored.character.name, output.character.name);
+  assert.ok(restored.avatar_error);
+  assert.ok(!JSON.stringify(restored).includes("npc_brief"));
+  assert.ok(!JSON.stringify(restored).includes("avatar_prompt"));
 });

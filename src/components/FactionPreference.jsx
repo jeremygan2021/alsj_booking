@@ -30,12 +30,12 @@ const choices = [
   {
     value: "conspirator",
     title: factionNames.conspirator,
-    description: "报名参加杀手抽签；名额有限，选择后不保证入选。",
+    description: "自愿加入杀手阵营；席位有限，满额时会分配到其他阵营。",
   },
   {
     value: "any",
     title: factionNames.any,
-    description: "没有特别偏好，由GM统一抽签分配。",
+    description: "由系统按剩余席位安排，可能分到任一阵营。",
   },
 ];
 
@@ -64,7 +64,7 @@ export function FactionPreference({
         <CheckCircle2 size={19} aria-hidden="true" />
         <div>
           <strong>阵营偏好已保存 · {factionNames[faction.preference]}</strong>
-          <p>正式阵营等待GM抽签；抽签前可以修改偏好。</p>
+          <p>确认正式阵营后即可继续创建角色；之后重新生成也会保留身份。</p>
         </div>
         <Button
           kind="ghost compact"
@@ -72,6 +72,13 @@ export function FactionPreference({
           onClick={() => setEditing(true)}
         >
           修改阵营偏好
+        </Button>
+        <Button
+          disabled={busy}
+          onClick={() => onSave(faction.preference)}
+          aria-label="保存偏好，继续创建角色"
+        >
+          确认阵营，继续创建角色
         </Button>
       </section>
     );
@@ -82,19 +89,19 @@ export function FactionPreference({
       aria-labelledby={`${id}-heading`}
     >
       <span className="eyebrow">
-        {hasCharacter ? "我的阵营意向" : "创建角色之前 · 阵营意向"}
+        {hasCharacter ? "我的阵营" : "创建角色 · 第一步"}
       </span>
       <h2 id={`${id}-heading`}>
-        <Users size={23} aria-hidden="true" /> 先选择你的阵营偏好
+        <Users size={23} aria-hidden="true" /> 选择阵营，进入你的故事
       </h2>
       <p>
-        今晚共有三个阵营。偏好会作为GM分配的参考，正式身份将在统一抽签后公布给你。
+        确认后立即确定正式阵营，再据此生成角色和现场互动目标。身份只在你的私人档案中显示。
       </p>
       <div className="faction-lottery-notice" id={`${id}-notice`}>
         <Shield size={20} aria-hidden="true" />
         <p>
-          <strong>杀手阵营需要抽签。</strong>
-          根据活动总人数设置2–5个名额；选择杀手只代表报名，不保证入选。其余玩家会尽量平均分到另外两个阵营。
+          <strong>按意向与剩余席位分配。</strong>
+          杀手席位有限，另外两方保持人数平衡，因此正式阵营可能与意向不同。确定后不随重新生成角色改变，需要调整可联系GM。
         </p>
       </div>
       <form
@@ -128,7 +135,7 @@ export function FactionPreference({
               <span>
                 <strong>
                   {item.title}
-                  {item.value === "conspirator" && <small>需抽签</small>}
+                  {item.value === "conspirator" && <small>限量席位</small>}
                 </strong>
                 <span>{item.description}</span>
               </span>
@@ -136,12 +143,16 @@ export function FactionPreference({
           ))}
         </fieldset>
         <div className="faction-preference-actions">
-          <Button type="submit" disabled={busy || !choice}>
+          <Button
+            type="submit"
+            disabled={busy || !choice}
+            aria-label="保存偏好，继续创建角色"
+          >
             {busy
-              ? "正在保存…"
+              ? "正在确定阵营…"
               : hasPreference || hasCharacter
-                ? "保存阵营偏好"
-                : "保存偏好，继续创建角色"}
+                ? "确认阵营，继续创建角色"
+                : "确认阵营，开始创建角色"}
             <ArrowRight size={17} aria-hidden="true" />
           </Button>
           {hasPreference && (
@@ -162,13 +173,17 @@ export function FactionPreference({
   );
 }
 
-export function FactionAssignment({ faction = {} }) {
+export function FactionAssignment({ faction = {}, compact = false }) {
   const assigned = faction.assigned;
   if (!assigned || !factionNames[assigned] || assigned === "any") return null;
   const killer = assigned === "conspirator";
   return (
     <section
-      className={"faction-assignment " + (killer ? "killer" : "")}
+      className={
+        "faction-assignment " +
+        (killer ? "killer " : "") +
+        (compact ? "compact" : "")
+      }
       aria-label="我的正式阵营"
     >
       <div className="faction-assignment-heading">
@@ -179,13 +194,13 @@ export function FactionAssignment({ faction = {} }) {
           </h2>
         </div>
         <Badge tone={killer ? "gold" : "green"}>
-          <Lock size={12} aria-hidden="true" /> 已抽签锁定
+          <Lock size={12} aria-hidden="true" /> 身份已确定
         </Badge>
       </div>
-      {killer && (
+      {killer && faction.code && (
         <>
           <p>
-            请阅读下方私密简报，提前确认真正的凶手。请在活动开始前找到凶手，说出下方属于你的接头暗号，完成接头。请保密你的身份与暗号。
+            请阅读下方私密简报，提前确认真正的凶手。请在活动开始前私下找GM核验下方暗号，再由GM安排与凶手联络。请保密你的身份与暗号。
           </p>
           <div className="faction-contact-code">
             <KeyRound size={21} aria-hidden="true" />

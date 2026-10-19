@@ -162,7 +162,7 @@ test("新种子保持26条稳定证据映射、纯玩家文案及六种兼容拍
   assert.match(byId.get("E-21").detail, /合同、交付清单与付款记录可相互核对/);
 });
 
-test("六名NPC故事、段落及来源一致，供认要求完整解释并使用现场E编号", () => {
+test("六名NPC故事、段落及来源一致，完整证据链交GM核对后按口令供认", () => {
   for (const npc of materials.npcs) {
     assert.equal(
       npc.sections.find((s) => s.title === "第一人称故事卡").text,
@@ -183,6 +183,8 @@ test("六名NPC故事、段落及来源一致，供认要求完整解释并使�
   const stages = evelyn.sections.find(
     (s) => s.title === "三阶段证言与供认边界",
   ).text;
+  const gmChecklist = materials.notes.find((note) => note.startsWith("GM供认核对清单"));
+  assert.ok(gmChecklist);
   for (const id of [
     "E-23",
     "E-14",
@@ -193,17 +195,26 @@ test("六名NPC故事、段落及来源一致，供认要求完整解释并使�
     "E-18",
     "E-10",
   ])
-    assert.ok(stages.includes(id), id);
+    assert.ok(gmChecklist.includes(id), id);
+  assert.match(stages, /玩家陈述.*GM核对.*GM给出口令.*演员照读/);
+  assert.match(stages, /收到口令才照读/);
+  assert.match(stages, /我不判断推论是否成立/);
+  assert.doesNotMatch(stages, /至少需要解释|E-23结合/);
   assert.match(stages, /不能仅因出示固定三张卡/);
   const boundaries = evelyn.sections.find(
     (s) => s.title === "真实事实与边界",
   ).text;
-  assert.match(boundaries, /2—5人抽签.*事先知道伊芙琳.*独立暗号接头/);
+  assert.match(boundaries, /创建角色时按意向和剩余席位确定正式身份/);
+  assert.match(boundaries, /本人付费且角色获GM批准后.*事先知道伊芙琳.*独立暗号接头/);
+  assert.doesNotMatch(boundaries, /2—5人抽签|GM手动抽签/);
   assert.match(
     boundaries,
     /不自动获得袭击时刻、物证关联、预录安排或90天冻结的完整答案/,
   );
   assert.match(boundaries, /接头者未参与案发历史中的谋杀/);
+  assert.match(boundaries, /由GM.*私下核验/);
+  assert.match(boundaries, /本次联络已核验/);
+  assert.match(boundaries, /演员不背诵、不核对16字暗号/);
   assert.match(evelyn.story, /20:55.*说服|20:55.*时间/s);
   assert.match(evelyn.story, /先想到，还能多听她九十天晚安/);
   const nora = materials.npcs.find((n) => n.id === "detective");

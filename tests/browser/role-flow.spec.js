@@ -102,6 +102,7 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
     .toBe("approved");
   const npcPage = await npcContext.newPage();
   await npcPage.goto("/admin");
+  await npcPage.getByRole("button", { name: /查看关联玩家/ }).click();
   await expect(
     npcPage.getByRole("heading", { name: "关联玩家", exact: true }),
   ).toBeVisible();

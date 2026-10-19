@@ -1,3 +1,4 @@
+import { sendStoredAsset } from "../asset-storage.js";
 import { readFile, lstat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -183,5 +184,5 @@ export function sendPerformanceAudio(res, track) {
     "Content-Disposition": `inline; filename="${track.metadata.id.toLowerCase()}.mp3"`,
   });
   // Express sendFile handles Range/If-Range, seeking and HEAD requests.
-  return res.sendFile(track.file);
+  return sendStoredAsset(res, track.file);
 }

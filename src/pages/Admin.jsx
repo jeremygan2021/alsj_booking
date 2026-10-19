@@ -46,6 +46,7 @@ import { Audit, PlayerReview, ContentEditor } from "../components/StaffForms";
 import { CharacterAvatar, RelationCards } from "../components/CharacterProfile";
 import ContentManager from "../components/ContentManager";
 import PerformanceAudio from "../components/PerformanceAudio";
+import NpcStageGuide from "../components/NpcStageGuide";
 import FactionManagement from "../components/FactionManagement";
 import FactionPlay from "../components/FactionPlay";
 import PaymentImport, { PaymentStatus } from "../components/PaymentImport";
@@ -61,10 +62,11 @@ import {
 } from "../components/ui";
 function Admin({ pub, session, notify }) {
   const [data, refresh] = useResource("/staff", notify),
-    [tab, setTab] = useState(session.role === "npc" ? "relations" : "overview"),
+    [tab, setTab] = useState(session.role === "npc" ? "guide" : "overview"),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
     [detail, setDetail] = useState(null),
+    [deleteTarget, setDeleteTarget] = useState(null),
     [qr, setQr] = useState(null),
     [edit, setEdit] = useState(null),
     [busy, setBusy] = useState(false),
@@ -122,6 +124,7 @@ function Admin({ pub, session, notify }) {
         ["settings", "活动设置", Layers],
       ]
     : [
+        ["guide", "现场提词", BookOpen],
         ["script", "我的NPC剧本", BookOpen],
         ["relations", "关联玩家", Users],
         ["missions", "我的NPC委托", Compass],
@@ -237,6 +240,13 @@ function Admin({ pub, session, notify }) {
                         onClick={() => inspect(p.id)}
                       >
                         管理 <ArrowUpRight size={14} />
+                      </button>
+                      <button
+                        className="text-button"
+                        disabled={busy}
+                        onClick={() => setDeleteTarget(p)}
+                      >
+                        删除玩家
                       </button>
                     </td>
                   )}
@@ -356,7 +366,9 @@ function Admin({ pub, session, notify }) {
             <p className="muted">
               {tab === "overview"
                 ? "管理宾客、推进故事，导演属于所有人的最后一夜。"
-                : "现场状态每8秒更新，操作与资源变化自动记录。"}
+                : tab === "guide"
+                  ? "先照着说，再按需要核对。幕次和现场流程由GM统一安排。"
+                  : "现场状态每8秒更新，操作与资源变化自动记录。"}
             </p>
           </div>
           <Badge tone="green">
@@ -515,6 +527,20 @@ function Admin({ pub, session, notify }) {
             notify={notify}
             onChanged={refresh}
             onInspect={inspect}
+          />
+        )}
+        {tab === "guide" && !gm && (
+          <NpcStageGuide
+            npc={data.npcs.find((npc) => npc.id === session.id)}
+            dossier={data.storyMaterials?.npcs?.find(
+              (npc) => npc.id === session.id,
+            )}
+            phase={data.settings.phase}
+            missions={data.missions}
+            relations={data.relations}
+            onOpenMissions={() => setTab("missions")}
+            onOpenRelations={() => setTab("relations")}
+            onOpenScript={() => setTab("script")}
           />
         )}
         {tab === "players" && (
@@ -1042,7 +1068,7 @@ function Admin({ pub, session, notify }) {
           </>
         )}
       </div>
-      {detail && (
+      {detail && !deleteTarget && (
         <Modal title="宾客档案管理" wide onClose={() => setDetail(null)}>
           <div className="review-refresh">
             <p className="muted">
@@ -1068,6 +1094,26 @@ function Admin({ pub, session, notify }) {
               })
             }
           />
+          {gm && (
+            <Button kind="ghost" disabled={busy} onClick={() => setDeleteTarget(detail.player)}>
+              删除玩家
+            </Button>
+          )}
+        </Modal>
+      )}
+      {deleteTarget && (
+        <Modal title="确认删除玩家" onClose={() => !busy && setDeleteTarget(null)}>
+          <p>确定删除「{deleteTarget.name}」（{deleteTarget.contact}）吗？此操作不可撤销。</p>
+          <p className="muted">将清除报名、角色、阵营、金币、任务及游戏记录，并退出该玩家的所有登录。未成交的领先出价将清空，已成交拍品保留成交状态；该玩家提交的阵营提案及其联署将清除。已导入的付费名单保留，玩家再次登录后需重新生成角色并由GM审核。</p>
+          <div className="form-actions">
+            <Button kind="ghost" disabled={busy} onClick={() => setDeleteTarget(null)}>取消</Button>
+            <Button disabled={busy} onClick={() => action(async () => {
+              await api(`/staff/manage/players/${deleteTarget.id}/delete`, {});
+              if (detail?.player.id === deleteTarget.id) setDetail(null);
+              setDeleteTarget(null);
+              notify("玩家已删除，再次登录后需重新生成角色");
+            })}>{busy ? "正在删除…" : "确认删除玩家"}</Button>
+          </div>
         </Modal>
       )}
       {qr && (

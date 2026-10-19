@@ -17,6 +17,7 @@ import {
 import { api } from "../api";
 import { phases } from "../constants";
 import { Button, Badge, Field, Modal, QR, useResource } from "../components/ui";
+import CharacterVoice from "../components/CharacterVoice";
 import ClueImageReader from "../components/ClueImageReader";
 import QrTrackingScene, {
   requestQrFullscreen,
@@ -40,7 +41,7 @@ import {
   CharacterSummary,
   CurrentStoryStep,
 } from "../components/PlayerExperience";
-function Player({ pub, notify }) {
+function Player({ pub, notify, onPay }) {
   const [data, refresh] = useResource("/me", notify),
     [tab, setTab] = useState("identity"),
     [clueData, refreshClues] = useResource("/clues", notify),
@@ -54,6 +55,7 @@ function Player({ pub, notify }) {
     [gallery, setGallery] = useState(null),
     [characterFormState, setCharacterFormState] = useState(null),
     [editingCharacter, setEditingCharacter] = useState(false),
+    [voiceState, setVoiceState] = useState(null),
     [busy, setBusy] = useState(false);
   const handledClue = useRef(null),
     detailGeneration = useRef(0),
@@ -70,7 +72,7 @@ function Player({ pub, notify }) {
     try {
       await api("/factions/preference", { preference });
       await refresh();
-      notify("阵营偏好已保存，正式身份等待GM抽签。");
+      notify("正式阵营已确定，角色与互动目标将按这个身份生成。");
       return true;
     } catch (error) {
       notify(error.message);
@@ -206,10 +208,221 @@ function Player({ pub, notify }) {
       setEditingCharacter(false);
     }
   }, [data]);
+  const restoredPlayer = useRef(null);
+  useEffect(() => {
+    const id = data?.player?.id;
+    if (!id || restoredPlayer.current === id) return;
+    restoredPlayer.current = id;
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(`alsj:character-draft:${id}`) || "null",
+      );
+      if (
+        saved?.draft &&
+        Date.now() - Number(saved.savedAt || 0) < 3 * 86400000 &&
+        data.character?.status !== "approved"
+      )
+        setCharacterFormState({
+          ...saved,
+          inspiring: false,
+          uploading: false,
+          retryingAvatar: false,
+          referenceBusy: false,
+          referencePhotoBusy: false,
+          ...(saved.referencePhotoDraft &&
+          ["compressing", "uploading", "removing"].includes(
+            saved.referencePhotoDraft.stage,
+          )
+            ? {
+                referencePhotoDraft: {
+                  ...saved.referencePhotoDraft,
+                  stage: "error",
+                  error: saved.referencePhotoDraft.data
+                    ? "上传已中断，照片已保留，可重试上传。"
+                    : "照片处理已中断，请重新选择。",
+                },
+              }
+            : {}),
+        });
+    } catch {
+      /* Storage can be unavailable in private webviews. */
+    }
+  }, [data?.player?.id]);
+  useEffect(() => {
+    const id = data?.player?.id;
+    if (!id) return;
+    try {
+      if (
+        data.character?.status === "approved" ||
+        (!editingCharacter && data.character)
+      )
+        localStorage.removeItem(`alsj:character-draft:${id}`);
+      else if (characterFormState)
+        localStorage.setItem(
+          `alsj:character-draft:${id}`,
+          JSON.stringify({ ...characterFormState, savedAt: Date.now() }),
+        );
+    } catch {
+      /* Draft remains in React state if storage is full. */
+    }
+  }, [
+    characterFormState,
+    data?.player?.id,
+    data?.character?.status,
+    editingCharacter,
+  ]);
+  useEffect(() => {
+    const id = data?.player?.id;
+    if (!id || data.character?.status === "approved") return;
+    let active = true,
+      timer;
+    const recover = async () => {
+      try {
+        const photoRequestStarted = Date.now();
+        const result = await api("/character/inspiration");
+        if (!active) return;
+        if (Object.prototype.hasOwnProperty.call(result, "reference_photo"))
+          setCharacterFormState((old) => {
+            if (!old && !result.reference_photo) return old;
+            old ||= {
+              draft: {
+                name: "",
+                english: "",
+                profession: "",
+                skill: "洞察",
+                motive: "",
+                story: "",
+                cosplay_character: "",
+                cosplay_source: "",
+                avatar_url: "",
+                ...data?.character,
+              },
+              inspirationIdea: "",
+              preview: data?.character?.avatar_url || "",
+            };
+            if (
+              old?.referencePhotoBusy ||
+              old?.referencePhotoDraft ||
+              Number(old?.referencePhotoEditedAt || 0) > photoRequestStarted
+            )
+              return old;
+            return {
+              ...old,
+              referencePhoto: result.reference_photo || null,
+              referencePhotoBusy: false,
+              referencePhotoRestoredAt: Number(
+                result.reference_photo_updated_at || 0,
+              ),
+            };
+          });
+        if (result.reference_recording)
+          setCharacterFormState((old) => {
+            old ||= {
+              draft: {
+                name: "",
+                english: "",
+                profession: "",
+                skill: "洞察",
+                motive: "",
+                story: "",
+                cosplay_character: "",
+                cosplay_source: "",
+                avatar_url: "",
+                ...data?.character,
+              },
+              inspirationIdea: "",
+              preview: data?.character?.avatar_url || "",
+            };
+            const recording = result.reference_recording;
+            const append =
+              recording.transcript &&
+              old.lastTranscribedRecordingId !== recording.recording_id &&
+              !old.inspirationIdea?.includes(recording.transcript);
+            return {
+              ...old,
+              referenceRecording: {
+                id: recording.recording_id,
+                url: recording.recording_url,
+                transcript: recording.transcript,
+                status: recording.status,
+                error: recording.transcription_error || "",
+              },
+              ...(append
+                ? {
+                    inspirationIdea: [
+                      old.inspirationIdea?.trim(),
+                      recording.transcript,
+                    ]
+                      .filter(Boolean)
+                      .join("\n")
+                      .slice(0, 2000),
+                    lastTranscribedRecordingId: recording.recording_id,
+                  }
+                : {}),
+            };
+          });
+        if (result.character)
+          setCharacterFormState((old) => {
+            const generatedAt = Number(result.updated_at || Date.now());
+            if (old && generatedAt < Number(old.generationStarted || 0))
+              return old;
+            if (
+              old &&
+              !old.inspiring &&
+              Number(old.draftEditedAt || 0) > generatedAt
+            )
+              return old;
+            if (old && generatedAt <= Number(old.restoredAt || 0))
+              return old.inspiring && !result.generating
+                ? { ...old, inspiring: false, inspirationReady: true }
+                : old;
+            return {
+              ...old,
+              draft: { ...old?.draft, ...result.character },
+              preview: result.character.avatar_url || "",
+              uploading: false,
+              inspirationReady: !result.generating,
+              inspiring: Boolean(result.generating),
+              inspirationError: "",
+              inspirationIdea: old?.inspirationIdea || "",
+              generationPreview: result.character,
+              avatarGenerationError: result.avatar_error || "",
+              restoredAt: generatedAt,
+              generationStarted: old?.generationStarted || generatedAt,
+              generationMessage: result.generating
+                ? "故事已保留，正在完成头像…"
+                : "草稿已恢复",
+            };
+          });
+        if (
+          result.generating ||
+          result.reference_recording?.status === "transcribing"
+        )
+          timer = setTimeout(recover, 3000);
+      } catch {
+        if (active && characterFormState?.inspiring)
+          timer = setTimeout(recover, 5000);
+      }
+    };
+    recover();
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [
+    data?.player?.id,
+    Boolean(characterFormState?.inspiring),
+    Boolean(characterFormState?.referenceBusy),
+    Boolean(characterFormState?.referencePhotoBusy),
+  ]);
   if (!data) return <div className="boot">正在调取私人档案…</div>;
   const { player: p, character: c } = data;
   const faction = data.faction || {};
-  const canCreateCharacter = Boolean(faction.preference || faction.assigned);
+  const canCreateCharacter = Boolean(
+    faction.assigned ||
+    (faction.assignmentStage === "manual" && faction.preference),
+  );
+  const creatingCharacter = !c || (editingCharacter && c.status !== "approved");
   const identity = new URLSearchParams(location.search).get("identity");
   if (identity && identity !== p.id)
     return (
@@ -332,7 +545,26 @@ function Player({ pub, notify }) {
         )}
         {tab === "identity" && (
           <>
-            <FactionAssignment faction={faction} />
+            {p.payment !== "paid" &&
+              (creatingCharacter ? (
+                <div className="creation-ticket-status">
+                  <span>门票 ¥{pub.settings.price} · 待核验</span>
+                  <Button kind="ghost compact" onClick={onPay}>
+                    去付费
+                  </Button>
+                </div>
+              ) : (
+                <section className="panel">
+                  <h3>活动门票 · ¥{pub.settings.price} / 位</h3>
+                  <p className="muted">
+                    添加活动微信联系付款，工作人员核验后会更新票务状态。
+                  </p>
+                  <Button onClick={onPay}>
+                    去付费 · ¥{pub.settings.price}
+                  </Button>
+                </section>
+              ))}
+            <FactionAssignment faction={faction} compact={creatingCharacter} />
             {c?.status === "approved" && faction.assigned && (
               <FactionPlay phase={pub.settings.phase} notify={notify} />
             )}
@@ -355,6 +587,14 @@ function Player({ pub, notify }) {
                       action(async () => {
                         const result = await api("/character", draft);
                         setEditingCharacter(false);
+                        try {
+                          setVoiceState(await api("/character/voice", {}));
+                        } catch (error) {
+                          setVoiceState({
+                            status: "error",
+                            error: error.message,
+                          });
+                        }
                         notify(
                           result.stale
                             ? "故事已在另一处更新，请查看当前故事。"
@@ -393,10 +633,17 @@ function Player({ pub, notify }) {
                     />
                   )}
                 <CharacterSummary
-                  character={c}
+                  character={{ ...c, faction: faction.assigned || null }}
                   player={p}
+                  phase={pub.settings.phase}
                   busy={busy}
                   onEdit={() => setEditingCharacter(true)}
+                />
+                <CharacterVoice
+                  character={c}
+                  revision={c.revision}
+                  initial={voiceState}
+                  onChange={setVoiceState}
                 />
                 {c.status !== "approved" && (
                   <GenerationStatus
@@ -724,6 +971,9 @@ function Player({ pub, notify }) {
                     <div>
                       <strong>{i.title}</strong>
                       <p>{i.description}</p>
+                      {i.used && i.hint && (
+                        <p className="onsite-prop-hint">{i.hint}</p>
+                      )}
                     </div>
                     <Badge>{i.used ? "已使用" : "持有中"}</Badge>
                   </div>
@@ -987,6 +1237,9 @@ function Court({ pub, data, clues, onVote, onUse, busy }) {
               <div>
                 <strong>{i.title}</strong>
                 <p>{i.description}</p>
+                {i.used && i.hint && (
+                  <p className="onsite-prop-hint">{i.hint}</p>
+                )}
               </div>
               <Button
                 kind="ghost compact"

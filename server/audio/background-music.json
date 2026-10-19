@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "bucket": "tangledup-ai-staging",
+  "endpoint": "oss-cn-shanghai.aliyuncs.com",
+  "private": true,
+  "tracks": [
+    {
+      "title": "Darkest Child",
+      "filename": "Darkest Child.mp3",
+      "artist": "Kevin MacLeod",
+      "composer": "Kevin MacLeod",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "changes": "原曲，未作修改",
+      "key": "alsj/assets/v1/7591bd67ba227c2a3ffd97a6751c66e0b56d543ba91a6a2699a765191c880518.mp3",
+      "sha256": "7591bd67ba227c2a3ffd97a6751c66e0b56d543ba91a6a2699a765191c880518",
+      "bytes": 9551329,
+      "contentType": "audio/mpeg"
+    },
+    {
+      "title": "At Rest",
+      "filename": "At Rest.mp3",
+      "artist": "Kevin MacLeod",
+      "composer": "Kevin MacLeod",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "changes": "原曲，未作修改",
+      "key": "alsj/assets/v1/ec30f84d2acd6ddaefbb16246b050ba89e26e7396a2d48d7e0d0eccaff51f141.mp3",
+      "sha256": "ec30f84d2acd6ddaefbb16246b050ba89e26e7396a2d48d7e0d0eccaff51f141",
+      "bytes": 8264831,
+      "contentType": "audio/mpeg"
+    },
+    {
+      "title": "Awkward Meeting",
+      "filename": "Awkward Meeting.mp3",
+      "artist": "Kevin MacLeod",
+      "composer": "Kevin MacLeod",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100574",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "changes": "原曲，未作修改",
+      "key": "alsj/assets/v1/a0dae90e331886616cf577c5ceece05f0ebc2a3805e6fb554499cfe8961c02de.mp3",
+      "sha256": "a0dae90e331886616cf577c5ceece05f0ebc2a3805e6fb554499cfe8961c02de",
+      "bytes": 3457298,
+      "contentType": "audio/mpeg"
+    },
+    {
+      "title": "Danse Macabre",
+      "filename": "Danse Macabre.mp3",
+      "artist": "Kevin MacLeod",
+      "composer": "Camille Saint-Saëns",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100546",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "changes": "原曲，未作修改",
+      "key": "alsj/assets/v1/783bf8f40dc8c9cc4382594017831d0c435cfcbed6b7f64ef1959ab4d839371c.mp3",
+      "sha256": "783bf8f40dc8c9cc4382594017831d0c435cfcbed6b7f64ef1959ab4d839371c",
+      "bytes": 16341156,
+      "contentType": "audio/mpeg"
+    },
+    {
+      "title": "Long note One",
+      "filename": "Long Note One.mp3",
+      "artist": "Kevin MacLeod",
+      "composer": "Kevin MacLeod",
+      "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "changes": "原曲，未作修改",
+      "key": "alsj/assets/v1/665aef3a5eaba25a0108f632e85895516868813a764a58bc203702829ac4c6c1.mp3",
+      "sha256": "665aef3a5eaba25a0108f632e85895516868813a764a58bc203702829ac4c6c1",
+      "bytes": 17761954,
+      "contentType": "audio/mpeg"
+    }
+  ],
+  "catalogObject": "alsj/background-music/v1/3aacc43acd330f862657f5c3cdb738e711663350c97cfb062b921a6cd5623b47.json"
+}
