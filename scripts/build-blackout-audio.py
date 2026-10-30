@@ -113,11 +113,20 @@ def install(music_path, action_path):
             raise ValueError(f"Provider subtitle differs: {line['role']}")
         # Dialogue lives inside the room, with softer diction and audible distance.
         pan=float(line.get('pan',0)); distant=line.get('distance')=='far'
-        cutoff=2900 if distant else 4300
-        voice=decode(job/'speech.mp3',f'highpass=f=170,lowpass=f={cutoff},loudnorm=I=-22:TP=-6:LRA=10')
+        cutoff=6500 if distant else 7800
+        voice=decode(job/'speech.mp3',f'highpass=f=100,lowpass=f={cutoff}')
         mono=voice.mean(axis=1)
+        # Short utterances need active-speech normalization; pauses must not
+        # make one-word reactions much quieter than the rest of the scene.
+        frame=round(.02*SR)
+        padded=np.pad(mono,(0,(-len(mono))%frame)).reshape(-1,frame)
+        energy=np.sqrt(np.mean(padded*padded,axis=1))
+        active=np.repeat(energy>max(float(energy.max())*.15,1e-5),frame)[:len(mono)]
+        active_rms=float(np.sqrt(np.mean(mono[active]**2))) if active.any() else 0
+        if active_rms<=1e-6:raise ValueError(f"Silent voice: {line['text']}")
+        mono*=min(.16/active_rms,.70/max(float(np.max(np.abs(mono))),1e-6))
         voice=mono[:,None]*np.sqrt(np.array([1-pan,1+pan])[None,:]/2)
-        voice*=.52 if distant else .78
+        voice*=1.10 if distant else 1.25
         dry=voice.copy()
         # Diffuse early reflections, rather than three obvious slapback echoes.
         for delay,level in [(.023,.16),(.037,.12),(.053,.10),(.071,.08),(.097,.06),(.131,.045),(.179,.032),(.233,.022)]:
@@ -129,9 +138,9 @@ def install(music_path, action_path):
             raise ValueError(f"Line extends into final tail: {line['role']}")
         speech[start:end] += voice
         lo, hi = max(0,start-int(.18*SR)), min(len(score),end+int(.5*SR))
-        duck[lo:start] = np.minimum(duck[lo:start],np.linspace(1,.68,start-lo))
-        duck[start:end] = np.minimum(duck[start:end],.68)
-        duck[end:hi] = np.minimum(duck[end:hi],np.linspace(.68,1,hi-end))
+        duck[lo:start] = np.minimum(duck[lo:start],np.linspace(1,.50,start-lo))
+        duck[start:end] = np.minimum(duck[start:end],.50)
+        duck[end:hi] = np.minimum(duck[end:hi],np.linspace(.50,1,hi-end))
         lines.append(dict(line,end=round(end/SR,3)))
         audit.append(dict(role=line['role'],voiceId=voices[line['role']][0],payloadHash=sha,subtitleMatch=True,duration=round(len(voice)/SR,3)))
     archive = OUT/'制作分轨/熄灯惊变'
@@ -165,7 +174,7 @@ def install(music_path, action_path):
         hi_voice=min(len(score),a+round(.16*SR))
         speech_duck[a:hi_voice]=np.minimum(speech_duck[a:hi_voice],.75)
     crowd[-12*SR:]*=np.linspace(1,0,12*SR)[:,None]
-    backing=score*duck[:,None]*gun_duck[:,None]+speech*speech_duck[:,None]+(effects+crowd)*gun_duck[:,None]
+    backing=score*duck[:,None]*gun_duck[:,None]+speech*speech_duck[:,None]+(effects+crowd*duck[:,None])*gun_duck[:,None]
     for moment in [7,18.4,18.78,48,74.2]:
         a=round(moment*SR);b=a+round(.08*SR)
         gun_rms=float(np.sqrt(np.mean(guns[a:b]**2)))
@@ -189,7 +198,7 @@ def install(music_path, action_path):
         dict(id='B06',title='熄灯惊变·剧情版',duration=100,kind='drama',loop=False,
              speakers=list(dict.fromkeys(l['role'] for l in lines)),
              trigger='A04结束后、A05之前；现场摔杯→熄主灯→点击“从头播放”。',
-             notes='1:40环境声主导版；新下载的室内枪声保留原速和自然尾响，仅15条零星短对白与惊叫。FBI仅三处短口令，人声带距离与遮挡，不逐句解释剧情。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。',
+             notes='1:40环境声主导版；新下载的室内枪声保留原速和自然尾响，保留原15条短对白与惊叫。FBI仅三处短口令，短句按实际发声段统一音量并减少高频遮挡，说话时配乐与人群适度闪避；保留大厅远近感，不逐句解释剧情。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。',
              events=sorted(EVENTS+[dict(time=l['start'],cue='dialogue',role=l['role'],instruction=l['text']) for l in lines],key=lambda e:e['time']),
              music=music_credit('Controlled Chaos','USUAN1200059'),
              additionalMusic=[music_credit('Volatile Reaction','USUAN1400039')]),
@@ -219,7 +228,7 @@ def install(music_path, action_path):
     manifest['tracks']=[t for t in manifest['tracks'] if t['id'] not in ['B06','B07']]
     index=next(i for i,t in enumerate(manifest['tracks']) if t['id']=='A05')
     manifest['tracks'][index:index]=[{k:v for k,v in t.items() if not k.startswith('offline')} for t in descriptions]
-    manifest['version']='2026-10-30-blackout-sparse-v4'
+    manifest['version']='2026-10-30-blackout-voice-clarity-v5'
     manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     offline_path=OUT/'播放清单.json';offline=json.loads(offline_path.read_text())
     offline['tracks']=[t for t in offline['tracks'] if t['id'] not in ['B06','B07']]

@@ -20,7 +20,7 @@ import {
 test("现场演绎只纳入16段更新成片，摘要不携带私稿和服务器路径", async () => {
   const catalog = createPerformanceAudioCatalog();
   const summary = await catalog.describe();
-  assert.equal(summary.version, "2026-10-30-blackout-sparse-v4");
+  assert.equal(summary.version, "2026-10-30-blackout-voice-clarity-v5");
   assert.equal(summary.provider, "MiniMax");
   assert.equal(summary.model, "speech-2.8-hd");
   assert.equal(summary.tracks.length, 16);
