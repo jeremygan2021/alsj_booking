@@ -76,7 +76,7 @@ test("角色卡使用正式阵营任务，杀手仅获得本人及一位已就�
   assert.equal((await cardFor(1)).faction.contact.partner, "真实接头暗号4");
   assert.equal((await cardFor(4)).faction.contact.partner, "真实接头暗号0");
   for (const [i, label, mission] of [
-    [2, "FBI调查阵营", "正确抓到凶手"],
+    [2, "FBI调查阵营", "还原故事线与作案手法，锁定并抓捕真凶"],
     [3, "索恩遗产阵营", "找到并抓捕杀手阵营的人"],
   ]) {
     const card = await cardFor(i);
@@ -88,7 +88,9 @@ test("角色卡使用正式阵营任务，杀手仅获得本人及一位已就�
         ? {
             clue: "你要找到并抓捕的杀手，都有接头暗号。\n听说，暗号像四字一组的诗句。",
           }
-        : {}),
+        : {
+            clue: "21:07的声音，未必能证明索恩当时还活着。\n核对声音来源，再重排案发时间线。",
+          }),
     });
     assert.ok(!JSON.stringify(card).includes("真实接头暗号"));
   }

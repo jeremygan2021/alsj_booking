@@ -61,7 +61,11 @@ export function mountRoleCardRoutes(
       id,
     );
     const brief = {
-      fbi: { label: "FBI调查阵营", mission: "正确抓到凶手" },
+      fbi: {
+        label: "FBI调查阵营",
+        mission: "还原故事线与作案手法，锁定并抓捕真凶",
+        clue: "21:07的声音，未必能证明索恩当时还活着。\n核对声音来源，再重排案发时间线。",
+      },
       croft: {
         label: "索恩遗产阵营",
         mission: "找到并抓捕杀手阵营的人",

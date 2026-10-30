@@ -289,6 +289,40 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
     expect(await readFile(`${output}/a4-three-guests.pdf`, "latin1")).toContain(
       "/Count 4",
     );
+    const fbi = await register(4, "FBI调查员", "detective", "fbi");
+    expect(
+      (
+        await page.request.post(`/api/staff/players/${fbi.id}`, {
+          data: { payment: "paid", status: "approved" },
+        })
+      ).ok(),
+    ).toBeTruthy();
+    await batch.goto(`/role-cards?players=${fbi.id}`);
+    await batch
+      .getByRole("button", { name: "生成简洁角色卡", exact: true })
+      .click();
+    await expect(
+      batch.getByRole("button", { name: "下载双面 PDF", exact: true }),
+    ).toBeEnabled();
+    await batch.getByRole("button", { name: "背面", exact: true }).click();
+    await expect(batch.locator(".role-card-face.back img")).toHaveAttribute(
+      "alt",
+      /FBI调查阵营.*还原故事线与作案手法.*21:07.*核对声音来源/s,
+    );
+    await batch.locator(".role-card-reading summary").click();
+    await expect(batch.getByRole("region", { name: "阵营简报" })).toContainText(
+      "核对声音来源，再重排案发时间线",
+    );
+    const fbiPdf = batch.waitForEvent("download");
+    await batch
+      .getByRole("button", { name: "下载双面 PDF", exact: true })
+      .click();
+    await (await fbiPdf).saveAs(`${output}/fbi-half-a4.pdf`);
+    const fbiPng = batch.waitForEvent("download");
+    await batch
+      .getByRole("button", { name: "下载背面 PNG", exact: true })
+      .click();
+    await (await fbiPng).saveAs(`${output}/fbi-back.png`);
     await single
       .getByRole("button", { name: "重置此宾客的登录二维码", exact: true })
       .click();
