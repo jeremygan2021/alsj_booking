@@ -413,7 +413,7 @@ export default function RoleCards() {
                         <img
                           className="role-card-artwork"
                           src={artwork.back.png}
-                          alt={`${current.character.name}的角色卡背面`}
+                          alt={`${current.character.name}的角色卡背面。${current.faction ? `${current.faction.label}，阵营任务：${current.faction.mission}` : "等待GM确认阵营"}`}
                         />
                       </span>
                     </span>
@@ -489,6 +489,26 @@ export default function RoleCards() {
                     展开完整角色档案<span>原始故事与人物关系</span>
                   </summary>
                   <div>
+                    {current.faction && (
+                      <section aria-label="阵营简报">
+                        <h3>{current.faction.label}</h3>
+                        <p>阵营任务：{current.faction.mission}</p>
+                        {current.faction.id === "conspirator" && (
+                          <>
+                            <p>
+                              本人接头暗号：
+                              {current.faction.contact?.own ||
+                                "审核与核验后开放"}
+                            </p>
+                            <p>
+                              同伴接头暗号：
+                              {current.faction.contact?.partner ||
+                                current.faction.notice}
+                            </p>
+                          </>
+                        )}
+                      </section>
+                    )}
                     <h3>我的故事</h3>
                     <p>{current.character.story}</p>
                     {current.character.adaptation && (

@@ -14,7 +14,7 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
   const stamp = Date.now();
   const contexts = [];
   const errors = [];
-  const register = async (index, name, portrait) => {
+  const register = async (index, name, portrait, preference = "fbi") => {
     const context = await browser.newContext({ baseURL });
     contexts.push(context);
     const registered = await context.request.post("/api/register", {
@@ -27,7 +27,7 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
     expect(registered.ok()).toBeTruthy();
     const { id } = await registered.json();
     await context.request.post("/api/factions/preference", {
-      data: { preference: "fbi" },
+      data: { preference },
     });
     if (portrait) {
       const bytes = await readFile(`src/assets/npcs/${portrait}.webp`);
@@ -63,8 +63,8 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
     return { context, id, name };
   };
   try {
-    const first = await register(1, "艾琳·沃斯", "detective");
-    const second = await register(2, "莱恩·米勒", "singer");
+    const first = await register(1, "艾琳·沃斯", "detective", "conspirator");
+    const second = await register(2, "莱恩·米勒", "singer", "conspirator");
     const third = await register(3, "尚未付款的宾客", null);
     await page.request.post("/api/login", {
       data: { account: "gm", password: "browser-gm-password" },
@@ -73,7 +73,7 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
       expect(
         (
           await page.request.post(`/api/staff/players/${player.id}`, {
-            data: { payment: "paid" },
+            data: { payment: "paid", status: "approved" },
           })
         ).ok(),
       ).toBeTruthy();
@@ -113,6 +113,10 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
       await first.context.request.post("/api/role-cards", { data: {} })
     ).json();
     const accessUrl = new URL(ownCards.cards[0].accessPath, baseURL).href;
+    const privateFaction = ownCards.cards[0].faction;
+    expect(privateFaction.mission).toBe("保护真正的凶手");
+    expect(privateFaction.contact.own).toBeTruthy();
+    expect(privateFaction.contact.partner).toBeTruthy();
     expect(
       Array.from(ownCards.cards[0].summary.body.story).length,
     ).toBeLessThanOrEqual(72);
@@ -126,6 +130,15 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
       .click();
     await (await frontDownload).saveAs(`${output}/front.png`);
     await single.getByRole("button", { name: "背面", exact: true }).click();
+    await expect(single.locator(".role-card-face.back img")).toHaveAttribute(
+      "alt",
+      /杀手阵营，阵营任务：保护真正的凶手/,
+    );
+    await single.locator(".role-card-reading summary").click();
+    const briefing = single.getByRole("region", { name: "阵营简报" });
+    await expect(briefing).toContainText(privateFaction.contact.own);
+    await expect(briefing).toContainText(privateFaction.contact.partner);
+    await single.locator(".role-card-reading summary").click();
     await single
       .locator(".role-card-stage-turn")
       .evaluate((e) => Promise.all(e.getAnimations().map((a) => a.finished)));

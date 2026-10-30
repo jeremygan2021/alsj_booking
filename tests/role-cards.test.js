@@ -4,6 +4,117 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createApp } from "../server/app.js";
+import { summaryHash } from "../server/role-card-summary.js";
+
+test("角色卡使用正式阵营任务，杀手仅获得本人及一位已就绪同伴的真实暗号", async (t) => {
+  const { app, db } = await createApp({
+    dbPath: ":memory:",
+    databaseUrl: process.env.TEST_DATABASE_URL,
+    gmPassword: "faction-card-gm",
+    npcPassword: "faction-card-npc",
+    allowLegacyRegistration: true,
+  });
+  const server = app.listen(0, "127.0.0.1");
+  await new Promise((resolve) => server.once("listening", resolve));
+  t.after(async () => {
+    await new Promise((resolve) => server.close(resolve));
+    await db.close();
+  });
+  const base = `http://127.0.0.1:${server.address().port}/api`;
+  const players = [];
+  for (let i = 0; i < 6; i++) {
+    const res = await fetch(base + "/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: `阵营卡宾客${i}`,
+        contact: `faction-card-${i}@example.com`,
+        password: "faction-card-password",
+      }),
+    });
+    assert.equal(res.status, 200);
+    const { id } = await res.json();
+    players.push({ id, cookie: res.headers.get("set-cookie").split(";")[0] });
+    await db.prepare("UPDATE players SET payment='paid' WHERE id=?").run(id);
+    await db
+      .prepare(
+        "INSERT INTO characters(player_id,name,story,status,faction) VALUES(?,?,'我的公开故事','approved','conspirator')",
+      )
+      .run(id, `阵营卡角色${i}`);
+    if (i < 5)
+      await db
+        .prepare(
+          "INSERT INTO faction_assignments(player_id,faction,contact_code,draw_id,assigned_at,assigned_by) VALUES(?,?,?,'card-draw',?,'gm')",
+        )
+        .run(
+          id,
+          ["conspirator", "conspirator", "fbi", "croft", "conspirator"][i],
+          `真实接头暗号${i}`,
+          i + 1,
+        );
+  }
+  const cardFor = async (index) => {
+    const res = await fetch(base + "/role-cards", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: players[index].cookie,
+      },
+      body: "{}",
+    });
+    assert.equal(res.status, 200);
+    return (await res.json()).cards[0];
+  };
+  const first = await cardFor(0);
+  assert.deepEqual(first.faction, {
+    id: "conspirator",
+    label: "杀手阵营",
+    mission: "保护真正的凶手",
+    contact: { own: "真实接头暗号0", partner: "真实接头暗号1" },
+  });
+  assert.ok(!JSON.stringify(first).includes("真实接头暗号4"));
+  assert.equal((await cardFor(1)).faction.contact.partner, "真实接头暗号4");
+  assert.equal((await cardFor(4)).faction.contact.partner, "真实接头暗号0");
+  for (const [i, label, mission] of [
+    [2, "FBI调查阵营", "正确抓到凶手"],
+    [3, "索恩遗产阵营", "找到杀手阵营的人"],
+  ]) {
+    const card = await cardFor(i);
+    assert.deepEqual(card.faction, {
+      id: i === 2 ? "fbi" : "croft",
+      label,
+      mission,
+    });
+    assert.ok(!JSON.stringify(card).includes("真实接头暗号"));
+  }
+  // An old character faction cannot stand in for a formal assignment.
+  assert.equal((await cardFor(5)).faction, null);
+  await db
+    .prepare(
+      "UPDATE faction_assignments SET contact_code='更新的真实暗号' WHERE player_id=?",
+    )
+    .run(players[1].id);
+  const updated = await cardFor(0);
+  assert.equal(updated.faction.contact.partner, "更新的真实暗号");
+  assert.equal(summaryHash(updated), summaryHash(first));
+  await db
+    .prepare("UPDATE characters SET status='pending' WHERE player_id=?")
+    .run(players[1].id);
+  assert.equal((await cardFor(1)).faction.contact, null);
+  assert.ok(!JSON.stringify((await cardFor(1)).faction).includes("真实暗号"));
+  assert.equal((await cardFor(0)).faction.contact.partner, "真实接头暗号4");
+  await db
+    .prepare("UPDATE players SET payment='refunded' WHERE id=?")
+    .run(players[4].id);
+  const alone = (await cardFor(0)).faction;
+  assert.equal(alone.contact.own, "真实接头暗号0");
+  assert.equal(alone.contact.partner, null);
+  assert.match(alone.notice, /联系GM/);
+  await db
+    .prepare("UPDATE faction_assignments SET faction='fbi' WHERE player_id=?")
+    .run(players[0].id);
+  assert.ok(!JSON.stringify(await cardFor(0)).includes("真实接头暗号"));
+});
 
 test("付费角色卡隔离玩家权限、稳定签名扫码登录、二维码重置与退款/删除失效", async (t) => {
   const dir = mkdtempSync(join(tmpdir(), "alaska-role-cards-"));

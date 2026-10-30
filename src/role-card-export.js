@@ -301,33 +301,66 @@ export async function renderRoleCard(card, origin = location.origin) {
   back.rule(79, 135, 1238, "#b9a681");
   back.fit(c.name, 79, 210, 850, 39, palette.ink);
   back.text(card.synopsis, 81, 252, 20, "#7e806e");
-  back.text("你的故事", 81, 333, 22, "#997743", serif, 600);
+  back.text("你的故事", 81, 305, 22, "#997743", serif, 600);
   back.paragraph(
     summary?.story || "点击生成，让你的经历化作三行故事。",
     81,
-    390,
+    352,
     850,
     3,
     30,
     palette.ink,
-    48,
+    43,
   );
-  back.rule(81, 535, 850, "#d3c8b3");
-  back.text("今夜，做这两件事", 81, 595, 22, "#997743", serif, 600);
+  const faction = card.faction;
+  const killer = faction?.id === "conspirator";
+  back.ctx.fillStyle = "#e7dfcf";
+  back.ctx.fillRect(81, 478, 850, killer ? 250 : 152);
+  back.ctx.fillStyle = "#a08251";
+  back.ctx.fillRect(81, 478, 3, killer ? 250 : 152);
+  back.text("你的阵营", 105, 517, 18, "#806c4a", sans);
+  back.fit(faction?.label || "等待GM确认阵营", 242, 520, 655, 27);
+  back.text("阵营任务", 105, 573, 18, "#806c4a", sans);
+  back.fit(faction?.mission || "请联系GM确认本场任务", 242, 578, 655, 32);
+  if (killer) {
+    back.text("本人接头暗号", 105, 631, 18, "#806c4a", sans);
+    back.fit(
+      faction.contact?.own || "审核与核验后开放",
+      260,
+      633,
+      637,
+      24,
+      palette.ink,
+      sans,
+    );
+    back.text("同伴接头暗号", 105, 680, 18, "#806c4a", sans);
+    back.fit(
+      faction.contact?.partner || faction.notice,
+      260,
+      682,
+      637,
+      24,
+      palette.ink,
+      sans,
+    );
+  }
+  const goalsTop = killer ? 768 : 676;
+  back.text("今夜的行动", 81, goalsTop, 20, "#997743", serif, 600);
   const goals = summary?.goals || [
     "结识宾客，讲述自己的来意",
     "听取故事，作出自己的选择",
   ];
-  goals.forEach((goal, i) => {
-    back.text(`0${i + 1}`, 81, 653 + i * 62, 23, "#a08251", display);
-    back.fit(goal, 140, 653 + i * 62, 785, 27, palette.ink, sans);
+  goals.slice(0, 2).forEach((goal, i) => {
+    const y = goalsTop + 43 + i * 46;
+    back.text(`0${i + 1}`, 81, y, 23, "#a08251", display);
+    back.fit(goal, 140, y, 785, 27, palette.ink, sans);
   });
-  back.rule(81, 763, 850, "#d3c8b3");
-  (summary?.contacts || []).slice(0, 2).forEach((contact, i) => {
-    const x = 81 + i * 445;
-    back.fit(contact.name, x, 818, 405, 26, palette.ink);
-    back.fit(contact.note, x, 856, 405, 20, "#777d6d", sans);
-  });
+  if (!killer)
+    (summary?.contacts || []).slice(0, 2).forEach((contact, i) => {
+      const x = 81 + i * 445;
+      back.fit(contact.name, x, 818, 405, 26, palette.ink);
+      back.fit(contact.note, x, 856, 405, 20, "#777d6d", sans);
+    });
   back.rule(988, 290, 0);
   back.ctx.strokeStyle = "#d3c8b3";
   back.ctx.beginPath();

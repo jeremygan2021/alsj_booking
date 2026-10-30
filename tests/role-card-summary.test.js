@@ -7,6 +7,11 @@ import {
 } from "../server/role-card-summary.js";
 
 const card = {
+  faction: {
+    id: "conspirator",
+    mission: "保护真正的凶手",
+    contact: { own: "不发送的本人暗号", partner: "不发送的同伴暗号" },
+  },
   character: {
     name: "艾琳",
     profession: "档案调查员",
@@ -59,6 +64,7 @@ test("真实AI请求使用安全资料、严格字数与已知NPC，未配置时
       const body = JSON.parse(request.body);
       assert.equal(body.response_format.json_schema.strict, true);
       assert.ok(!request.body.includes("不发送的"));
+      assert.ok(!request.body.includes("保护真正的凶手"));
       return response(summary);
     }),
   );

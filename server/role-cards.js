@@ -55,6 +55,44 @@ export function mountRoleCardRoutes(
     // Fragments stay out of HTTP requests and Referer headers.
     return `/role-cards#access=${id}.${sign(id, nonce)}`;
   };
+  const factionFor = async (id, status) => {
+    const assignment = await one(
+      "SELECT faction,contact_code FROM faction_assignments WHERE player_id=?",
+      id,
+    );
+    const brief = {
+      fbi: { label: "FBI调查阵营", mission: "正确抓到凶手" },
+      croft: { label: "索恩遗产阵营", mission: "找到杀手阵营的人" },
+      conspirator: { label: "杀手阵营", mission: "保护真正的凶手" },
+    }[assignment?.faction];
+    if (!brief) return null;
+    const faction = { id: assignment.faction, ...brief };
+    if (assignment.faction !== "conspirator") return faction;
+    // These private fields are projected only into an authorized paid card.
+    // Keep them separate from the public story sent to the summary model.
+    faction.contact = null;
+    if (status !== "approved") {
+      faction.notice = "角色审核通过后开放接头暗号";
+      return faction;
+    }
+    const roster = await all(
+      "SELECT a.player_id,a.contact_code FROM faction_assignments a JOIN players p ON p.id=a.player_id JOIN characters c ON c.player_id=a.player_id WHERE a.faction='conspirator' AND p.payment='paid' AND c.status='approved' AND a.contact_code IS NOT NULL AND a.contact_code<>'' ORDER BY a.assigned_at,a.player_id",
+    );
+    const index = roster.findIndex((p) => p.player_id === id);
+    // A circular hand-off gives each ready accomplice one other contact,
+    // without exporting the killer roster or inventing a new password.
+    const partner =
+      index >= 0 && roster.length > 1
+        ? roster[(index + 1) % roster.length]
+        : null;
+    faction.contact = {
+      own: assignment.contact_code || null,
+      partner: partner?.contact_code || null,
+    };
+    if (!faction.contact.own) faction.notice = "请联系GM确认本人接头暗号";
+    else if (!partner) faction.notice = "同伴尚未就绪，请联系GM确认";
+    return faction;
+  };
   const cardFor = async (id) => {
     const { player, character: c } = await eligible(id);
     const site = await store.getSite();
@@ -87,6 +125,7 @@ export function mountRoleCardRoutes(
         schedule: site.schedule,
       },
       synopsis: "万圣夜，索恩庄园。一场关于记忆、秘密与选择的晚宴。",
+      faction: await factionFor(id, c.status),
     };
     card.character.adaptation = c.status === "approved" ? c.adaptation : null;
     const cached = await one(
@@ -129,13 +168,11 @@ export function mountRoleCardRoutes(
       }
       return output;
     });
-    res
-      .set("Cache-Control", "private, no-store")
-      .json({
-        cards,
-        role: req.auth.role,
-        generation: { configured: isGenerationConfigured(generation) },
-      });
+    res.set("Cache-Control", "private, no-store").json({
+      cards,
+      role: req.auth.role,
+      generation: { configured: isGenerationConfigured(generation) },
+    });
   });
   const generating = new Set();
   app.post(
