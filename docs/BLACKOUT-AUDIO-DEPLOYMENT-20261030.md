@@ -38,3 +38,15 @@ B07《凶险暗流·纯BGM循环版》98秒：只使用下载的背景音乐，�
 - 发布包 `output/releases/alsj-blackout-crowd-v3.tar.gz`，3,217,960字节，SHA-256 `69cc479b49cb698af75fec88f6f27e5e179c900c1c1282edb688946febe28d25`。
 - 回滚目标为 `/opt/alsj_booking/releases/20261030T102153Z-1b09991-blackout`，用该目录的Compose环境启动旧应用后切回current，无需恢复数据库。
 - 上线后B06/B07均完成GM授权后的OSS直连、完整SHA-256及Range 206核验；未登录入口401，验证会话已退出，容器healthy。
+
+## 18:46 少对白与室内录音版（v4）
+
+- 功能提交 `dd0cda6ce95b1a947fdc558a9b28cded4fe33ab9`，发布版本 `20261030T104625Z-dd0cda6-sparse-v4`。仅替换B06、目录与OSS映射，B07字节保持原样。备份成功，上一版本保留。
+- 换用chris_81在Freesound发布的《gunshot indoors.wav》，来源 https://freesound.org/people/chris_81/sounds/388051/ ，CC0。下载公开高质量MP3，只使用第一声原速录音0.12—1.95秒，保留自然室内尾响，不用原文件第二声慢放版本，不添加人工枪声回声。
+- 前版枪声片段过短且背景闪避过强。新版本将其他声部的枪声闪避从0.08调整至0.65，避免明显抽空背景；五处枪声前80毫秒RMS高于同期其他声部约9—12dB。该测量只用于确认未被掩盖，最终自然程度由现场试听判断。
+- MiniMax对白与惊叫从42条减少至15条，其中FBI只有三条短口令；保持固定音色，FBI改为正常语速与克制情绪。所有15条供应商字幕与审定台词规范化核验通过。降低人声存在感、减少明亮高频并增加大厅早期反射，不再要求每句话都清晰可辨。
+- 人群层换用IENBA《Crowd in panic》的男女群体惊慌实录，来源 https://freesound.org/people/ienba/sounds/491405/ ，CC0；取代碎片化TTS拼接，不新增说明剧情的对白。
+- 本地178项检查和页面回归通过；成片100秒，B07保留原98秒纯音乐循环。
+- 发布包 `output/releases/alsj-blackout-sparse-v4.tar.gz`，3,217,922字节，SHA-256 `c97f4a5174b1289fbf088e4fbd35f7643a53004d24d2bea23c33ec107ff30145`。
+- 回滚目标 `/opt/alsj_booking/releases/20261030T103351Z-e9b3d17-crowd-v3`，使用该目录的Compose环境启动旧应用再切回current，无需恢复数据库。
+- 上线后B06/B07均通过OSS直连、完整SHA-256及Range 206验证；未登录入口401，GM验证会话已退出，容器healthy。
