@@ -314,10 +314,11 @@ export async function renderRoleCard(card, origin = location.origin) {
   );
   const faction = card.faction;
   const killer = faction?.id === "conspirator";
+  const extendedBrief = killer || Boolean(faction?.clue);
   back.ctx.fillStyle = "#e7dfcf";
-  back.ctx.fillRect(81, 478, 850, killer ? 250 : 152);
+  back.ctx.fillRect(81, 478, 850, extendedBrief ? 250 : 152);
   back.ctx.fillStyle = "#a08251";
-  back.ctx.fillRect(81, 478, 3, killer ? 250 : 152);
+  back.ctx.fillRect(81, 478, 3, extendedBrief ? 250 : 152);
   back.text("你的阵营", 105, 517, 18, "#806c4a", sans);
   back.fit(faction?.label || "等待GM确认阵营", 242, 520, 655, 27);
   back.text("阵营任务", 105, 573, 18, "#806c4a", sans);
@@ -343,8 +344,11 @@ export async function renderRoleCard(card, origin = location.origin) {
       palette.ink,
       sans,
     );
+  } else if (faction?.clue) {
+    back.text("阵营线索", 105, 628, 18, "#806c4a", sans);
+    back.paragraph(faction.clue, 105, 664, 790, 2, 25, palette.ink, 33);
   }
-  const goalsTop = killer ? 768 : 676;
+  const goalsTop = extendedBrief ? 768 : 676;
   back.text("今夜的行动", 81, goalsTop, 20, "#997743", serif, 600);
   const goals = summary?.goals || [
     "结识宾客，讲述自己的来意",
@@ -355,7 +359,7 @@ export async function renderRoleCard(card, origin = location.origin) {
     back.text(`0${i + 1}`, 81, y, 23, "#a08251", display);
     back.fit(goal, 140, y, 785, 27, palette.ink, sans);
   });
-  if (!killer)
+  if (!extendedBrief)
     (summary?.contacts || []).slice(0, 2).forEach((contact, i) => {
       const x = 81 + i * 445;
       back.fit(contact.name, x, 818, 405, 26, palette.ink);

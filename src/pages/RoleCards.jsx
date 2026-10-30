@@ -413,7 +413,7 @@ export default function RoleCards() {
                         <img
                           className="role-card-artwork"
                           src={artwork.back.png}
-                          alt={`${current.character.name}的角色卡背面。${current.faction ? `${current.faction.label}，阵营任务：${current.faction.mission}` : "等待GM确认阵营"}`}
+                          alt={`${current.character.name}的角色卡背面。${current.faction ? `${current.faction.label}，阵营任务：${current.faction.mission}${current.faction.clue ? `。阵营线索：${current.faction.clue}` : ""}` : "等待GM确认阵营"}`}
                         />
                       </span>
                     </span>
@@ -493,6 +493,9 @@ export default function RoleCards() {
                       <section aria-label="阵营简报">
                         <h3>{current.faction.label}</h3>
                         <p>阵营任务：{current.faction.mission}</p>
+                        {current.faction.clue && (
+                          <p>阵营线索：{current.faction.clue}</p>
+                        )}
                         {current.faction.id === "conspirator" && (
                           <>
                             <p>

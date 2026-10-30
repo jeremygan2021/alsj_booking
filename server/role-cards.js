@@ -62,7 +62,11 @@ export function mountRoleCardRoutes(
     );
     const brief = {
       fbi: { label: "FBI调查阵营", mission: "正确抓到凶手" },
-      croft: { label: "索恩遗产阵营", mission: "找到杀手阵营的人" },
+      croft: {
+        label: "索恩遗产阵营",
+        mission: "找到并抓捕杀手阵营的人",
+        clue: "你要找到并抓捕的杀手，都有接头暗号。\n听说，暗号像四字一组的诗句。",
+      },
       conspirator: { label: "杀手阵营", mission: "保护真正的凶手" },
     }[assignment?.faction];
     if (!brief) return null;

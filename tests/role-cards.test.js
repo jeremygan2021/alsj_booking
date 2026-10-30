@@ -77,13 +77,18 @@ test("角色卡使用正式阵营任务，杀手仅获得本人及一位已就�
   assert.equal((await cardFor(4)).faction.contact.partner, "真实接头暗号0");
   for (const [i, label, mission] of [
     [2, "FBI调查阵营", "正确抓到凶手"],
-    [3, "索恩遗产阵营", "找到杀手阵营的人"],
+    [3, "索恩遗产阵营", "找到并抓捕杀手阵营的人"],
   ]) {
     const card = await cardFor(i);
     assert.deepEqual(card.faction, {
       id: i === 2 ? "fbi" : "croft",
       label,
       mission,
+      ...(i === 3
+        ? {
+            clue: "你要找到并抓捕的杀手，都有接头暗号。\n听说，暗号像四字一组的诗句。",
+          }
+        : {}),
     });
     assert.ok(!JSON.stringify(card).includes("真实接头暗号"));
   }

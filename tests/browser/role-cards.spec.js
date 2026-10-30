@@ -65,7 +65,7 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
   try {
     const first = await register(1, "艾琳·沃斯", "detective", "conspirator");
     const second = await register(2, "莱恩·米勒", "singer", "conspirator");
-    const third = await register(3, "尚未付款的宾客", null);
+    const third = await register(3, "尚未付款的宾客", null, "croft");
     await page.request.post("/api/login", {
       data: { account: "gm", password: "browser-gm-password" },
     });
@@ -271,6 +271,21 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
       .getByRole("button", { name: "下载双面 PDF", exact: true })
       .click();
     await (await oddDownload).saveAs(`${output}/a4-three-guests.pdf`);
+    await batch
+      .getByRole("button", { name: "下一位宾客", exact: true })
+      .click();
+    await batch
+      .getByRole("button", { name: "下一位宾客", exact: true })
+      .click();
+    await batch.getByRole("button", { name: "背面", exact: true }).click();
+    await expect(batch.locator(".role-card-face.back img")).toHaveAttribute(
+      "alt",
+      /索恩遗产阵营.*找到并抓捕.*四字一组的诗句/s,
+    );
+    await batch.locator(".role-card-reading summary").click();
+    await expect(batch.getByRole("region", { name: "阵营简报" })).toContainText(
+      "你要找到并抓捕的杀手，都有接头暗号",
+    );
     expect(await readFile(`${output}/a4-three-guests.pdf`, "latin1")).toContain(
       "/Count 4",
     );
