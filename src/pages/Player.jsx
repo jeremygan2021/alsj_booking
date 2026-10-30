@@ -15,6 +15,7 @@ import {
   Box,
 } from "lucide-react";
 import { api } from "../api";
+import { roleCardsUrl } from "../role-card-export";
 import { phases } from "../constants";
 import { Button, Badge, Field, Modal, QR, useResource } from "../components/ui";
 import CharacterVoice from "../components/CharacterVoice";
@@ -639,6 +640,19 @@ function Player({ pub, notify, onPay }) {
                   busy={busy}
                   onEdit={() => setEditingCharacter(true)}
                 />
+                {p.payment === "paid" && (
+                  <div className="role-card-player-link">
+                    <a
+                      className="button ghost"
+                      href={roleCardsUrl()}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FileText size={17} /> 查看 / 导出我的角色卡
+                    </a>
+                    <small>高清图片 · 半 A4 PDF · 专属扫码登录</small>
+                  </div>
+                )}
                 <CharacterVoice
                   character={c}
                   revision={c.revision}

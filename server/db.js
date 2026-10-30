@@ -1,4 +1,5 @@
 import { applyCharacterVoice } from "./migrations/character-voice.js";
+import { migrateRoleCards } from "./role-cards.js";
 import { applyCharacterPhoto } from "./migrations/character-photo.js";
 import { applyNpcMaterials } from "./migrations/npc-materials-v4.js";
 import { applyStoryV5 } from "./migrations/story-v5.js";
@@ -80,6 +81,7 @@ async function openSqlite(path) {
   await db.transaction(() => applyCharacterVoice(db));
   await db.transaction(() => applyCharacterPhoto(db));
   await db.transaction(() => applyPaidPhones(db));
+  await db.transaction(() => migrateRoleCards(db));
   await db.transaction(() => migrateFactionState(db));
   await db.transaction(() => applyEventCapacity(db));
   await db.transaction(() => applyStoryV5(db));

@@ -1,4 +1,5 @@
 import { createCharacterVoiceJobs } from "./character-voice-jobs.js";
+import { mountRoleCardRoutes } from "./role-cards.js";
 import { createCharacterPhotoService } from "./character-photo.js";
 import { redirectOssDownload } from "./oss-download.js";
 import { characterMediaStorageConfig, isCharacterMediaStorageConfigured, putCharacterMedia, readCharacterMedia, characterMediaDownloadUrl } from "./character-media-storage.js";
@@ -495,6 +496,10 @@ export async function createApp({
       });
     }
     fail("仅管理员可使用密码登录，其他用户请使用手机号验证码", 401);
+  });
+  mountRoleCardRoutes(app, {
+    auth, one, all, run, tx, fail, session, secret: gmPassword,
+    store: contentStore, audit, generation,
   });
   app.post("/api/logout", async (r, s) => {
     if (r.auth) await run("DELETE FROM sessions WHERE token=?", r.auth.token);

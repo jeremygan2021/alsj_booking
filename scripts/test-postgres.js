@@ -23,6 +23,8 @@ try {
         "tests/inspiration-api.test.js",
         "tests/admin.test.js",
         "tests/paid-phones.test.js",
+        "tests/role-cards.test.js",
+        "tests/role-card-summary.test.js",
         "tests/sms.test.js",
       ]) {
     const schema = "alsj_test_" + randomBytes(8).toString("hex");

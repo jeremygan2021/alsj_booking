@@ -35,6 +35,7 @@ import {
   Download,
 } from "lucide-react";
 import { api } from "../api";
+import { roleCardsUrl } from "../role-card-export";
 import {
   createClueQrArchive,
   createClueQrPng,
@@ -71,6 +72,7 @@ function Admin({ pub, session, notify }) {
     [edit, setEdit] = useState(null),
     [busy, setBusy] = useState(false),
     [qrDownload, setQrDownload] = useState(null);
+  const [roleCardSelection, setRoleCardSelection] = useState(new Set());
   const gm = session.role === "gm";
   const action = async (fn) => {
     setBusy(true);
@@ -147,6 +149,15 @@ function Admin({ pub, session, notify }) {
       .toLowerCase()
       .includes(query.toLowerCase()),
   );
+  const cardEligible = (p) => p.payment === "paid" && Boolean(p.status);
+  const paidCharacters = data.players.filter(cardEligible);
+  const selectedCards = paidCharacters.filter((p) =>
+    roleCardSelection.has(p.id),
+  );
+  const filteredCards = filtered.filter(cardEligible);
+  const allFilteredSelected =
+    filteredCards.length > 0 &&
+    filteredCards.every((p) => roleCardSelection.has(p.id));
   const playerTable = (
     <>
       <div className="table-toolbar">
@@ -170,11 +181,65 @@ function Admin({ pub, session, notify }) {
           <option value="checkin">已签到</option>
         </select>
       </div>
+      {gm && (
+        <div className="role-card-batch-bar">
+          <Button
+            kind="ghost compact"
+            disabled={!selectedCards.length}
+            onClick={() =>
+              window.open(
+                roleCardsUrl(selectedCards.map((p) => p.id)),
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <Download size={16} /> 导出已选角色卡（{selectedCards.length}）
+          </Button>
+          <Button
+            kind="ghost compact"
+            disabled={!paidCharacters.length}
+            onClick={() =>
+              window.open(
+                roleCardsUrl(paidCharacters.map((p) => p.id)),
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <FileText size={16} /> 全部已付款角色卡（{paidCharacters.length}）
+          </Button>
+          <small className="muted">
+            勾选两位宾客即可合排一张 A4；仅已付款且已建立角色的宾客可导出。
+          </small>
+        </div>
+      )}
       {filtered.length ? (
         <div className="table-wrap">
           <table data-testid="admin-player-table">
             <thead>
               <tr>
+                {gm && (
+                  <th>
+                    <input
+                      className="role-card-select"
+                      type="checkbox"
+                      aria-label="选择当前列表中可导出的角色"
+                      checked={allFilteredSelected}
+                      disabled={!filteredCards.length}
+                      onChange={() =>
+                        setRoleCardSelection((previous) => {
+                          const next = new Set(previous);
+                          for (const p of filteredCards)
+                            allFilteredSelected
+                              ? next.delete(p.id)
+                              : next.add(p.id);
+                          return next;
+                        })
+                      }
+                    />
+                  </th>
+                )}
                 <th>宾客 / 角色</th>
                 <th>调查组</th>
                 <th>票务</th>
@@ -188,6 +253,24 @@ function Admin({ pub, session, notify }) {
             <tbody>
               {filtered.map((p) => (
                 <tr key={p.id}>
+                  {gm && (
+                    <td>
+                      <input
+                        className="role-card-select"
+                        type="checkbox"
+                        aria-label={`选择${p.name}的角色卡`}
+                        checked={cardEligible(p) && roleCardSelection.has(p.id)}
+                        disabled={!cardEligible(p)}
+                        onChange={() =>
+                          setRoleCardSelection((previous) => {
+                            const next = new Set(previous);
+                            next.has(p.id) ? next.delete(p.id) : next.add(p.id);
+                            return next;
+                          })
+                        }
+                      />
+                    </td>
+                  )}
                   <td>
                     <div className="admin-player-identity">
                       <CharacterAvatar
@@ -241,6 +324,28 @@ function Admin({ pub, session, notify }) {
                       >
                         管理 <ArrowUpRight size={14} />
                       </button>
+                      {cardEligible(p) ? (
+                        <a
+                          className="text-button"
+                          href={roleCardsUrl([p.id])}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          角色卡 <FileText size={14} />
+                        </a>
+                      ) : (
+                        <button
+                          className="text-button"
+                          disabled
+                          title={
+                            p.payment !== "paid"
+                              ? "核验付款后可导出"
+                              : "建立角色后可导出"
+                          }
+                        >
+                          角色卡
+                        </button>
+                      )}
                       <button
                         className="text-button"
                         disabled={busy}
@@ -1082,6 +1187,18 @@ function Admin({ pub, session, notify }) {
               <RefreshCw size={16} /> 刷新人物档案
             </Button>
           </div>
+          {detail.player.payment === "paid" && detail.character && (
+            <p>
+              <a
+                className="button ghost compact"
+                href={roleCardsUrl([detail.player.id])}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <FileText size={16} /> 查看 / 导出角色卡
+              </a>
+            </p>
+          )}
           <PlayerReview
             key={`${detail.player.id}:${detail.character?.revision || 0}:${detail.character?.generation_status || ""}:${detail.character?.generation_pending || 0}:${detail.character?.status || ""}`}
             data={detail}
@@ -1095,24 +1212,52 @@ function Admin({ pub, session, notify }) {
             }
           />
           {gm && (
-            <Button kind="ghost" disabled={busy} onClick={() => setDeleteTarget(detail.player)}>
+            <Button
+              kind="ghost"
+              disabled={busy}
+              onClick={() => setDeleteTarget(detail.player)}
+            >
               删除玩家
             </Button>
           )}
         </Modal>
       )}
       {deleteTarget && (
-        <Modal title="确认删除玩家" onClose={() => !busy && setDeleteTarget(null)}>
-          <p>确定删除「{deleteTarget.name}」（{deleteTarget.contact}）吗？此操作不可撤销。</p>
-          <p className="muted">将清除报名、角色、阵营、金币、任务及游戏记录，并退出该玩家的所有登录。未成交的领先出价将清空，已成交拍品保留成交状态；该玩家提交的阵营提案及其联署将清除。已导入的付费名单保留，玩家再次登录后需重新生成角色并自动审核通过。</p>
+        <Modal
+          title="确认删除玩家"
+          onClose={() => !busy && setDeleteTarget(null)}
+        >
+          <p>
+            确定删除「{deleteTarget.name}」（{deleteTarget.contact}
+            ）吗？此操作不可撤销。
+          </p>
+          <p className="muted">
+            将清除报名、角色、阵营、金币、任务及游戏记录，并退出该玩家的所有登录。未成交的领先出价将清空，已成交拍品保留成交状态；该玩家提交的阵营提案及其联署将清除。已导入的付费名单保留，玩家再次登录后需重新生成角色并自动审核通过。
+          </p>
           <div className="form-actions">
-            <Button kind="ghost" disabled={busy} onClick={() => setDeleteTarget(null)}>取消</Button>
-            <Button disabled={busy} onClick={() => action(async () => {
-              await api(`/staff/manage/players/${deleteTarget.id}/delete`, {});
-              if (detail?.player.id === deleteTarget.id) setDetail(null);
-              setDeleteTarget(null);
-              notify("玩家已删除，再次登录后需重新生成角色");
-            })}>{busy ? "正在删除…" : "确认删除玩家"}</Button>
+            <Button
+              kind="ghost"
+              disabled={busy}
+              onClick={() => setDeleteTarget(null)}
+            >
+              取消
+            </Button>
+            <Button
+              disabled={busy}
+              onClick={() =>
+                action(async () => {
+                  await api(
+                    `/staff/manage/players/${deleteTarget.id}/delete`,
+                    {},
+                  );
+                  if (detail?.player.id === deleteTarget.id) setDetail(null);
+                  setDeleteTarget(null);
+                  notify("玩家已删除，再次登录后需重新生成角色");
+                })
+              }
+            >
+              {busy ? "正在删除…" : "确认删除玩家"}
+            </Button>
           </div>
         </Modal>
       )}
