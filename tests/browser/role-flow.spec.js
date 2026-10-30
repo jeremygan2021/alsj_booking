@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import { avatarData } from "../profile-fixture.js";
 import { installQrCamera } from "./qr-camera-fixture.js";
 
-test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360模型鉴赏", async ({
+test("Cos故事与头像 → 自动审核 → NPC关联玩家 → QR搜证 → 360模型鉴赏", async ({
   page,
   browser,
   baseURL,
@@ -53,10 +53,11 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
     "src",
     /\/api\/avatars\//,
   );
-  await page.getByRole("button", { name: "提交角色，等待GM确认" }).click();
+  await page.getByRole("button", { name: "提交角色，自动审核通过" }).click();
   await expect(page.locator(".relation-card")).toHaveCount(2);
-  await expect(page.locator(".generation-status")).toContainText("等待GM确认");
+  await expect(page.locator(".player-mini-identity")).toContainText("自动审核通过");
   const profile = await (await page.request.get("/api/me")).json();
+  expect(profile.character.status).toBe("approved");
   expect(profile.character.story).toBe(fields.story);
   expect(profile.character.name).toBe("蝙蝠侠");
   expect(profile.character.english).toBe("Guest");
@@ -73,7 +74,7 @@ test("Cos故事与头像 → GM审核 → NPC关联玩家 → QR搜证 → 360�
   });
   expect(
     (await (await npcContext.request.get("/api/staff")).json()).relations,
-  ).toHaveLength(0);
+  ).toHaveLength(1);
   const gmContext = await browser.newContext({ baseURL });
   await gmContext.request.post("/api/login", {
     data: { account: "gm", password: "browser-gm-password" },

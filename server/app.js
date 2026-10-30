@@ -230,6 +230,8 @@ export async function createApp({
           2,
         );
       }
+      // Publish only after validated relations and missions are saved atomically.
+      if (!error) await run("UPDATE characters SET status='approved' WHERE player_id=?", id);
       return {
         ok: true,
         generator: generated ? "llm" : "curated-template",
@@ -265,7 +267,7 @@ export async function createApp({
     if (p.payment !== "paid" || !p.checked_in)
       fail("请先核验票务并完成现场签到", 403);
     const c = await one("SELECT * FROM characters WHERE player_id=?", p.id);
-    if (c?.status !== "approved") fail("人物档案等待GM审核", 403);
+    if (c?.status !== "approved") fail("人物档案尚未完成自动审核", 403);
     return {
       p,
       c,
@@ -1472,7 +1474,7 @@ export async function createApp({
           "SELECT status FROM characters WHERE player_id=?",
           m.player_id,
         );
-        if (c?.status !== "approved") fail("玩家角色尚未通过GM审核", 403);
+        if (c?.status !== "approved") fail("玩家角色尚未通过自动审核", 403);
         if (!p.checked_in || p.payment !== "paid") fail("玩家尚未签到");
         if (m.status === "done") return;
         const earned = (

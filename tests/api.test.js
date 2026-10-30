@@ -60,7 +60,7 @@ test("完整报名、权限隔离、资源幂等、竞拍、搜证和庭审流�
   });
   const draft = await p("/me");
   assert.equal(draft.character.faction, "fbi");
-  assert.equal(draft.character.secret, null);
+  assert.equal(draft.character.status, "approved");
   await p("/clues/E-01/unlock", {}, 403);
   await gm(`/staff/players/${registered.id}`, {
     payment: "paid",

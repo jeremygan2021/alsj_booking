@@ -442,7 +442,7 @@ function Player({ pub, notify, onPay }) {
     : p.payment !== "paid" || !p.checked_in
       ? "请先核验票务并完成现场签到"
       : c?.status !== "approved"
-        ? "人物档案等待GM审核"
+        ? "人物档案尚未完成自动审核"
         : !detail.unlocked && pub.settings.phase < detail.phase
           ? `该线索卡将在第${detail.phase}幕开放`
           : "";
@@ -474,9 +474,9 @@ function Player({ pub, notify, onPay }) {
     ["evidence", "证据册", BookOpen],
   ];
   const arBlocker = !c
-    ? "先建立你的角色。GM确认、现场签到后，第三幕可解锁证物。"
+    ? "先建立你的角色。提交并自动审核通过、现场签到后，第三幕可解锁证物。"
     : c.status !== "approved"
-      ? "角色正在等待GM确认。确认并现场签到后，第三幕可解锁证物。"
+      ? "角色尚未完成自动审核。完成剧情生成并现场签到后，第三幕可解锁证物。"
       : p.payment !== "paid" || !p.checked_in
         ? "请先到现场核验票务，并出示身份码完成签到。"
         : pub.settings.phase < 3
@@ -498,9 +498,9 @@ function Player({ pub, notify, onPay }) {
             {c?.status === "approved"
               ? p.checked_in
                 ? `已签到 · 第${p.group_id}调查组`
-                : "角色已确认 · 等待现场签到"
+                : "角色已自动审核通过 · 等待现场签到"
               : c
-                ? "角色已提交 · 等GM确认"
+                ? "角色已提交 · 等待剧情生成完成"
                 : "欢迎来到阿拉斯加之夜"}
           </small>
         </div>
@@ -600,7 +600,7 @@ function Player({ pub, notify, onPay }) {
                             ? "故事已在另一处更新，请查看当前故事。"
                             : result.generation_status === "error"
                               ? "故事已保存，可稍后重试或请GM协助。"
-                              : "角色已提交，等GM确认。",
+                              : "角色已提交，自动审核通过。",
                         );
                       })
                     }
@@ -659,7 +659,7 @@ function Player({ pub, notify, onPay }) {
                             ? "故事已在另一处更新，请查看当前故事。"
                             : result.generation_status === "error"
                               ? "故事已保存，暂时未准备好，请稍后重试或找GM。"
-                              : "故事草稿已准备，等GM确认。",
+                              : "故事已准备，自动审核通过。",
                         );
                       })
                     }
@@ -711,7 +711,7 @@ function Player({ pub, notify, onPay }) {
                         <h3>只有你知道的身份</h3>
                         {!faction.assigned && (
                           <p>
-                            阵营等待GM统一抽签，角色审核不会提前决定你的阵营。
+                            阵营等待GM统一抽签，角色自动审核不会提前决定你的阵营。
                           </p>
                         )}
                         <p>{c.secret}</p>
@@ -720,7 +720,7 @@ function Player({ pub, notify, onPay }) {
                     <h3>与你有关的人</h3>
                     {c.status !== "approved" && (
                       <p>
-                        这是你的个人草稿，GM确认后，对应NPC才会看到与你有关的故事。
+                        这是你的个人草稿，提交并完成自动审核后，对应NPC即可看到与你有关的故事。
                       </p>
                     )}
                     <RelationCards
@@ -854,7 +854,7 @@ function Player({ pub, notify, onPay }) {
               <summary>搜证规则</summary>
               <div className="player-fold-content">
                 <p>
-                  GM确认人物档案、核验票务并现场签到后，可在第三幕开始解锁现场证物。提前扫码可以查看开放提示。
+                  人物档案自动审核通过、核验票务并现场签到后，可在第三幕开始解锁现场证物。提前扫码可以查看开放提示。
                 </p>
                 <p>
                   相机中会显示公开的基础证物。满足开放条件后，扫码会将线索保存到你的证据册；私人内容和鉴定仍按剧情进度开放。

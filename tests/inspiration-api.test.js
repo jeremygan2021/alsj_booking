@@ -203,7 +203,7 @@ test("MiniMax角色草稿权限、隐私、WebP保存和手工提交", async (t)
         .prepare("SELECT status FROM characters WHERE player_id=?")
         .get("draft-player")
     ).status,
-    "pending",
+    "approved",
   );
   const staff = await request("/api/staff", { cookie: "gm-session" });
   assert.equal(staff.status, 200);
@@ -221,7 +221,7 @@ test("MiniMax角色草稿权限、隐私、WebP保存和手工提交", async (t)
   for (const field of Object.keys(output.character))
     assert.equal(savedProfile.character[field], draft[field], field);
   assert.equal(savedProfile.character.avatar_url, draft.avatar_url);
-  assert.equal(savedProfile.character.status, "pending");
+  assert.equal(savedProfile.character.status, "approved");
   assert.ok(savedProfile.relations.length >= 2);
   for (const relation of savedProfile.relations) {
     assert.equal(typeof relation.npc_brief, "string");

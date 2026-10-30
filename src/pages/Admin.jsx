@@ -1036,14 +1036,14 @@ function Admin({ pub, session, notify }) {
               </Badge>
               <p>
                 {pub.generation?.configured
-                  ? "玩家提交Cos角色、原始故事和头像后，系统会依据NPC背景与四幕规则生成ECHO身份、双向关系和目标。所有生成内容由GM审核后生效。"
+                  ? "玩家提交Cos角色、原始故事和头像后，系统会依据NPC背景与四幕规则生成ECHO身份、双向关系和目标。玩家提交并完成剧情生成后自动审核通过，关联内容立即生效。"
                   : "当前角色使用剧情模板草稿。配置OpenAI兼容服务后，玩家可在人物档案中重新生成关系；原始角色故事和头像会保留。"}
               </p>
             </section>
             <section className="panel">
               <h3>首版运营说明</h3>
               <p>
-                本场为2026年10月31日的万圣节活动。地点以线下正式通知为准。角色剧情支持大模型生成与GM审核，票务采用人工核验；NPC演绎说明、最终主持台本及完整证据链应在活动前由策划确认。
+                本场为2026年10月31日的万圣节活动。地点以线下正式通知为准。角色剧情支持大模型生成与自动审核，票务采用人工核验；NPC演绎说明、最终主持台本及完整证据链应在活动前由策划确认。
               </p>
               <p>
                 线上使用Docker与PostgreSQL，定期备份数据库。管理员账号admin兼容原GM密码；NPC账号有各自的登录口令，管理员与NPC权限分开。内容管理中心支持完整内容编辑和AR场景发布。
@@ -1104,7 +1104,7 @@ function Admin({ pub, session, notify }) {
       {deleteTarget && (
         <Modal title="确认删除玩家" onClose={() => !busy && setDeleteTarget(null)}>
           <p>确定删除「{deleteTarget.name}」（{deleteTarget.contact}）吗？此操作不可撤销。</p>
-          <p className="muted">将清除报名、角色、阵营、金币、任务及游戏记录，并退出该玩家的所有登录。未成交的领先出价将清空，已成交拍品保留成交状态；该玩家提交的阵营提案及其联署将清除。已导入的付费名单保留，玩家再次登录后需重新生成角色并由GM审核。</p>
+          <p className="muted">将清除报名、角色、阵营、金币、任务及游戏记录，并退出该玩家的所有登录。未成交的领先出价将清空，已成交拍品保留成交状态；该玩家提交的阵营提案及其联署将清除。已导入的付费名单保留，玩家再次登录后需重新生成角色并自动审核通过。</p>
           <div className="form-actions">
             <Button kind="ghost" disabled={busy} onClick={() => setDeleteTarget(null)}>取消</Button>
             <Button disabled={busy} onClick={() => action(async () => {

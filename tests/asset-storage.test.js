@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import express from 'express';
 import { createHash, createHmac } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { sendStoredAsset, ossReadHeaders } from '../server/asset-storage.js';
 
-const file = new URL('../server/audio/files/e-01-body.mp3', import.meta.url).pathname;
+const file = fileURLToPath(new URL('../server/audio/files/e-01-body.mp3', import.meta.url));
 const data = await readFile(file);
 const sha = createHash('sha256').update(data).digest('hex');
 const env = { OSS_ENABLED: 'true', OSS_ACCESS_KEY_ID: 'test', OSS_ACCESS_KEY_SECRET: 'test-secret' };

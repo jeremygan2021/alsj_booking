@@ -57,14 +57,14 @@ export function GenerationStatus({
               ? "正在准备你的故事"
               : failed
                 ? "故事已保存，关联暂未准备好"
-                : "故事草稿已准备，等待GM确认"}
+                : character.status === "approved" ? "角色已自动审核通过" : "故事已准备，提交后自动通过审核"}
           </strong>
           <p>
             {pending
               ? "稍等片刻，准备完成后即可查看你的剧情草稿。"
               : failed
                 ? "你的故事和头像已保留。可以稍后重试，或请现场GM协助。"
-                : "GM确认后，与你有关的NPC会收到你的故事。"}
+                : "提交并完成剧情关联后，系统自动审核通过，与你有关的NPC会收到你的故事。"}
           </p>
         </div>
         {failed && onRetry && !pending && (
@@ -90,16 +90,16 @@ export function GenerationStatus({
           {pending
             ? "正在编织你的剧情关系"
             : ready
-              ? "剧情关联草稿已生成"
+              ? "剧情关联已生成"
               : failed
                 ? "角色已保存，剧情生成暂未完成"
                 : "角色已保存，等待配置剧情生成"}
         </strong>
         <p>
           {pending
-            ? "你的角色故事已经保存。生成完成后可在这里预览，并交由GM审核。"
+            ? "你的角色故事已经保存。生成完成后将自动审核通过。"
             : ready
-              ? `${character.generator === "llm" ? "大模型已将" : "剧情模板已将"}角色特征接入ECHO世界。GM批准后，关联NPC才会收到演绎档案。`
+              ? `${character.generator === "llm" ? "大模型已将" : "剧情模板已将"}角色特征接入ECHO世界。提交后自动审核通过，关联NPC即可收到演绎档案。`
               : failed
                 ? character.generation_error ||
                   "服务暂时不可用，可稍后重试；你的原始故事和头像已保留。"
@@ -139,7 +139,7 @@ export function RelationCards({
         title={role === "npc" ? "还没有与你关联的玩家" : "剧情关系等待建立"}
         text={
           role === "npc"
-            ? "GM批准玩家档案后，你的专属演绎提示和分幕目标会出现在这里。"
+            ? "玩家提交并通过自动审核后，你的专属演绎提示和分幕目标会出现在这里。"
             : "填写Cos角色、角色故事与头像，系统会为你生成NPC关系草稿。"
         }
       />
@@ -228,7 +228,7 @@ export function RelationCards({
             )}
             {!confirmed && role === "player" && (
               <p className="relation-draft-note">
-                这是你自己的关系预览。GM批准前，NPC看不到这份档案。
+                这是你自己的关系预览。提交并通过自动审核后，关联NPC即可看到档案。
               </p>
             )}
             {onInspect && (
@@ -741,12 +741,12 @@ export default function CharacterForm({
                   <CheckCircle2 size={16} aria-hidden="true" />
                   <span>
                     {draft.name} ·
-                    草稿已填入下方。可继续修改，检查后提交GM确认。
+                    草稿已填入下方。可继续修改，检查后提交，自动审核通过。
                   </span>
                 </p>
               ) : (
                 <p className="character-inspiration-note">
-                  生成结果会填入下方草稿，提交后由GM确认。
+                  生成结果会填入下方草稿，提交后自动审核通过。
                 </p>
               )}
             </div>
@@ -994,7 +994,7 @@ export default function CharacterForm({
         <div className="notice">
           <Shield size={17} />
           <span>
-            提交即确认此角色，并为你生成专属语音自我介绍。角色仍需GM审核，现场签到后开始游戏。
+            提交即确认此角色，并为你生成专属语音自我介绍。角色提交后自动审核通过，现场签到后开始游戏。
           </span>
         </div>
         <Button
@@ -1016,8 +1016,8 @@ export default function CharacterForm({
           {busy
             ? "正在提交你的故事…"
             : c
-              ? "保存故事，交给GM确认"
-              : "提交角色，等待GM确认"}
+              ? "保存故事，自动审核通过"
+              : "提交角色，自动审核通过"}
           <ArrowUpRight size={16} />
         </Button>
       </form>

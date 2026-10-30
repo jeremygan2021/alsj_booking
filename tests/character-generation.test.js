@@ -175,7 +175,7 @@ async function setup(t, llm = { baseUrl: "", apiKey: "", model: "" }) {
 }
 
 test("只填写Cos名、来源、故事并上传头像即可建立角色，高级字段缺省持久化且显式非法值仍拒绝", async (t) => {
-  const { p, db, id } = await setup(t);
+  const { p, gm, db, id } = await setup(t);
   const minimal = {
     cosplay_character: "长".repeat(100),
     cosplay_source: "原创万圣节角色",
@@ -218,6 +218,7 @@ test("只填写Cos名、来源、故事并上传头像即可建立角色，高�
     { skill: null },
   ])
     await p("/character", { ...minimal, ...invalid }, 400);
+  await gm(`/staff/players/${id}`, { status: "pending" });
   await p("/character", {
     ...minimal,
     name: "莱恩",
@@ -234,7 +235,7 @@ test("只填写Cos名、来源、故事并上传头像即可建立角色，高�
   assert.equal(custom.skill, "技术");
 });
 
-test("头像重编码与权限隔离，未配置模型时明确使用模板，待审核关联不向NPC泄漏", async (t) => {
+test("提交模板角色自动通过，NPC仅能看到自己的关联，GM仍可重新开放编辑", async (t) => {
   const { client, gm, p, npc, outsider, id, db } = await setup(t);
   await p("/character", profile, 400);
   await p(
@@ -296,19 +297,19 @@ test("头像重编码与权限隔离，未配置模型时明确使用模板，�
   assert.equal(me.character.story, profile.story);
   assert.ok(me.character.adaptation.includes("尚未调用大模型"));
   assert.equal(me.relations.length, 2);
-  assert.equal(me.missions.length, 0);
+  assert.equal(me.missions.length, 2);
   assert.ok(me.relations.every((r) => !("npc_brief" in r)));
-  assert.equal(me.character.secret, null);
+  assert.equal(me.character.status, "approved");
   assert.equal(me.character.faction, me.faction.assigned);
   assert.ok(["fbi", "croft", "conspirator"].includes(me.character.faction));
   assert.ok(!("generation_lock" in me.character));
-  assert.equal((await npc("/staff")).relations.length, 0);
-  assert.equal((await npc("/staff")).players.length, 0);
-  assert.equal((await npc("/staff")).missions.length, 0);
+  assert.equal((await npc("/staff")).relations.length, 1);
+  assert.equal((await npc("/staff")).players.length, 1);
+  assert.equal((await npc("/staff")).missions.length, 1);
   const pendingMission = await db
     .prepare("SELECT id FROM missions WHERE player_id=?")
     .get(id);
-  await npc(`/staff/missions/${pendingMission.id}/complete`, {}, 403);
+  await npc(`/staff/missions/${pendingMission.id}/complete`, {}, 400);
   const review = await gm(`/staff/players/${id}`);
   assert.equal(review.relations.length, 2);
   assert.ok(review.relations.every((r) => r.npc_brief));
@@ -394,6 +395,7 @@ test("配置后的模型失败保留输入并公开安全错误，重试可恢�
   assert.equal(result.generation_status, "error");
   const me = await p("/me");
   assert.equal(me.character.story, profile.story);
+  assert.equal(me.character.status, "pending");
   assert.equal(me.character.generator, "llm");
   assert.match(me.character.generation_error, /HTTP 401/);
   assert.ok(!JSON.stringify(me).includes("private-api-key"));
@@ -413,6 +415,7 @@ test("配置后的模型失败保留输入并公开安全错误，重试可恢�
   await gm(`/staff/players/${id}`, { status: "approved" }, 400);
   assert.equal((await p("/character/generate", {})).generation_status, "ready");
   assert.equal((await p("/me")).character.generation_error, null);
+  assert.equal((await p("/me")).character.status, "approved");
 });
 
 test("输出校验拒绝未知与重复NPC、额外奖励、非法剧情、超长字段和无效幕次", () => {
@@ -588,6 +591,7 @@ test("生成中进程中断后可恢复重试，旧锁和启动时间不会泄�
   const { p, gm, id, db } = await setup(t);
   await p("/avatar", { data: avatarData });
   await p("/character", profile);
+  await gm(`/staff/players/${id}`, { status: "pending" });
   await db
     .prepare(
       "UPDATE characters SET generation_pending=1,generation_lock=?,generation_started_at=? WHERE player_id=?",
@@ -693,9 +697,12 @@ test("并发生成禁止重复调用，重新提交草稿后旧模型结果不�
     ).n,
     2,
   );
+  assert.equal(final.character.status, "approved");
+  await gm(`/staff/players/${id}`, { status: "pending" });
   const third = p("/character/generate", {});
   while (requests.length < 3) await new Promise((r) => setTimeout(r, 5));
   requests[2].resolve(completion(output("新角色")));
   await third;
+  await gm(`/staff/players/${id}`, { status: "pending" });
   await p("/character/generate", {}, 429);
 });
