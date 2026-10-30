@@ -17,8 +17,8 @@ test("GM现场音频清单保护终局内容，播放互斥并支持下载和手
   await expect(
     page.getByRole("heading", { name: "现场演绎播放台" }),
   ).toBeVisible();
-  await expect(page.locator(".performance-toolbar")).toContainText("14段");
-  await expect(page.locator(".performance-track")).toHaveCount(14);
+  await expect(page.locator(".performance-toolbar")).toContainText("16段");
+  await expect(page.locator(".performance-track")).toHaveCount(16);
   const endings = page.locator(".performance-spoilers");
   await expect(endings).not.toHaveAttribute("open");
   const audio = (id) => page.locator(`audio[aria-label^="${id} "]`);
@@ -49,8 +49,28 @@ test("GM现场音频清单保护终局内容，播放互斥并支持下载和手
     "待播放",
   );
 
+  const blackout = audio("B06");
+  await expect(blackout).toBeVisible();
+  await page.getByRole("button", { name: "B06 从头播放 · 摔杯、关灯后点击" }).click();
+  await expect.poll(() => blackout.evaluate((element) => element.paused)).toBe(false);
+  await blackout.evaluate((element) => { element.currentTime = 30; });
+  await page.getByRole("button", { name: "B06 从头播放 · 摔杯、关灯后点击" }).click();
+  await expect.poll(() => blackout.evaluate((element) => element.currentTime)).toBeLessThan(5);
+  await page.getByRole("button", { name: "全部暂停", exact: true }).click();
+
+  const background = audio("B07");
+  await expect(background).toHaveJSProperty("loop", true);
+  await page.getByRole("button", { name: "B07 从头播放纯BGM", exact: true }).click();
+  await expect.poll(() => background.evaluate((element) => element.paused)).toBe(false);
+  await expect(blackout).toHaveJSProperty("loop", false);
+  await page.getByRole("button", { name: "B06 从头播放 · 摔杯、关灯后点击" }).click();
+  await expect.poll(() => background.evaluate((element) => element.paused)).toBe(true);
+  await page.getByLabel("单曲循环（纯背景音乐，无对白和音效）").uncheck();
+  await expect(background).toHaveJSProperty("loop", false);
+  await page.getByRole("button", { name: "全部暂停", exact: true }).click();
+
   const links = page.locator(".performance-track .performance-links a");
-  await expect(links).toHaveCount(14);
+  await expect(links).toHaveCount(16);
   for (const link of await links.all()) {
     await expect(link).toHaveAttribute(
       "href",
@@ -78,7 +98,7 @@ test("GM现场音频清单保护终局内容，播放互斥并支持下载和手
     "待播放",
   );
   await page.getByLabel("筛选环节").selectOption("all");
-  await expect(page.locator(".performance-track")).toHaveCount(14);
+  await expect(page.locator(".performance-track")).toHaveCount(16);
 
   const playingAudio = await audio("A02").elementHandle();
   await playingAudio.evaluate((element) => element.play());
@@ -91,7 +111,7 @@ test("GM现场音频清单保护终局内容，播放互斥并支持下载和手
     .toBe(true);
   await expect(page.locator(".performance-audio")).toHaveCount(0);
   await page.getByRole("button", { name: "现场演绎音频", exact: true }).click();
-  await expect(page.locator(".performance-track")).toHaveCount(14);
+  await expect(page.locator(".performance-track")).toHaveCount(16);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(

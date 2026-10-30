@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-15-expanded",
+  "version": "2026-10-30-blackout-dialogue-v2",
   "model": "speech-2.8-hd",
   "voices": {
     "旁白": [
@@ -518,6 +518,310 @@
       "musicOffset": 80,
       "sha256": "63cd890ab76ef81cad77573ff3c12f02cb7eaa5e0ad2daa02bfa68d4b7e682d2",
       "retired": false
+    },
+    {
+      "id": "B06",
+      "title": "熄灯惊变·剧情版",
+      "duration": 100,
+      "kind": "drama",
+      "loop": false,
+      "speakers": [
+        "西奥多",
+        "克拉拉",
+        "伊芙琳",
+        "里昂",
+        "诺拉"
+      ],
+      "trigger": "A04结束后、A05之前；现场摔杯→熄主灯→点击“从头播放”。",
+      "notes": "1:40固定角色对白、枪声、嘈杂、混乱和尖叫。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。",
+      "events": [
+        {
+          "time": 0,
+          "cue": "blackout",
+          "instruction": "现场摔杯声结束、主灯熄灭后立即手动启动本段；保持应急通道照明。音频不重复摔杯声。"
+        },
+        {
+          "time": 1.2,
+          "cue": "dialogue",
+          "role": "西奥多",
+          "instruction": "别动！灯怎么灭了？大家先站稳！"
+        },
+        {
+          "time": 7,
+          "cue": "sound",
+          "instruction": "第一声枪响与急促脚步：仅作宴会混乱的舞台音效，不作为死因或案发时间证据。"
+        },
+        {
+          "time": 7.15,
+          "cue": "dialogue",
+          "role": "克拉拉",
+          "instruction": "啊——！"
+        },
+        {
+          "time": 9.2,
+          "cue": "dialogue",
+          "role": "克拉拉",
+          "instruction": "别推！这里有人。抓住我的手，慢一点！"
+        },
+        {
+          "time": 14.8,
+          "cue": "dialogue",
+          "role": "伊芙琳",
+          "instruction": "终端还亮着……别碰它。求你们，别碰它。"
+        },
+        {
+          "time": 18.4,
+          "cue": "sound",
+          "instruction": "短促连续枪响与门响；演员原地做惊慌反应。"
+        },
+        {
+          "time": 19,
+          "cue": "dialogue",
+          "role": "西奥多",
+          "instruction": "趴下！"
+        },
+        {
+          "time": 21,
+          "cue": "dialogue",
+          "role": "里昂",
+          "instruction": "枪声？谁在开枪！西奥多，这也是你的节目吗？"
+        },
+        {
+          "time": 28,
+          "cue": "dialogue",
+          "role": "诺拉",
+          "instruction": "所有人留在原地！离开窗边，蹲低。不要向声音的方向跑！"
+        },
+        {
+          "time": 37,
+          "cue": "dialogue",
+          "role": "西奥多",
+          "instruction": "这不是安排好的！门口别挤，给旁边的人留点位置！"
+        },
+        {
+          "time": 40,
+          "cue": "sound",
+          "instruction": "脚步与碰撞逐渐密集，危险感上升；不增加角色对白或身份信息。"
+        },
+        {
+          "time": 43,
+          "cue": "dialogue",
+          "role": "伊芙琳",
+          "instruction": "我没事……我只是，需要一点光。"
+        },
+        {
+          "time": 51,
+          "cue": "dialogue",
+          "role": "克拉拉",
+          "instruction": "看着我，伊芙琳。慢慢呼吸。我在这里。"
+        },
+        {
+          "time": 59,
+          "cue": "dialogue",
+          "role": "里昂",
+          "instruction": "索恩呢？刚才还能听见他的声音，现在人在哪里？"
+        },
+        {
+          "time": 66,
+          "cue": "dialogue",
+          "role": "西奥多",
+          "instruction": "索恩先生？阿德里安……请回答！"
+        },
+        {
+          "time": 70,
+          "cue": "sound",
+          "instruction": "混乱进入高潮，保持暗场；枪声不对应索恩受伤。"
+        },
+        {
+          "time": 74.5,
+          "cue": "dialogue",
+          "role": "伊芙琳",
+          "instruction": "啊！"
+        },
+        {
+          "time": 77,
+          "cue": "dialogue",
+          "role": "诺拉",
+          "instruction": "先清点身边的人。记住你亲眼看见的，别把猜测当成事实。"
+        },
+        {
+          "time": 88,
+          "cue": "sound",
+          "instruction": "混乱退去，留下冰冷悬念；音控准备下一环节。"
+        },
+        {
+          "time": 94,
+          "cue": "dialogue",
+          "role": "诺拉",
+          "instruction": "保持安静。等灯亮，再检查走廊。"
+        },
+        {
+          "time": 99,
+          "cue": "sound",
+          "instruction": "等待尾音结束；不自动连播，灯光及A05由GM另行给口令。"
+        }
+      ],
+      "music": {
+        "title": "Controlled Chaos",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200059",
+        "license": "CC BY 4.0"
+      },
+      "additionalMusic": [
+        {
+          "title": "Volatile Reaction",
+          "artist": "Kevin MacLeod",
+          "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400039",
+          "license": "CC BY 4.0"
+        }
+      ],
+      "filename": "b06.mp3",
+      "stage": "案发氛围",
+      "spoiler": false,
+      "evidence": null,
+      "sha256": "f9881439784c89067c88fd47fe1e7f2bbc651b126d446e898eeb78f216ba6baa",
+      "offlineFile": "现场播放版_MP3/B06_熄灯惊变·剧情版.mp3",
+      "offlineWav": "无损母带_WAV/B06_熄灯惊变·剧情版.wav",
+      "file": "现场播放版_MP3/B06_熄灯惊变·剧情版.mp3",
+      "wav": "无损母带_WAV/B06_熄灯惊变·剧情版.wav",
+      "retired": false,
+      "lines": [
+        {
+          "start": 1.2,
+          "role": "西奥多",
+          "text": "别动！灯怎么灭了？大家先站稳！",
+          "emotion": "surprised",
+          "end": 4.834
+        },
+        {
+          "start": 7.15,
+          "role": "克拉拉",
+          "text": "啊——！",
+          "emotion": "fearful",
+          "end": 8.415
+        },
+        {
+          "start": 9.2,
+          "role": "克拉拉",
+          "text": "别推！这里有人。抓住我的手，慢一点！",
+          "emotion": "fearful",
+          "end": 14.2
+        },
+        {
+          "start": 14.8,
+          "role": "伊芙琳",
+          "text": "终端还亮着……别碰它。求你们，别碰它。",
+          "emotion": "fearful",
+          "end": 20.8
+        },
+        {
+          "start": 19,
+          "role": "西奥多",
+          "text": "趴下！",
+          "emotion": "fearful",
+          "end": 20.242
+        },
+        {
+          "start": 21,
+          "role": "里昂",
+          "text": "枪声？谁在开枪！西奥多，这也是你的节目吗？",
+          "emotion": "angry",
+          "end": 26.956
+        },
+        {
+          "start": 28,
+          "role": "诺拉",
+          "text": "所有人留在原地！离开窗边，蹲低。不要向声音的方向跑！",
+          "emotion": "calm",
+          "end": 33.7
+        },
+        {
+          "start": 37,
+          "role": "西奥多",
+          "text": "这不是安排好的！门口别挤，给旁边的人留点位置！",
+          "emotion": "fearful",
+          "end": 42.294
+        },
+        {
+          "start": 43,
+          "role": "伊芙琳",
+          "text": "我没事……我只是，需要一点光。",
+          "emotion": "fearful",
+          "end": 47.5
+        },
+        {
+          "start": 51,
+          "role": "克拉拉",
+          "text": "看着我，伊芙琳。慢慢呼吸。我在这里。",
+          "emotion": "sad",
+          "end": 57.3
+        },
+        {
+          "start": 59,
+          "role": "里昂",
+          "text": "索恩呢？刚才还能听见他的声音，现在人在哪里？",
+          "emotion": "surprised",
+          "end": 64.5
+        },
+        {
+          "start": 66,
+          "role": "西奥多",
+          "text": "索恩先生？阿德里安……请回答！",
+          "emotion": "fearful",
+          "end": 69.553
+        },
+        {
+          "start": 74.5,
+          "role": "伊芙琳",
+          "text": "啊！",
+          "emotion": "fearful",
+          "end": 75.9
+        },
+        {
+          "start": 77,
+          "role": "诺拉",
+          "text": "先清点身边的人。记住你亲眼看见的，别把猜测当成事实。",
+          "emotion": "calm",
+          "end": 83.1
+        },
+        {
+          "start": 94,
+          "role": "诺拉",
+          "text": "保持安静。等灯亮，再检查走廊。",
+          "emotion": "calm",
+          "end": 97.657
+        }
+      ],
+      "musicSource": "Controlled Chaos"
+    },
+    {
+      "id": "B07",
+      "title": "凶险暗流·纯BGM循环版",
+      "duration": 98.0,
+      "kind": "background",
+      "loop": true,
+      "speakers": [],
+      "trigger": "宴会、暗场或调查阶段需要持续背景氛围时手动启动；默认单曲循环，可取消循环。",
+      "notes": "只有背景音乐，无角色对白、枪声、尖叫、脚步或其他音效。循环边界已交叉淡化；播放剧情段落时自动暂停本段。",
+      "events": [],
+      "music": {
+        "title": "Controlled Chaos",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200059",
+        "license": "CC BY 4.0"
+      },
+      "filename": "b07.mp3",
+      "stage": "循环背景",
+      "spoiler": false,
+      "evidence": null,
+      "sha256": "5ce115cdd8beaa12b8aae3760a0c8d40b9b4e22ba8592af1e4fbf72615584134",
+      "offlineFile": "现场播放版_MP3/B07_凶险暗流·纯BGM循环版.mp3",
+      "offlineWav": "无损母带_WAV/B07_凶险暗流·纯BGM循环版.wav",
+      "file": "现场播放版_MP3/B07_凶险暗流·纯BGM循环版.mp3",
+      "wav": "无损母带_WAV/B07_凶险暗流·纯BGM循环版.wav",
+      "retired": false,
+      "lines": [],
+      "musicSource": "Controlled Chaos"
     },
     {
       "id": "A05",

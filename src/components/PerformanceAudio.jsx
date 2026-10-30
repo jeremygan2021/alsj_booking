@@ -13,6 +13,7 @@ export default function PerformanceAudio() {
   const [error, setError] = useState("");
   const [active, setActive] = useState("");
   const [filter, setFilter] = useState("all");
+  const [loops, setLoops] = useState({});
   const media = useRef(new Map());
   const load = async () => {
     setError("");
@@ -25,6 +26,17 @@ export default function PerformanceAudio() {
   const stop = () => {
     media.current.forEach((audio) => audio.pause());
     setActive("");
+  };
+  const startFromBeginning = async (track) => {
+    const audio = media.current.get(track.id);
+    if (!audio) return;
+    media.current.forEach((element) => element.pause());
+    audio.currentTime = 0;
+    try {
+      await audio.play();
+    } catch {
+      setError(`${track.id} 未能开始播放，请使用音频控件重试。`);
+    }
   };
   useEffect(() => {
     void load();
@@ -59,9 +71,22 @@ export default function PerformanceAudio() {
       <h3>{track.title}</h3>
       <p><strong>播放时机：</strong>{track.trigger}</p>
       {track.notes && <p className="muted">{Array.isArray(track.notes) ? track.notes.join("；") : track.notes}</p>}
+      {["instrumental", "drama", "background"].includes(track.kind) && (
+        <button type="button" className="btn" onClick={() => startFromBeginning(track)}>
+          {track.kind === "background" ? `${track.id} 从头播放纯BGM` : `${track.id} 从头播放 · 摔杯、关灯后点击`}
+        </button>
+      )}
+      {track.kind === "background" && (
+        <label className="performance-loop">
+          <input type="checkbox" checked={loops[track.id] ?? track.loop}
+            onChange={(event) => setLoops((value) => ({ ...value, [track.id]: event.target.checked }))} />
+          单曲循环（纯背景音乐，无对白和音效）
+        </label>
+      )}
       <audio
         controls
-        preload="none"
+        preload={track.kind === "drama" ? "auto" : "none"}
+        loop={track.kind === "background" && (loops[track.id] ?? track.loop)}
         src={track.url}
         aria-label={`${track.id} ${track.title}`}
         ref={(audio) => { if (audio) media.current.set(track.id, audio); }}
@@ -73,7 +98,7 @@ export default function PerformanceAudio() {
         onError={() => setError(`${track.id} 音频加载失败，请检查网络后重试。`)}
       />
       <div className="performance-links">
-        <span>MiniMax 固定角色音色 · 已混配乐</span>
+        <span>{track.kind === "background" ? "纯BGM · 无对白和音效" : track.kind === "drama" ? "MiniMax 固定角色对白 · 枪声、混乱与尖叫" : track.kind === "instrumental" ? "凶险配乐 · 枪声与混乱音效" : "MiniMax 固定角色音色 · 已混配乐"}</span>
         <a href={track.url} download={`${track.id}.mp3`}><Download size={14} /> 下载 MP3</a>
       </div>
       {track.events?.length > 0 && (
@@ -97,7 +122,7 @@ export default function PerformanceAudio() {
           <span className="eyebrow"><Headphones size={16} /> LIVE PERFORMANCE</span>
           <h2>现场演绎播放台</h2>
           <p>{catalog.tracks.length}段 · 共{clock(catalog.totalDuration)} · 更新交付包 {catalog.version}</p>
-          <p className="muted">先连接现场音响，使用各段播放器开始播放。播放新段落会暂停上一段；每段已包含背景音乐与音效。</p>
+          <p className="muted">先连接现场音响。B06为1:40剧情版，B07为纯BGM循环版；播放新段落会暂停上一段。B06在此页提前加载，摔杯、关灯后手动启动。</p>
         </div>
         <button type="button" className="btn ghost" onClick={stop}><Square size={15} /> 全部暂停</button>
         <label>筛选环节

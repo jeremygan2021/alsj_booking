@@ -11,6 +11,8 @@ const sourceIds = new Set([
   "USUAN1100574",
   "USUAN1100748",
   "USUAN1100783",
+  "USUAN1200059",
+  "USUAN1400039",
 ]);
 
 function musicCredit(music) {
@@ -102,8 +104,14 @@ export function createPerformanceAudioCatalog(audioRoot = defaultRoot) {
         evidence: typeof track.evidence === "string" ? track.evidence : null,
         duration: track.duration,
         speakers: [...track.speakers],
+        ...(["instrumental", "drama", "background"].includes(track.kind)
+          ? { kind: track.kind, loop: track.kind === "background" && track.loop === true }
+          : {}),
         events,
         music: musicCredit(track.music),
+        ...(Array.isArray(track.additionalMusic)
+          ? { additionalMusic: track.additionalMusic.map(musicCredit).filter(Boolean) }
+          : {}),
         url: `${baseUrl}/${track.id}/file`,
       },
     };
@@ -148,8 +156,9 @@ export function createPerformanceAudioCatalog(audioRoot = defaultRoot) {
       const credits = Array.from(
         new Map(
           tracks
-            .filter((track) => track.music)
-            .map((track) => [track.music.source, track.music]),
+            .flatMap((track) => [track.music, ...(track.additionalMusic || [])])
+            .filter(Boolean)
+            .map((music) => [music.source, music]),
         ).values(),
       );
       return {

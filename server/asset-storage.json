@@ -536,6 +536,18 @@
       "sha256": "4564ee8cf8f92e83c233a1bbf289ccda4e1eeed488c6391cc5ba16a4b79244d0",
       "bytes": 2672861,
       "contentType": "audio/mpeg"
+    },
+    "server/audio/performance-files/b06.mp3": {
+      "key": "alsj/assets/v1/f9881439784c89067c88fd47fe1e7f2bbc651b126d446e898eeb78f216ba6baa.mp3",
+      "sha256": "f9881439784c89067c88fd47fe1e7f2bbc651b126d446e898eeb78f216ba6baa",
+      "bytes": 3202043,
+      "contentType": "audio/mpeg"
+    },
+    "server/audio/performance-files/b07.mp3": {
+      "key": "alsj/assets/v1/5ce115cdd8beaa12b8aae3760a0c8d40b9b4e22ba8592af1e4fbf72615584134.mp3",
+      "sha256": "5ce115cdd8beaa12b8aae3760a0c8d40b9b4e22ba8592af1e4fbf72615584134",
+      "bytes": 3138305,
+      "contentType": "audio/mpeg"
     }
   }
 }

@@ -17,20 +17,29 @@ import {
   sendPerformanceAudio,
 } from "../server/audio/performance-catalog.js";
 
-test("现场演绎只纳入14段更新成片，摘要不携带私稿和服务器路径", async () => {
+test("现场演绎只纳入16段更新成片，摘要不携带私稿和服务器路径", async () => {
   const catalog = createPerformanceAudioCatalog();
   const summary = await catalog.describe();
-  assert.equal(summary.version, "2026-10-18-story-v5");
+  assert.equal(summary.version, "2026-10-30-blackout-dialogue-v2");
   assert.equal(summary.provider, "MiniMax");
   assert.equal(summary.model, "speech-2.8-hd");
-  assert.equal(summary.tracks.length, 14);
-  assert.equal(summary.totalDuration, 1462.73);
+  assert.equal(summary.tracks.length, 16);
+  assert.equal(summary.totalDuration, 1660.73);
   assert.equal(summary.voices.length, 8);
-  assert.equal(summary.credits.length, 5);
+  assert.equal(summary.credits.length, 7);
   assert.deepEqual(
     summary.tracks.filter((track) => track.spoiler).map((track) => track.id),
     ["A10", "A11", "A12"],
   );
+  const drama = summary.tracks.find((track) => track.id === "B06");
+  assert.equal(drama.duration, 100);
+  assert.equal(drama.loop, false);
+  assert.deepEqual(drama.speakers, ["西奥多", "克拉拉", "伊芙琳", "里昂", "诺拉"]);
+  const background = summary.tracks.find((track) => track.id === "B07");
+  assert.equal(background.kind, "background");
+  assert.equal(background.loop, true);
+  assert.deepEqual(background.speakers, []);
+  assert.deepEqual(background.events, []);
   const opening = summary.tracks.find((track) => track.id === "A02");
   assert.equal(
     opening.events.find((event) => event.cue === "money").time,
@@ -110,6 +119,19 @@ test("现场音频仅解析私有固定文件，缺失、替换路径及符号�
   assert.equal(summary.tracks[0].url, "/gm/audio/A02/file");
   assert.equal(summary.tracks[0].events.length, 1);
   assert.equal(summary.tracks[0].lines, undefined);
+  track.kind = "instrumental";
+  track.music = {
+    title: "Controlled Chaos",
+    source: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200059",
+  };
+  await writeManifest();
+  const instrumental = (await catalog.describe()).tracks[0];
+  assert.equal(instrumental.kind, "instrumental");
+  assert.equal(instrumental.music.artist, "Kevin MacLeod");
+  assert.equal(instrumental.music.license, "https://creativecommons.org/licenses/by/4.0/");
+  track.music.source = "https://untrusted.example/music";
+  await writeManifest();
+  assert.equal((await catalog.describe()).tracks[0].music, null);
   track.filename = "../a02.mp3";
   await writeManifest();
   assert.equal(await catalog.get("A02"), null);

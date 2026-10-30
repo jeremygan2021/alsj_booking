@@ -1,0 +1,100 @@
+{
+  "id": "B06",
+  "title": "熄灯惊变",
+  "duration": 100,
+  "model": "speech-2.8-hd",
+  "storyPlacement": "A04结束后，A05之前；索恩已遇害，不能新增其现场台词。瑟琳娜不在场。所有对白为舞台改编，不增加推理证据，不揭示凶手或预录诡计。",
+  "lines": [
+    {
+      "start": 1.2,
+      "role": "西奥多",
+      "text": "别动！灯怎么灭了？大家先站稳！",
+      "emotion": "surprised"
+    },
+    {
+      "start": 7.15,
+      "role": "克拉拉",
+      "text": "啊——！",
+      "emotion": "fearful"
+    },
+    {
+      "start": 9.2,
+      "role": "克拉拉",
+      "text": "别推！这里有人。抓住我的手，慢一点！",
+      "emotion": "fearful"
+    },
+    {
+      "start": 14.8,
+      "role": "伊芙琳",
+      "text": "终端还亮着……别碰它。求你们，别碰它。",
+      "emotion": "fearful"
+    },
+    {
+      "start": 19,
+      "role": "西奥多",
+      "text": "趴下！",
+      "emotion": "fearful"
+    },
+    {
+      "start": 21,
+      "role": "里昂",
+      "text": "枪声？谁在开枪！西奥多，这也是你的节目吗？",
+      "emotion": "angry"
+    },
+    {
+      "start": 28,
+      "role": "诺拉",
+      "text": "所有人留在原地！离开窗边，蹲低。不要向声音的方向跑！",
+      "emotion": "calm"
+    },
+    {
+      "start": 37,
+      "role": "西奥多",
+      "text": "这不是安排好的！门口别挤，给旁边的人留点位置！",
+      "emotion": "fearful"
+    },
+    {
+      "start": 43,
+      "role": "伊芙琳",
+      "text": "我没事……我只是，需要一点光。",
+      "emotion": "fearful"
+    },
+    {
+      "start": 51,
+      "role": "克拉拉",
+      "text": "看着我，伊芙琳。慢慢呼吸。我在这里。",
+      "emotion": "sad"
+    },
+    {
+      "start": 59,
+      "role": "里昂",
+      "text": "索恩呢？刚才还能听见他的声音，现在人在哪里？",
+      "emotion": "surprised"
+    },
+    {
+      "start": 66,
+      "role": "西奥多",
+      "text": "索恩先生？阿德里安……请回答！",
+      "emotion": "fearful"
+    },
+    {
+      "start": 74.5,
+      "role": "伊芙琳",
+      "text": "啊！",
+      "emotion": "fearful"
+    },
+    {
+      "start": 77,
+      "role": "诺拉",
+      "text": "先清点身边的人。记住你亲眼看见的，别把猜测当成事实。",
+      "emotion": "calm"
+    },
+    {
+      "start": 94,
+      "role": "诺拉",
+      "text": "保持安静。等灯亮，再检查走廊。",
+      "emotion": "calm"
+    }
+  ],
+  "productionNotes": "88—94秒保留悬念音乐和余响，不插入对白。"
+}

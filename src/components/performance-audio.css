@@ -8,6 +8,8 @@
 .performance-title, .performance-links { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .performance-title > span:last-child, .performance-links { font-size: 12px; color: var(--muted, #aaa); }
 .performance-track audio { width: 100%; margin: 14px 0 8px; }
+.performance-loop { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+.performance-loop input { width: auto; }
 .performance-track details { margin-top: 18px; }
 .performance-cues { padding-left: 22px; }
 .performance-cues li { margin: 10px 0; line-height: 1.6; }
