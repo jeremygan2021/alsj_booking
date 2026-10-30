@@ -235,8 +235,11 @@ export function partialCharacter(content) {
 }
 
 async function streamedCompletion(response, maxBytes, onProgress) {
+  // SSE repeats metadata for every token, including reasoning-only chunks.
+  // Bound the wire separately while keeping the existing answer size limit.
+  const maxWireBytes = 8 * 1024 * 1024;
   const decoder = new TextDecoder();
-  let pending = "", content = "", bytes = 0, finish;
+  let pending = "", content = "", bytes = 0, contentBytes = 0, finish;
   const consume = (line) => {
     if (!line.startsWith("data:")) return;
     const raw = line.slice(5).trim();
@@ -248,6 +251,8 @@ async function streamedCompletion(response, maxBytes, onProgress) {
     const choice = data.choices?.[0];
     if (choice?.delta?.refusal) throw new MiniMaxGenerationError("MiniMax未完成角色生成，请重试");
     if (typeof choice?.delta?.content === "string") {
+      contentBytes += Buffer.byteLength(choice.delta.content);
+      if (contentBytes > maxBytes) throw new MiniMaxGenerationError("模型响应过大，请重试");
       content += choice.delta.content;
       onProgress({ type: "text", character: partialCharacter(content) });
     }
@@ -255,7 +260,7 @@ async function streamedCompletion(response, maxBytes, onProgress) {
   };
   for await (const chunk of response.body) {
     bytes += chunk.byteLength;
-    if (bytes > maxBytes) throw new MiniMaxGenerationError("模型响应过大，请重试");
+    if (bytes > maxWireBytes) throw new MiniMaxGenerationError("模型响应过大，请重试");
     pending += decoder.decode(chunk, { stream: true });
     const lines = pending.split("\n");
     pending = lines.pop();

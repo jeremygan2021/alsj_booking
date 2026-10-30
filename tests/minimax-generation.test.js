@@ -605,6 +605,60 @@ test("真实SSE分片逐步提供公开人物字段，不泄露思考和NPC私�
   assert.ok(!serialized.includes("avatar_prompt"));
 });
 
+test("细碎SSE和独立思考超过150KB仍可生成短正文，不将传输开销当作正文", async () => {
+  const events = [];
+  const value = output();
+  const content = JSON.stringify(value);
+  const frame = (delta, finish_reason = null) => `data: ${JSON.stringify({
+    id: "chatcmpl-" + "a".repeat(80), object: "chat.completion.chunk",
+    created: 1793318400, model: "MiniMax-M2.5",
+    choices: [{ index: 0, delta, finish_reason }],
+  })}\r\n\r\n`;
+  const wire = frame({ reasoning_details: [{ text: "PRIVATE_THINKING" }] }).repeat(700) +
+    Array.from(content, (char) => frame({ content: char })).join("") +
+    frame({}, "stop") + "data: [DONE]\n\n";
+  assert.ok(Buffer.byteLength(wire) > 150000);
+  assert.ok(Buffer.byteLength(content) < 150000);
+  let calls = 0;
+  const result = await generateCharacterDraft({}, npcs, config(async () => {
+    if (++calls > 1) return imageResponse();
+    const bytes = new TextEncoder().encode(wire);
+    return new Response(new ReadableStream({
+      start(controller) {
+        for (let i = 0; i < bytes.length; i += 4093) controller.enqueue(bytes.slice(i, i + 4093));
+        controller.close();
+      },
+    }), { headers: { "content-type": "text/event-stream" } });
+  }), (event) => events.push(event));
+  assert.deepEqual(result.character, value.character);
+  assert.equal(calls, 2);
+  assert.ok(result.avatarWebp);
+  assert.ok(events.some((event) => event.type === "text_ready"));
+  assert.ok(!JSON.stringify(events).includes("PRIVATE_THINKING"));
+});
+
+test("流式正文和传输总量仍有独立上限，超限停止读取且不继续付费生图", async () => {
+  for (const wire of [
+    // Chinese text must be counted in UTF-8 bytes, not JS string length.
+    `data: ${JSON.stringify({ choices: [{ delta: { content: "中".repeat(50001) } }] })}\n\n`,
+    // Even an unterminated comment/reasoning stream has a finite wire budget.
+    ":" + "x".repeat(8 * 1024 * 1024),
+  ]) {
+    let calls = 0, cancelled = false;
+    const events = [];
+    await assert.rejects(generateCharacterDraft({}, npcs, config(async () => {
+      calls++;
+      return new Response(new ReadableStream({
+        start(controller) { controller.enqueue(new TextEncoder().encode(wire)); },
+        cancel() { cancelled = true; },
+      }), { headers: { "content-type": "text/event-stream" } });
+    }), (event) => events.push(event)), /模型响应过大/);
+    assert.equal(calls, 1);
+    assert.equal(cancelled, true);
+    assert.equal(events.some((event) => event.type === "text_ready"), false);
+  }
+});
+
 test("无效流式JSON提供明确安全错误，未完成或违规故事不会发出可保存草稿", async () => {
   const events = [];
   await assert.rejects(generateCharacterDraft({}, npcs, config(async () =>
