@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-30-blackout-crowd-v3",
+  "version": "2026-10-30-blackout-sparse-v4",
   "model": "speech-2.8-hd",
   "voices": {
     "旁白": [
@@ -528,17 +528,16 @@
       "speakers": [
         "女宾客甲",
         "男宾客甲",
-        "西奥多",
-        "女宾客乙",
-        "男宾客乙",
         "FBI现场探员",
-        "诺拉",
         "克拉拉",
+        "西奥多",
+        "伊芙琳",
         "里昂",
-        "伊芙琳"
+        "女宾客乙",
+        "诺拉"
       ],
       "trigger": "A04结束后、A05之前；现场摔杯→熄主灯→点击“从头播放”。",
-      "notes": "1:40实录枪声、四位普通宾客的惊叫与交错人群、FBI短促控场、五位原角色短对白。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。",
+      "notes": "1:40环境声主导版；新下载的室内枪声保留原速和自然尾响，仅15条零星短对白与惊叫。FBI仅三处短口令，人声带距离与遮挡，不逐句解释剧情。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。",
       "events": [
         {
           "time": 0,
@@ -558,24 +557,6 @@
           "instruction": "别挤！别挤！"
         },
         {
-          "time": 2.3,
-          "cue": "dialogue",
-          "role": "西奥多",
-          "instruction": "先别动——"
-        },
-        {
-          "time": 3.2,
-          "cue": "dialogue",
-          "role": "女宾客乙",
-          "instruction": "我的包！谁踩着我了？"
-        },
-        {
-          "time": 4.9,
-          "cue": "dialogue",
-          "role": "男宾客乙",
-          "instruction": "门在哪边？"
-        },
-        {
           "time": 7,
           "cue": "sound",
           "instruction": "第一声枪响与急促脚步：仅作宴会混乱的舞台音效，不作为死因或案发时间证据。"
@@ -587,28 +568,10 @@
           "instruction": "啊——！"
         },
         {
-          "time": 7.65,
-          "cue": "dialogue",
-          "role": "男宾客甲",
-          "instruction": "蹲下！快！"
-        },
-        {
           "time": 9.4,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "FBI！所有人蹲下！"
-        },
-        {
-          "time": 11.2,
-          "cue": "dialogue",
-          "role": "女宾客乙",
-          "instruction": "有人开枪！别过来！"
-        },
-        {
-          "time": 13.6,
-          "cue": "dialogue",
-          "role": "诺拉",
-          "instruction": "离开窗边！往里！"
+          "instruction": "FBI！蹲下！"
         },
         {
           "time": 15.2,
@@ -628,64 +591,10 @@
           "instruction": "啊！"
         },
         {
-          "time": 19.65,
-          "cue": "dialogue",
-          "role": "男宾客乙",
-          "instruction": "别推我！"
-        },
-        {
-          "time": 21,
-          "cue": "dialogue",
-          "role": "FBI现场探员",
-          "instruction": "手放在看得见的地方！别挤门口！"
-        },
-        {
-          "time": 24.8,
-          "cue": "dialogue",
-          "role": "里昂",
-          "instruction": "西奥多！这算什么？"
-        },
-        {
-          "time": 26.2,
-          "cue": "dialogue",
-          "role": "西奥多",
-          "instruction": "不是我安排的！"
-        },
-        {
           "time": 29,
           "cue": "dialogue",
-          "role": "男宾客甲",
-          "instruction": "我朋友还在那边！"
-        },
-        {
-          "time": 30.5,
-          "cue": "dialogue",
-          "role": "FBI现场探员",
-          "instruction": "先蹲下！有人过去帮他！"
-        },
-        {
-          "time": 33.8,
-          "cue": "dialogue",
-          "role": "女宾客乙",
-          "instruction": "别踩！地上有人！"
-        },
-        {
-          "time": 36,
-          "cue": "dialogue",
-          "role": "诺拉",
-          "instruction": "往后退！留条通道！"
-        },
-        {
-          "time": 38.4,
-          "cue": "dialogue",
-          "role": "伊芙琳",
-          "instruction": "别碰那个！"
-        },
-        {
-          "time": 39.7,
-          "cue": "dialogue",
-          "role": "克拉拉",
-          "instruction": "伊芙琳，过来！"
+          "role": "西奥多",
+          "instruction": "先别动——"
         },
         {
           "time": 40,
@@ -693,81 +602,33 @@
           "instruction": "脚步与碰撞逐渐密集，危险感上升；不增加角色对白或身份信息。"
         },
         {
-          "time": 41.5,
+          "time": 40,
+          "cue": "dialogue",
+          "role": "伊芙琳",
+          "instruction": "别碰那个！"
+        },
+        {
+          "time": 43,
           "cue": "dialogue",
           "role": "伊芙琳",
           "instruction": "我……我没事。"
         },
         {
-          "time": 44,
-          "cue": "dialogue",
-          "role": "男宾客乙",
-          "instruction": "别抓我！我看不见！"
-        },
-        {
-          "time": 48.2,
-          "cue": "dialogue",
-          "role": "女宾客甲",
-          "instruction": "啊——！"
-        },
-        {
           "time": 49,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "趴下！别站起来！"
+          "instruction": "别起来！"
         },
         {
-          "time": 52.4,
-          "cue": "dialogue",
-          "role": "女宾客乙",
-          "instruction": "救命！这边！"
-        },
-        {
-          "time": 55.8,
-          "cue": "dialogue",
-          "role": "克拉拉",
-          "instruction": "听我说，抓紧。"
-        },
-        {
-          "time": 59,
+          "time": 62,
           "cue": "dialogue",
           "role": "里昂",
           "instruction": "索恩呢？"
         },
         {
-          "time": 60.1,
-          "cue": "dialogue",
-          "role": "男宾客甲",
-          "instruction": "谁？我没看见！"
-        },
-        {
-          "time": 62.2,
-          "cue": "dialogue",
-          "role": "西奥多",
-          "instruction": "索恩先生！"
-        },
-        {
-          "time": 65,
-          "cue": "dialogue",
-          "role": "女宾客甲",
-          "instruction": "别丢下我……"
-        },
-        {
-          "time": 67,
-          "cue": "dialogue",
-          "role": "FBI现场探员",
-          "instruction": "别跑！靠墙，慢慢移！"
-        },
-        {
           "time": 70,
           "cue": "sound",
           "instruction": "混乱进入高潮，保持暗场；枪声不对应索恩受伤。"
-        },
-        {
-          "time": 70,
-          "cue": "dialogue",
-          "role": "诺拉",
-          "instruction": "这里，先扶她起来！"
         },
         {
           "time": 74.5,
@@ -776,34 +637,10 @@
           "instruction": "啊！"
         },
         {
-          "time": 75.2,
-          "cue": "dialogue",
-          "role": "男宾客乙",
-          "instruction": "还有枪声！"
-        },
-        {
-          "time": 77,
-          "cue": "dialogue",
-          "role": "FBI现场探员",
-          "instruction": "压低身体！等我口令！"
-        },
-        {
-          "time": 81,
-          "cue": "dialogue",
-          "role": "女宾客甲",
-          "instruction": "我走不了……"
-        },
-        {
-          "time": 83,
+          "time": 86,
           "cue": "dialogue",
           "role": "克拉拉",
           "instruction": "别动，我陪着你。"
-        },
-        {
-          "time": 87,
-          "cue": "dialogue",
-          "role": "男宾客甲",
-          "instruction": "别往前挤了！"
         },
         {
           "time": 88,
@@ -820,7 +657,7 @@
           "time": 94,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "保持原位。准备开灯。"
+          "instruction": "原地等，别动。"
         },
         {
           "time": 99,
@@ -846,7 +683,7 @@
       "stage": "案发氛围",
       "spoiler": false,
       "evidence": null,
-      "sha256": "503f51cd019b1dc7106ec2aab09f7a047a7adf37825b4dd852b909fdeb35dae9",
+      "sha256": "028b0ce177ac907496dc5d51915e4c9c7b896e04ae4ce703eb57cd244e7c3d65",
       "offlineFile": "现场播放版_MP3/B06_熄灯惊变·剧情版.mp3",
       "offlineWav": "无损母带_WAV/B06_熄灯惊变·剧情版.wav",
       "file": "现场播放版_MP3/B06_熄灯惊变·剧情版.mp3",
@@ -859,7 +696,7 @@
           "text": "怎么黑了？",
           "emotion": "surprised",
           "pan": -0.5,
-          "distance": "near",
+          "distance": "far",
           "end": 1.423
         },
         {
@@ -872,76 +709,22 @@
           "end": 3.339
         },
         {
-          "start": 2.3,
-          "role": "西奥多",
-          "text": "先别动——",
-          "emotion": "surprised",
-          "pan": -0.15,
-          "distance": "near",
-          "end": 3.496
-        },
-        {
-          "start": 3.2,
-          "role": "女宾客乙",
-          "text": "我的包！谁踩着我了？",
-          "emotion": "fearful",
-          "pan": -0.7,
-          "distance": "far",
-          "end": 5.522
-        },
-        {
-          "start": 4.9,
-          "role": "男宾客乙",
-          "text": "门在哪边？",
-          "emotion": "fearful",
-          "pan": 0.55,
-          "distance": "near",
-          "end": 6.142
-        },
-        {
           "start": 7.2,
           "role": "女宾客甲",
           "text": "啊——！",
           "emotion": "fearful",
           "pan": -0.45,
-          "distance": "near",
+          "distance": "far",
           "end": 8.187
-        },
-        {
-          "start": 7.65,
-          "role": "男宾客甲",
-          "text": "蹲下！快！",
-          "emotion": "fearful",
-          "pan": 0.4,
-          "distance": "near",
-          "end": 9.287
         },
         {
           "start": 9.4,
           "role": "FBI现场探员",
-          "text": "FBI！所有人蹲下！",
-          "emotion": "angry",
+          "text": "FBI！蹲下！",
+          "emotion": "calm",
           "pan": 0.05,
-          "distance": "near",
-          "end": 12.245
-        },
-        {
-          "start": 11.2,
-          "role": "女宾客乙",
-          "text": "有人开枪！别过来！",
-          "emotion": "fearful",
-          "pan": -0.65,
-          "distance": "far",
-          "end": 13.441
-        },
-        {
-          "start": 13.6,
-          "role": "诺拉",
-          "text": "离开窗边！往里！",
-          "emotion": "angry",
-          "pan": -0.1,
-          "distance": "near",
-          "end": 15.8
+          "distance": "mid",
+          "end": 11.269
         },
         {
           "start": 15.2,
@@ -949,7 +732,7 @@
           "text": "手给我。别松！",
           "emotion": "fearful",
           "pan": 0.4,
-          "distance": "near",
+          "distance": "far",
           "end": 17.6
         },
         {
@@ -962,202 +745,49 @@
           "end": 20.052
         },
         {
-          "start": 19.65,
-          "role": "男宾客乙",
-          "text": "别推我！",
-          "emotion": "angry",
-          "pan": -0.4,
-          "distance": "near",
-          "end": 20.857
-        },
-        {
-          "start": 21,
-          "role": "FBI现场探员",
-          "text": "手放在看得见的地方！别挤门口！",
-          "emotion": "angry",
-          "pan": 0.05,
-          "distance": "near",
-          "end": 24.111
-        },
-        {
-          "start": 24.8,
-          "role": "里昂",
-          "text": "西奥多！这算什么？",
-          "emotion": "angry",
-          "pan": -0.4,
-          "distance": "near",
-          "end": 27.8
-        },
-        {
-          "start": 26.2,
-          "role": "西奥多",
-          "text": "不是我安排的！",
-          "emotion": "fearful",
-          "pan": 0.2,
-          "distance": "near",
-          "end": 27.8
-        },
-        {
           "start": 29,
-          "role": "男宾客甲",
-          "text": "我朋友还在那边！",
-          "emotion": "fearful",
-          "pan": -0.65,
+          "role": "西奥多",
+          "text": "先别动——",
+          "emotion": "surprised",
+          "pan": 0.2,
           "distance": "far",
-          "end": 30.718
+          "end": 30.196
         },
         {
-          "start": 30.5,
-          "role": "FBI现场探员",
-          "text": "先蹲下！有人过去帮他！",
-          "emotion": "angry",
-          "pan": 0.1,
-          "distance": "near",
-          "end": 32.7
-        },
-        {
-          "start": 33.8,
-          "role": "女宾客乙",
-          "text": "别踩！地上有人！",
-          "emotion": "fearful",
-          "pan": 0.6,
-          "distance": "far",
-          "end": 35.774
-        },
-        {
-          "start": 36,
-          "role": "诺拉",
-          "text": "往后退！留条通道！",
-          "emotion": "angry",
-          "pan": -0.1,
-          "distance": "near",
-          "end": 38.577
-        },
-        {
-          "start": 38.4,
+          "start": 40,
           "role": "伊芙琳",
           "text": "别碰那个！",
           "emotion": "fearful",
           "pan": 0.35,
-          "distance": "near",
-          "end": 40.1
+          "distance": "far",
+          "end": 41.7
         },
         {
-          "start": 39.7,
-          "role": "克拉拉",
-          "text": "伊芙琳，过来！",
-          "emotion": "fearful",
-          "pan": -0.2,
-          "distance": "near",
-          "end": 42.0
-        },
-        {
-          "start": 41.5,
+          "start": 43,
           "role": "伊芙琳",
           "text": "我……我没事。",
           "emotion": "fearful",
           "pan": 0.35,
-          "distance": "near",
-          "end": 44.1
-        },
-        {
-          "start": 44,
-          "role": "男宾客乙",
-          "text": "别抓我！我看不见！",
-          "emotion": "fearful",
-          "pan": -0.6,
           "distance": "far",
-          "end": 46.2
-        },
-        {
-          "start": 48.2,
-          "role": "女宾客甲",
-          "text": "啊——！",
-          "emotion": "fearful",
-          "pan": -0.5,
-          "distance": "near",
-          "end": 49.187
+          "end": 45.6
         },
         {
           "start": 49,
           "role": "FBI现场探员",
-          "text": "趴下！别站起来！",
-          "emotion": "angry",
+          "text": "别起来！",
+          "emotion": "calm",
           "pan": 0.1,
-          "distance": "near",
-          "end": 50.846
+          "distance": "mid",
+          "end": 50.184
         },
         {
-          "start": 52.4,
-          "role": "女宾客乙",
-          "text": "救命！这边！",
-          "emotion": "fearful",
-          "pan": 0.7,
-          "distance": "far",
-          "end": 54.3
-        },
-        {
-          "start": 55.8,
-          "role": "克拉拉",
-          "text": "听我说，抓紧。",
-          "emotion": "fearful",
-          "pan": -0.3,
-          "distance": "near",
-          "end": 58.2
-        },
-        {
-          "start": 59,
+          "start": 62,
           "role": "里昂",
           "text": "索恩呢？",
           "emotion": "surprised",
           "pan": -0.3,
-          "distance": "near",
-          "end": 60.393
-        },
-        {
-          "start": 60.1,
-          "role": "男宾客甲",
-          "text": "谁？我没看见！",
-          "emotion": "fearful",
-          "pan": 0.5,
           "distance": "far",
-          "end": 62.259
-        },
-        {
-          "start": 62.2,
-          "role": "西奥多",
-          "text": "索恩先生！",
-          "emotion": "fearful",
-          "pan": 0.1,
-          "distance": "near",
-          "end": 63.686
-        },
-        {
-          "start": 65,
-          "role": "女宾客甲",
-          "text": "别丢下我……",
-          "emotion": "fearful",
-          "pan": -0.5,
-          "distance": "far",
-          "end": 66.254
-        },
-        {
-          "start": 67,
-          "role": "FBI现场探员",
-          "text": "别跑！靠墙，慢慢移！",
-          "emotion": "angry",
-          "pan": 0.05,
-          "distance": "near",
-          "end": 69.798
-        },
-        {
-          "start": 70,
-          "role": "诺拉",
-          "text": "这里，先扶她起来！",
-          "emotion": "angry",
-          "pan": -0.1,
-          "distance": "near",
-          "end": 72.2
+          "end": 63.393
         },
         {
           "start": 74.5,
@@ -1169,49 +799,13 @@
           "end": 75.29
         },
         {
-          "start": 75.2,
-          "role": "男宾客乙",
-          "text": "还有枪声！",
-          "emotion": "fearful",
-          "pan": -0.6,
-          "distance": "far",
-          "end": 76.628
-        },
-        {
-          "start": 77,
-          "role": "FBI现场探员",
-          "text": "压低身体！等我口令！",
-          "emotion": "angry",
-          "pan": 0.05,
-          "distance": "near",
-          "end": 79.368
-        },
-        {
-          "start": 81,
-          "role": "女宾客甲",
-          "text": "我走不了……",
-          "emotion": "fearful",
-          "pan": -0.5,
-          "distance": "far",
-          "end": 82.289
-        },
-        {
-          "start": 83,
+          "start": 86,
           "role": "克拉拉",
           "text": "别动，我陪着你。",
           "emotion": "sad",
           "pan": -0.25,
-          "distance": "near",
-          "end": 85.7
-        },
-        {
-          "start": 87,
-          "role": "男宾客甲",
-          "text": "别往前挤了！",
-          "emotion": "fearful",
-          "pan": 0.6,
           "distance": "far",
-          "end": 88.451
+          "end": 88.7
         },
         {
           "start": 90,
@@ -1219,17 +813,17 @@
           "text": "都别动。听。",
           "emotion": "calm",
           "pan": -0.1,
-          "distance": "near",
+          "distance": "far",
           "end": 91.4
         },
         {
           "start": 94,
           "role": "FBI现场探员",
-          "text": "保持原位。准备开灯。",
+          "text": "原地等，别动。",
           "emotion": "calm",
           "pan": 0.05,
-          "distance": "near",
-          "end": 96.566
+          "distance": "mid",
+          "end": 95.869
         }
       ],
       "musicSource": "Controlled Chaos"

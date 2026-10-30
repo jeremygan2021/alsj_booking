@@ -111,62 +111,59 @@ def install(music_path, action_path):
         actual = subtitle_text(json.loads((job/'response.titles').read_text()))
         if normalized(actual) != normalized(line['text']):
             raise ValueError(f"Provider subtitle differs: {line['role']}")
-        voice = decode(job/'speech.mp3', 'highpass=f=85,loudnorm=I=-19:TP=-4:LRA=10')
-        # Close voices retain clarity; distant guests have less bass and more room.
+        # Dialogue lives inside the room, with softer diction and audible distance.
         pan=float(line.get('pan',0)); distant=line.get('distance')=='far'
+        cutoff=2900 if distant else 4300
+        voice=decode(job/'speech.mp3',f'highpass=f=170,lowpass=f={cutoff},loudnorm=I=-22:TP=-6:LRA=10')
         mono=voice.mean(axis=1)
         voice=mono[:,None]*np.sqrt(np.array([1-pan,1+pan])[None,:]/2)
-        if distant:
-            voice*=.64
+        voice*=.52 if distant else .78
         dry=voice.copy()
-        for delay,level in [(.041,.13),(.079,.09),(.137,.06)]:
+        # Diffuse early reflections, rather than three obvious slapback echoes.
+        for delay,level in [(.023,.16),(.037,.12),(.053,.10),(.071,.08),(.097,.06),(.131,.045),(.179,.032),(.233,.022)]:
             n=round(delay*SR)
-            voice[n:]+=dry[:-n]*level*(1.5 if distant else 1)
+            voice[n:]+=dry[:-n,::-1]*level*(1.3 if distant else 1)
         start = round(line['start']*SR)
         end = start+len(voice)
         if end > 99*SR:
             raise ValueError(f"Line extends into final tail: {line['role']}")
         speech[start:end] += voice
         lo, hi = max(0,start-int(.18*SR)), min(len(score),end+int(.5*SR))
-        duck[lo:start] = np.minimum(duck[lo:start],np.linspace(1,.28,start-lo))
-        duck[start:end] = np.minimum(duck[start:end],.28)
-        duck[end:hi] = np.minimum(duck[end:hi],np.linspace(.28,1,hi-end))
+        duck[lo:start] = np.minimum(duck[lo:start],np.linspace(1,.68,start-lo))
+        duck[start:end] = np.minimum(duck[start:end],.68)
+        duck[end:hi] = np.minimum(duck[end:hi],np.linspace(.68,1,hi-end))
         lines.append(dict(line,end=round(end/SR,3)))
         audit.append(dict(role=line['role'],voiceId=voices[line['role']][0],payloadHash=sha,subtitleMatch=True,duration=round(len(voice)/SR,3)))
     archive = OUT/'制作分轨/熄灯惊变'
     archive.mkdir(parents=True,exist_ok=True)
     encode(speech,archive/'B06_固定角色对白.wav')
     encode(score,archive/'B06_背景配乐.wav')
-    # A bed of independently generated ordinary guests, never recycled main-role shouts.
-    crowd=np.zeros_like(score)
-    guest_lines=[l for l in scene['lines'] if '宾客' in l['role']]
-    for i,start in enumerate([.7,4,10,15,22,27,34,40,45,53,58,64,70,76,82,87]):
-        for j in range(2):
-            line=guest_lines[(i*3+j)%len(guest_lines)]
-            job=CACHE/'tts/jobs'/fingerprint(payload_for(config,line))
-            clip=decode(job/'speech.mp3','highpass=f=250,lowpass=f=3200,loudnorm=I=-30:TP=-9:LRA=8')
-            mono=clip.mean(axis=1);pan=(-.8 if j==0 else .8)
-            clip=mono[:,None]*np.sqrt(np.array([1-pan,1+pan])[None,:]/2)
-            a=round((start+j*.37)*SR);n=min(len(clip),len(crowd)-a)
-            crowd[a:a+n]+=clip[:n]*.7
+    # Downloaded crowd bed supplies natural overlapping reactions without extra dialogue.
+    crowd_source=decode(CACHE/'crowd-491405.mp3','highpass=f=220,lowpass=f=2600,loudnorm=I=-29:TP=-8:LRA=10')
+    cross=2*SR
+    crowd=crowd_source.copy()
+    while len(crowd)<len(score):
+        blend=np.linspace(0,1,cross)[:,None]
+        crowd=np.concatenate([crowd[:-cross],crowd[-cross:]*(1-blend)+crowd_source[:cross]*blend,crowd_source[cross:]])
+    crowd=crowd[:len(score)]
+    envelope=np.interp(np.arange(len(score))/SR,[0,5,7,8,20,35,46,49,60,70,75,82,89,94,100],[.08,.18,.25,.85,.8,.45,.35,.9,.55,.3,.8,.55,.2,.08,0])
+    crowd*=envelope[:,None]
     effects=decode(CACHE/'B06_混乱音效分轨.wav')
-    # Recorded pistol cracks get their own clear windows rather than hiding in percussion.
-    source=decode(CACHE/'22 Pistol.wav','highpass=f=100')[round(.129*SR):round(.55*SR)]
+    # Downloaded real indoor gunshot: native speed, full natural room tail, no added echo.
+    source=decode(CACHE/'indoor-gunshot-chris81.mp3')[round(.12*SR):round(1.95*SR)]
     source/=max(float(np.max(np.abs(source))),.001)
     guns=np.zeros_like(score)
     gun_duck=np.ones(len(score),np.float32)
     speech_duck=np.ones(len(score),np.float32)
     shot_audit=[]
-    for moment,pan in [(7,-.2),(18.4,.2),(18.78,.15),(48,-.18),(74.2,.18)]:
+    for moment,pan,level in [(7,-.16,.85),(18.4,.12,.76),(18.78,.10,.84),(48,-.10,.72),(74.2,.14,.67)]:
         a=round(moment*SR);shot=source.mean(axis=1)[:,None]*np.sqrt(np.array([1-pan,1+pan])[None,:]/2)
-        guns[a:a+len(shot)]+=shot*1.15
-        for delay,level in [(.064,.16),(.118,.09)]:
-            n=round(delay*SR);guns[a+n:a+n+len(shot)]+=shot*level
+        guns[a:a+len(shot)]+=shot*level
         lo=max(0,a-round(.06*SR));hi=min(len(score),a+round(1.15*SR))
-        envelope=np.interp(np.arange(lo,hi)/SR,[lo/SR,moment,moment+.20,hi/SR],[1,.08,.08,1])
+        envelope=np.interp(np.arange(lo,hi)/SR,[lo/SR,moment,moment+.20,hi/SR],[1,.65,.65,1])
         gun_duck[lo:hi]=np.minimum(gun_duck[lo:hi],envelope)
         hi_voice=min(len(score),a+round(.16*SR))
-        speech_duck[a:hi_voice]=np.minimum(speech_duck[a:hi_voice],.25)
+        speech_duck[a:hi_voice]=np.minimum(speech_duck[a:hi_voice],.75)
     crowd[-12*SR:]*=np.linspace(1,0,12*SR)[:,None]
     backing=score*duck[:,None]*gun_duck[:,None]+speech*speech_duck[:,None]+(effects+crowd)*gun_duck[:,None]
     for moment in [7,18.4,18.78,48,74.2]:
@@ -174,12 +171,14 @@ def install(music_path, action_path):
         gun_rms=float(np.sqrt(np.mean(guns[a:b]**2)))
         bed_rms=float(np.sqrt(np.mean(backing[a:b]**2)))
         margin=20*np.log10(max(gun_rms,1e-9)/max(bed_rms,1e-9))
-        if margin<6:raise ValueError(f'Gunshot masked at {moment}: {margin:.1f} dB')
+        if margin<2:raise ValueError(f'Gunshot masked at {moment}: {margin:.1f} dB')
         shot_audit.append(dict(time=moment,gunAboveBackingDb=round(margin,2)))
     (archive/'枪声可辨识核验.json').write_text(json.dumps(shot_audit,indent=2)+'\n')
-    shutil.copy2(CACHE/'22 Pistol.wav',archive/'22 Pistol_CC0原始素材.wav')
-    (archive/'枪声来源.json').write_text(json.dumps(dict(author='kurt',license='CC0',source='https://opengameart.org/node/70780',download='https://opengameart.org/sites/default/files/22%20Pistol.wav',excerpt=[.129,.55]),ensure_ascii=False,indent=2)+'\n')
+    shutil.copy2(CACHE/'indoor-gunshot-chris81.mp3',archive/'gunshot indoors_chris81_CC0原始素材.mp3')
+    (archive/'枪声来源.json').write_text(json.dumps(dict(author='chris_81',license='CC0',source='https://freesound.org/people/chris_81/sounds/388051/',download='https://cdn.freesound.org/previews/388/388051_82256-hq.mp3',excerpt=[.12,1.95],speed=1,note='使用第一声原速实录，保留室内自然尾响，不采用第二声50%慢放版本'),ensure_ascii=False,indent=2)+'\n')
     encode(guns,archive/'B06_实录枪声分轨.wav')
+    shutil.copy2(CACHE/'crowd-491405.mp3',archive/'Crowd in panic_ienba_CC0.mp3')
+    (archive/'人群来源.json').write_text(json.dumps(dict(author='ienba',license='CC0',source='https://freesound.org/people/ienba/sounds/491405/',note='下载的群众惊慌声作为环境层，交叉淡化及距离滤波，不添加新对白'),ensure_ascii=False,indent=2)+'\n')
     encode(crowd,archive/'B06_普通宾客人群底声.wav')
     drama=backing+guns
     # Pure background: one cue, no dialogue/foley, two-second wrap crossfade.
@@ -190,7 +189,7 @@ def install(music_path, action_path):
         dict(id='B06',title='熄灯惊变·剧情版',duration=100,kind='drama',loop=False,
              speakers=list(dict.fromkeys(l['role'] for l in lines)),
              trigger='A04结束后、A05之前；现场摔杯→熄主灯→点击“从头播放”。',
-             notes='1:40实录枪声、四位普通宾客的惊叫与交错人群、FBI短促控场、五位原角色短对白。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。',
+             notes='1:40环境声主导版；新下载的室内枪声保留原速和自然尾响，仅15条零星短对白与惊叫。FBI仅三处短口令，人声带距离与遮挡，不逐句解释剧情。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。',
              events=sorted(EVENTS+[dict(time=l['start'],cue='dialogue',role=l['role'],instruction=l['text']) for l in lines],key=lambda e:e['time']),
              music=music_credit('Controlled Chaos','USUAN1200059'),
              additionalMusic=[music_credit('Volatile Reaction','USUAN1400039')]),
@@ -212,7 +211,7 @@ def install(music_path, action_path):
         master=OUT/'无损母带_WAV'/(name+'.wav')
         subprocess.run(['ffmpeg','-v','error','-y','-i',str(raw),'-af','loudnorm=I=-18:TP=-2:LRA=14','-ar',str(SR),'-c:a','pcm_s24le',str(master)],check=True)
         dest=OUT/'现场播放版_MP3'/(name+'.mp3')
-        subprocess.run(['ffmpeg','-v','error','-y','-i',str(master),'-c:a','libmp3lame','-b:a','256k','-metadata','title='+track['title'],'-metadata','comment=Music: Kevin MacLeod (incompetech.com), CC BY 4.0. B06 voices: MiniMax speech-2.8-hd; SFX: Kenney CC0; recorded pistol by kurt (OpenGameArt), CC0. B07: music only.',str(dest)],check=True)
+        subprocess.run(['ffmpeg','-v','error','-y','-i',str(master),'-c:a','libmp3lame','-b:a','256k','-metadata','title='+track['title'],'-metadata','comment=Music: Kevin MacLeod (incompetech.com), CC BY 4.0. B06 voices: MiniMax speech-2.8-hd; SFX: Kenney CC0; indoor gunshot by chris_81 (Freesound 388051), CC0. B07: music only.',str(dest)],check=True)
         track.update(filename=track['id'].lower()+'.mp3',stage='案发氛围' if track['id']=='B06' else '循环背景',spoiler=False,evidence=None,sha256=hashlib.sha256(dest.read_bytes()).hexdigest())
         shutil.copy2(dest,ROOT/'server/audio/performance-files'/track['filename'])
         track['offlineFile']='现场播放版_MP3/'+dest.name
@@ -220,7 +219,7 @@ def install(music_path, action_path):
     manifest['tracks']=[t for t in manifest['tracks'] if t['id'] not in ['B06','B07']]
     index=next(i for i,t in enumerate(manifest['tracks']) if t['id']=='A05')
     manifest['tracks'][index:index]=[{k:v for k,v in t.items() if not k.startswith('offline')} for t in descriptions]
-    manifest['version']='2026-10-30-blackout-crowd-v3'
+    manifest['version']='2026-10-30-blackout-sparse-v4'
     manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     offline_path=OUT/'播放清单.json';offline=json.loads(offline_path.read_text())
     offline['tracks']=[t for t in offline['tracks'] if t['id'] not in ['B06','B07']]

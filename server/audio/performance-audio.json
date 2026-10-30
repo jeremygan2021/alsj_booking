@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-30-blackout-crowd-v3",
+  "version": "2026-10-30-blackout-sparse-v4",
   "provider": "MiniMax",
   "model": "speech-2.8-hd",
   "notice": "角色语音为MiniMax系统音色的AI剧情演绎；配乐与音效已混合。仅供GM/音控按现场进度手动播放，每段结束后停止。A10、A11、A12包含终局剧情，请先核对释放条件。",
@@ -292,17 +292,16 @@
       "speakers": [
         "女宾客甲",
         "男宾客甲",
-        "西奥多",
-        "女宾客乙",
-        "男宾客乙",
         "FBI现场探员",
-        "诺拉",
         "克拉拉",
+        "西奥多",
+        "伊芙琳",
         "里昂",
-        "伊芙琳"
+        "女宾客乙",
+        "诺拉"
       ],
       "trigger": "A04结束后、A05之前；现场摔杯→熄主灯→点击“从头播放”。",
-      "notes": "1:40实录枪声、四位普通宾客的惊叫与交错人群、FBI短促控场、五位原角色短对白。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。",
+      "notes": "1:40环境声主导版；新下载的室内枪声保留原速和自然尾响，仅15条零星短对白与惊叫。FBI仅三处短口令，人声带距离与遮挡，不逐句解释剧情。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。",
       "events": [
         {
           "time": 0,
@@ -322,24 +321,6 @@
           "instruction": "别挤！别挤！"
         },
         {
-          "time": 2.3,
-          "cue": "dialogue",
-          "role": "西奥多",
-          "instruction": "先别动——"
-        },
-        {
-          "time": 3.2,
-          "cue": "dialogue",
-          "role": "女宾客乙",
-          "instruction": "我的包！谁踩着我了？"
-        },
-        {
-          "time": 4.9,
-          "cue": "dialogue",
-          "role": "男宾客乙",
-          "instruction": "门在哪边？"
-        },
-        {
           "time": 7,
           "cue": "sound",
           "instruction": "第一声枪响与急促脚步：仅作宴会混乱的舞台音效，不作为死因或案发时间证据。"
@@ -351,28 +332,10 @@
           "instruction": "啊——！"
         },
         {
-          "time": 7.65,
-          "cue": "dialogue",
-          "role": "男宾客甲",
-          "instruction": "蹲下！快！"
-        },
-        {
           "time": 9.4,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "FBI！所有人蹲下！"
-        },
-        {
-          "time": 11.2,
-          "cue": "dialogue",
-          "role": "女宾客乙",
-          "instruction": "有人开枪！别过来！"
-        },
-        {
-          "time": 13.6,
-          "cue": "dialogue",
-          "role": "诺拉",
-          "instruction": "离开窗边！往里！"
+          "instruction": "FBI！蹲下！"
         },
         {
           "time": 15.2,
@@ -392,64 +355,10 @@
           "instruction": "啊！"
         },
         {
-          "time": 19.65,
-          "cue": "dialogue",
-          "role": "男宾客乙",
-          "instruction": "别推我！"
-        },
-        {
-          "time": 21,
-          "cue": "dialogue",
-          "role": "FBI现场探员",
-          "instruction": "手放在看得见的地方！别挤门口！"
-        },
-        {
-          "time": 24.8,
-          "cue": "dialogue",
-          "role": "里昂",
-          "instruction": "西奥多！这算什么？"
-        },
-        {
-          "time": 26.2,
-          "cue": "dialogue",
-          "role": "西奥多",
-          "instruction": "不是我安排的！"
-        },
-        {
           "time": 29,
           "cue": "dialogue",
-          "role": "男宾客甲",
-          "instruction": "我朋友还在那边！"
-        },
-        {
-          "time": 30.5,
-          "cue": "dialogue",
-          "role": "FBI现场探员",
-          "instruction": "先蹲下！有人过去帮他！"
-        },
-        {
-          "time": 33.8,
-          "cue": "dialogue",
-          "role": "女宾客乙",
-          "instruction": "别踩！地上有人！"
-        },
-        {
-          "time": 36,
-          "cue": "dialogue",
-          "role": "诺拉",
-          "instruction": "往后退！留条通道！"
-        },
-        {
-          "time": 38.4,
-          "cue": "dialogue",
-          "role": "伊芙琳",
-          "instruction": "别碰那个！"
-        },
-        {
-          "time": 39.7,
-          "cue": "dialogue",
-          "role": "克拉拉",
-          "instruction": "伊芙琳，过来！"
+          "role": "西奥多",
+          "instruction": "先别动——"
         },
         {
           "time": 40,
@@ -457,81 +366,33 @@
           "instruction": "脚步与碰撞逐渐密集，危险感上升；不增加角色对白或身份信息。"
         },
         {
-          "time": 41.5,
+          "time": 40,
+          "cue": "dialogue",
+          "role": "伊芙琳",
+          "instruction": "别碰那个！"
+        },
+        {
+          "time": 43,
           "cue": "dialogue",
           "role": "伊芙琳",
           "instruction": "我……我没事。"
         },
         {
-          "time": 44,
-          "cue": "dialogue",
-          "role": "男宾客乙",
-          "instruction": "别抓我！我看不见！"
-        },
-        {
-          "time": 48.2,
-          "cue": "dialogue",
-          "role": "女宾客甲",
-          "instruction": "啊——！"
-        },
-        {
           "time": 49,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "趴下！别站起来！"
+          "instruction": "别起来！"
         },
         {
-          "time": 52.4,
-          "cue": "dialogue",
-          "role": "女宾客乙",
-          "instruction": "救命！这边！"
-        },
-        {
-          "time": 55.8,
-          "cue": "dialogue",
-          "role": "克拉拉",
-          "instruction": "听我说，抓紧。"
-        },
-        {
-          "time": 59,
+          "time": 62,
           "cue": "dialogue",
           "role": "里昂",
           "instruction": "索恩呢？"
         },
         {
-          "time": 60.1,
-          "cue": "dialogue",
-          "role": "男宾客甲",
-          "instruction": "谁？我没看见！"
-        },
-        {
-          "time": 62.2,
-          "cue": "dialogue",
-          "role": "西奥多",
-          "instruction": "索恩先生！"
-        },
-        {
-          "time": 65,
-          "cue": "dialogue",
-          "role": "女宾客甲",
-          "instruction": "别丢下我……"
-        },
-        {
-          "time": 67,
-          "cue": "dialogue",
-          "role": "FBI现场探员",
-          "instruction": "别跑！靠墙，慢慢移！"
-        },
-        {
           "time": 70,
           "cue": "sound",
           "instruction": "混乱进入高潮，保持暗场；枪声不对应索恩受伤。"
-        },
-        {
-          "time": 70,
-          "cue": "dialogue",
-          "role": "诺拉",
-          "instruction": "这里，先扶她起来！"
         },
         {
           "time": 74.5,
@@ -540,34 +401,10 @@
           "instruction": "啊！"
         },
         {
-          "time": 75.2,
-          "cue": "dialogue",
-          "role": "男宾客乙",
-          "instruction": "还有枪声！"
-        },
-        {
-          "time": 77,
-          "cue": "dialogue",
-          "role": "FBI现场探员",
-          "instruction": "压低身体！等我口令！"
-        },
-        {
-          "time": 81,
-          "cue": "dialogue",
-          "role": "女宾客甲",
-          "instruction": "我走不了……"
-        },
-        {
-          "time": 83,
+          "time": 86,
           "cue": "dialogue",
           "role": "克拉拉",
           "instruction": "别动，我陪着你。"
-        },
-        {
-          "time": 87,
-          "cue": "dialogue",
-          "role": "男宾客甲",
-          "instruction": "别往前挤了！"
         },
         {
           "time": 88,
@@ -584,7 +421,7 @@
           "time": 94,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "保持原位。准备开灯。"
+          "instruction": "原地等，别动。"
         },
         {
           "time": 99,
@@ -610,7 +447,7 @@
       "stage": "案发氛围",
       "spoiler": false,
       "evidence": null,
-      "sha256": "503f51cd019b1dc7106ec2aab09f7a047a7adf37825b4dd852b909fdeb35dae9"
+      "sha256": "028b0ce177ac907496dc5d51915e4c9c7b896e04ae4ce703eb57cd244e7c3d65"
     },
     {
       "id": "B07",

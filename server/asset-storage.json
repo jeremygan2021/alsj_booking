@@ -538,9 +538,9 @@
       "contentType": "audio/mpeg"
     },
     "server/audio/performance-files/b06.mp3": {
-      "key": "alsj/assets/v1/503f51cd019b1dc7106ec2aab09f7a047a7adf37825b4dd852b909fdeb35dae9.mp3",
-      "sha256": "503f51cd019b1dc7106ec2aab09f7a047a7adf37825b4dd852b909fdeb35dae9",
-      "bytes": 3202055,
+      "key": "alsj/assets/v1/028b0ce177ac907496dc5d51915e4c9c7b896e04ae4ce703eb57cd244e7c3d65.mp3",
+      "sha256": "028b0ce177ac907496dc5d51915e4c9c7b896e04ae4ce703eb57cd244e7c3d65",
+      "bytes": 3202063,
       "contentType": "audio/mpeg"
     },
     "server/audio/performance-files/b07.mp3": {
