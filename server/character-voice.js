@@ -202,11 +202,13 @@ export async function submitCharacterVoice(character, config = characterVoiceCon
     }
     if (reason) continue;
     // The model cannot invent provider identifiers. Resolve exact names/IDs
-    // against the live catalog, otherwise use a real catalog voice. Never send
+    // against the live catalog; retry selection instead of taking an arbitrary
+    // first voice that may contradict the character. Never send
     // an unknown voice_id or invalid numeric parameter to the speech service.
     const selected = typeof result.voice_id === "string" ? result.voice_id.trim() : "";
     voice = catalog.find((candidate) => candidate.voice_id === selected) ||
-      catalog.find((candidate) => candidate.voice_name === selected) || catalog[0];
+      catalog.find((candidate) => candidate.voice_name === selected);
+    if (!voice) { reason = "INTRO_UNKNOWN_VOICE"; continue; }
     const speed = Number(result.speed), pitch = Number(result.pitch);
     result.speed = Number.isFinite(speed) && speed >= 0.9 && speed <= 1.1 ? speed : 1;
     result.pitch = Number.isInteger(pitch) && Math.abs(pitch) <= 2 ? pitch : 0;
@@ -220,6 +222,7 @@ export async function submitCharacterVoice(character, config = characterVoiceCon
       INTRO_MISSING_NAME: "介绍缺少角色姓名",
       INTRO_FORBIDDEN_PLOT: "介绍包含未获允许的剧情",
       INTRO_UNSAFE_TEXT: "介绍包含不能朗读的内容",
+      INTRO_UNKNOWN_VOICE: "未选中有效音色",
     };
     throw new CharacterVoiceError(`角色自我介绍未通过校验：${explanations[reason]}，请重试`, 502, reason);
   }

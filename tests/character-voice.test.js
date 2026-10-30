@@ -156,25 +156,41 @@ test("介绍不完整、越界或泄露密钥时不提交语音", async () => {
   }
 });
 
-test("虚构音色、音色名称和字符串参数解析为实时目录中的合法参数", async () => {
+test("虚构音色重新匹配，音色名称和字符串参数规范化", async () => {
   for (const value of [
     { voice_id: "not_in_catalog", speed: 5, pitch: 9 },
     { voice_id: voices[1].voice_name, speed: "0.98", pitch: "-1" },
     { voice_id: "  " + voices[1].voice_id + "  ", speed: "bad", pitch: 0.5 },
   ]) {
-    let submitted;
+    let submitted, selections = 0;
     const config = cfg(async (url, req) => {
       if (url.endsWith("/get_voice")) return json({ system_voice: voices });
-      if (url.endsWith("/chat/completions")) return modelResult(value);
+      if (url.endsWith("/chat/completions")) {
+        selections++;
+        return modelResult(value.voice_id === "not_in_catalog" && selections > 1 ? { ...value, voice_id: voices[1].voice_id } : value);
+      }
       submitted = JSON.parse(req.body);
       return json({ task_id: "1", file_id: "2" });
     });
     const result = await submitCharacterVoice(character, config);
-    assert.equal(submitted.voice_setting.voice_id, value.voice_id === "not_in_catalog" ? voices[0].voice_id : voices[1].voice_id);
+    assert.equal(submitted.voice_setting.voice_id, voices[1].voice_id);
     assert.equal(result.voice_id, submitted.voice_setting.voice_id);
+    assert.equal(selections, value.voice_id === "not_in_catalog" ? 2 : 1);
     assert.equal(submitted.voice_setting.speed, value.speed === "0.98" ? 0.98 : 1);
     assert.equal(submitted.voice_setting.pitch, value.pitch === "-1" ? -1 : 0);
   }
+});
+
+test("连续虚构音色不能回退到目录首项，也不能触发合成", async () => {
+  let selections = 0;
+  const config = cfg(async (url) => {
+    if (url.endsWith("/get_voice")) return json({ system_voice: voices });
+    assert.ok(url.endsWith("/chat/completions"));
+    selections++;
+    return modelResult({ voice_id: "imaginary-middle-aged-man" });
+  });
+  await assert.rejects(submitCharacterVoice(character, config), error => error.code === "INTRO_UNKNOWN_VOICE");
+  assert.equal(selections, 3);
 });
 
 test("文案失败自动重试、只提交一次TTS，连续失败返回具体安全诊断", async () => {
