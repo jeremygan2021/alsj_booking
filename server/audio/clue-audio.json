@@ -1,33 +1,13 @@
 {
-  "version": "2026-10-18-story-v5",
+  "version": "2026-10-31-independent-entrances-male-nora-female-theodore",
   "model": "speech-2.8-hd",
   "tracks": [
     {
       "id": "E-01",
       "sourceHash": "adaebc0828d4a1a293e64d5bfff6c1edcb43988d7ab9656f7d2629480c7f10a0",
-      "renditionHash": "849d6ea19aaa35a223cb14158f3f4ca08e3c2253fdb2cade4f9ffadf760710ee",
+      "renditionHash": "8b120fc3b44a849f1756f40b27b90f360ccbde47af38b9653aca2fbc7822dc6d",
       "filename": "e-01-body.mp3",
-      "duration": 21.75,
-      "speakers": [
-        "旁白"
-      ],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、淡入淡出、音量调整与对白混音"
-      },
-      "sha256": "9cc244788e6401eed2f1ab1f4b78bf00e5c6f5f080f91dd102d54c04a3fe8ed3",
-      "part": "body"
-    },
-    {
-      "id": "E-01",
-      "sourceHash": "d0ce0968fe6e10fe29dbcb332814454cf6cd9668966907e7fcac79b6f5e50c1d",
-      "renditionHash": "7401e98c5c4a50eb436273df6f13830e973c639aadf665267727a6985168b3a5",
-      "filename": "e-01-detail.mp3",
-      "duration": 20.35,
+      "duration": 20.65,
       "speakers": [
         "诺拉"
       ],
@@ -39,7 +19,27 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "83528b5e0f8fbf2211ee42f375d067163df5afb6d5f9b1c4e3f4e7ca55424636",
+      "sha256": "113905fc27a0c27fa9c3f46623e35ba2eeae4485a20b5e913f2f2c78c68af6c6",
+      "part": "body"
+    },
+    {
+      "id": "E-01",
+      "sourceHash": "d0ce0968fe6e10fe29dbcb332814454cf6cd9668966907e7fcac79b6f5e50c1d",
+      "renditionHash": "36d786ceb483c8c3dced7cba6b6193cdb7dfb2befdf135295f9fac381bf8267c",
+      "filename": "e-01-detail.mp3",
+      "duration": 18.35,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "c32ef6963f040923d9f2003f178fc17975fbbad8a26feb563760dfec31c5d654",
       "part": "detail"
     },
     {
@@ -65,9 +65,9 @@
     {
       "id": "E-02",
       "sourceHash": "32235ecc18077a4c94b03be50efc4bd680ceef883139b9eae80ce6d298b2cc22",
-      "renditionHash": "cd011c112f37b5f6cf2128008f1ee7be6d500b832f12be2ef3784e8cd65f0085",
+      "renditionHash": "f780e1126ed05cb9788af186bcead2d825d7aead6e73549ec2e190f376b38b8f",
       "filename": "e-02-detail.mp3",
-      "duration": 26.37,
+      "duration": 24.129,
       "speakers": [
         "诺拉"
       ],
@@ -79,7 +79,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "c006197553e2fe99fa7e020fa602e57f43fd9209e75d8338a38d316ee2ece633",
+      "sha256": "5f48ba28b69fc9aabbb505a9937d871020daaf7620939a20d130cf90a5c3c50a",
       "part": "detail"
     },
     {
@@ -105,9 +105,9 @@
     {
       "id": "E-03",
       "sourceHash": "74b5f26aef46d2bfc0a0a902a647597c41ed62d3a06462c3f3ccbbf5c81ed731",
-      "renditionHash": "791c9c43da5c647bcd48527d205f83825eb70ef2ee1b78a234e84a0412ed80e1",
+      "renditionHash": "f3366e1350e9b69f83bc44930342ba0024315911a25bad6b94c5b2b9d9c54397",
       "filename": "e-03-detail.mp3",
-      "duration": 19.304,
+      "duration": 17.75,
       "speakers": [
         "诺拉"
       ],
@@ -119,35 +119,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "137f69cd5472d1ab8d23e09771b7d3ad90fdfdafd978bed64189bb6bfb6d7826",
+      "sha256": "228e9e32f610859af673b032bc5e25d07823b9237f03a34185be7b18d16bb62c",
       "part": "detail"
     },
     {
       "id": "E-04",
       "sourceHash": "f7402aabde44490883c98b6c7951c820f682011ded2192904bc43fc82bd33dfe",
-      "renditionHash": "38454e9fd4e4b16c3f6770bbcdf34cde7a1ef0452320a731016f1ae8d1508a5e",
+      "renditionHash": "5b3a11086411d2ebc37fc983fe6f4f82a153127ebb19a2e1ef8d38f892c1c1c4",
       "filename": "e-04-body.mp3",
       "duration": 20.15,
-      "speakers": [
-        "旁白"
-      ],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、淡入淡出、音量调整与对白混音"
-      },
-      "sha256": "4e765f9f9c623e1c055f9a45ebe4c5dcf69b41f18d519ec3f9c3b3740210595f",
-      "part": "body"
-    },
-    {
-      "id": "E-04",
-      "sourceHash": "d86a45619d566c0967e5f52ce217a1585e028cb78750b0ec37a88885d88e75e6",
-      "renditionHash": "b99aa2d45fed02e96cd45a6e2f1ae9d5f8dea0cb05bb0848f935ff9d1a1d11a6",
-      "filename": "e-04-detail.mp3",
-      "duration": 22.84,
       "speakers": [
         "诺拉"
       ],
@@ -159,7 +139,27 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "cf92c132094a0625b2eebe72e573ca8bce9290ad6ff04504eeae897cd14b91bd",
+      "sha256": "bfbb00393a7042f717b21c47e1865ac2fff922e414e5b81a9db94cf608676da6",
+      "part": "body"
+    },
+    {
+      "id": "E-04",
+      "sourceHash": "d86a45619d566c0967e5f52ce217a1585e028cb78750b0ec37a88885d88e75e6",
+      "renditionHash": "220aa01b7ad09c1e8ef4ec935a1321c3ea679dc24d7859794bcf493a88506090",
+      "filename": "e-04-detail.mp3",
+      "duration": 22.35,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "cdd10ad0700a43f13828a8047b04ca06afb1f0bd191d0f4f0e1a37c294123468",
       "part": "detail"
     },
     {
@@ -185,9 +185,9 @@
     {
       "id": "E-05",
       "sourceHash": "10f0157a0c9543a5e7a89266bfae8ad17a34be21390243fc4c11a23327d4c16e",
-      "renditionHash": "7908c47cf42c5eb87c4e6e8ade27ecb439a4f92199e656c9494ba15c905229b9",
+      "renditionHash": "6c68c8e74c4424c562f01dc213867677aa079fd7aab583957b2c3d1707667f3c",
       "filename": "e-05-detail.mp3",
-      "duration": 18.909,
+      "duration": 18.25,
       "speakers": [
         "诺拉"
       ],
@@ -199,7 +199,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "15f53660d30b10302bccb7eaf6a0cc97527a770bbefdbf253f170cf64dae2b16",
+      "sha256": "1163c59bdc98958eab41412bc627ac5a10cec7a30cbf8e1ca75c83936c77ff54",
       "part": "detail"
     },
     {
@@ -225,9 +225,9 @@
     {
       "id": "E-06",
       "sourceHash": "5299746d0a68c83f7d0ba61f391abe585a30e2df266bf4558c8d2a0a3bf18726",
-      "renditionHash": "d642a02f977a96647b6ec3ef7b0a28b35f017beaebdc8984e80cf8a8a7adaaa4",
+      "renditionHash": "fc7eca41ace6903d9ffcdb2ccff53110635a8687e074f364d33b3d0702ac6aca",
       "filename": "e-06-detail.mp3",
-      "duration": 20.035,
+      "duration": 19.95,
       "speakers": [
         "诺拉"
       ],
@@ -239,7 +239,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "bb2c6a4cc5897ab0c12fb54e8181b11b21527775279acf308c620c9fa98c6a8c",
+      "sha256": "fe0e3722297f0334e5951e9e0847cbb6b18badad801d8009071c65ed0159c07a",
       "part": "detail"
     },
     {
@@ -265,9 +265,9 @@
     {
       "id": "E-07",
       "sourceHash": "7a95718dfa0fcd25275883dcb999dd8a326374523ed6e917d870e66c60831ae1",
-      "renditionHash": "a2b115998b2a93948e09f5260489baf80fba65a269419cf076bc74e102c9fe0f",
+      "renditionHash": "16ebe24dade7d6466314498fb9f5586af72248a38bd47bf1c4cf1f5331ba4926",
       "filename": "e-07-detail.mp3",
-      "duration": 26.204,
+      "duration": 24.925,
       "speakers": [
         "诺拉"
       ],
@@ -279,7 +279,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "913e273c832cc4ebb5d0865843f6e40d757c7f53a8867cdb12f525dcdbfee4f8",
+      "sha256": "2d896620a91909108870cdb6d4e5c5d96f35ebf07de65f2b61f06a0ea5075095",
       "part": "detail"
     },
     {
@@ -305,9 +305,9 @@
     {
       "id": "E-08",
       "sourceHash": "da5763230d91e1f2a6da9fcd6e0601c9c69294176f47d2ffb7b70303a3efba7e",
-      "renditionHash": "447880e6fb554a9a7f0af567c7f551807d2c50e805d558cf89bf5b1048fc6219",
+      "renditionHash": "787f068641acace206969eceef7aa911562375b2b148e34fbd5f1b32352d32e3",
       "filename": "e-08-detail.mp3",
-      "duration": 24.303,
+      "duration": 24.15,
       "speakers": [
         "诺拉"
       ],
@@ -319,17 +319,17 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "38ea8ef5891651cf38f90eba689c76f07c69ca789c9666178135f02f6e8421e2",
+      "sha256": "670511c3e1159f2105e1d5db98413ab34214ebcd7c2e3aad0c24ae9698c3f851",
       "part": "detail"
     },
     {
       "id": "E-09",
       "sourceHash": "912adfbe7070d15cb7a69ef491e7ed08ca5f497680b05aea8b8f80e03421efb6",
-      "renditionHash": "84d82288c3020dfa15e8af25892175f4b812d020f370469ec071dcdc42efdd8e",
+      "renditionHash": "d3fb59656092cb772521eb1cce16bc2bb4c163585fff6ab37f752eac19debe09",
       "filename": "e-09-body.mp3",
-      "duration": 13.85,
+      "duration": 13.15,
       "speakers": [
-        "旁白"
+        "西奥多"
       ],
       "music": {
         "title": "Darkest Child",
@@ -339,15 +339,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "597ade9d64a4ed5cdcd06fc968c8fc7169268fca29a2a33ac530bb38859a24e8",
+      "sha256": "8557069c01fb2f391dbdc35e2cfc1d74924d55c9db11aa927e9356d4708ff104",
       "part": "body"
     },
     {
       "id": "E-09",
       "sourceHash": "01250116a3a44fde87cd7f114a4ff9828aade8557748966503cb5a8131b7aebf",
-      "renditionHash": "9b7f3035145685b116da0fb40956d7b9d61cc8a6b225a3cabee4665b2613e8e3",
+      "renditionHash": "7b5c74a43e3bc1e3d516d530f48007c548c06f69e5c2f4acbe29dc5977f4139e",
       "filename": "e-09-detail.mp3",
-      "duration": 15.55,
+      "duration": 14.85,
       "speakers": [
         "诺拉"
       ],
@@ -359,17 +359,17 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "3847466cfd618e8de915dfad48d9ced3c8934cacb855035db0b17998f2e07bc2",
+      "sha256": "747a8317dc44c8ee28e8aca4e17c4feeb929cca077656d28908fa155bf79517d",
       "part": "detail"
     },
     {
       "id": "E-10",
       "sourceHash": "e0f2665e7fabeac7e4f390b9a3de4f0a6192ddb93064b263ac8a5646f1db6cdc",
-      "renditionHash": "90e7750175f0b095c81e5cb4bb940b57f24415139abf40807778cebcc515f644",
+      "renditionHash": "86f0130168ec6a65c1a529a5bdfb382073338479985de13e3c7b6db70b3c0c5e",
       "filename": "e-10-body.mp3",
-      "duration": 20.65,
+      "duration": 17.95,
       "speakers": [
-        "旁白"
+        "诺拉"
       ],
       "music": {
         "title": "Long Note One",
@@ -379,15 +379,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "051af82b1df2427187397b587f92ad56026e8a70cbff9f509db64592ab69a055",
+      "sha256": "62a65521c446162bfb85538d8b0598d872f7cc2b6bc2270486b4a810f0364aa6",
       "part": "body"
     },
     {
       "id": "E-10",
       "sourceHash": "ab575b717401878907c1ae4eb03982b81531c5aa3fcfe2037e65cc1956f948c8",
-      "renditionHash": "6202647e13a5ec4eaacfba09e6854a7f1c9e3079f4aada216cda37d39bccd5ce",
+      "renditionHash": "7d14559cd85e6be75181297d0fe4824f2884bcaea61b3199f8413074711d2ba8",
       "filename": "e-10-detail.mp3",
-      "duration": 25.039,
+      "duration": 24.05,
       "speakers": [
         "诺拉"
       ],
@@ -399,35 +399,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "0a34d3e8be278b700fe9ebd1594163019247322708ef09a927181cb0d0419564",
+      "sha256": "d8a01a755a6e7457d3315370c7b7ee2255bdf7711de67d1027f7ea3b17910190",
       "part": "detail"
     },
     {
       "id": "E-11",
       "sourceHash": "25f0c7ee3235d147f911ceeca528452b14a782569dab6434fb7a0f460bab4dad",
-      "renditionHash": "588d70aa79420cfa0594ce72a15dbdf376170e41fac28ccbcd3da2fd0196b24b",
+      "renditionHash": "cb7e3981c31cf948d68223a88c908994aba8fbcaefdd60debfa7015c5af20da2",
       "filename": "e-11-body.mp3",
-      "duration": 23.35,
-      "speakers": [
-        "旁白"
-      ],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、淡入淡出、音量调整与对白混音"
-      },
-      "sha256": "732a3f140a1c0683b51fcbac84f7ef1dcc2810ad26ea11b300722e4cea626f04",
-      "part": "body"
-    },
-    {
-      "id": "E-11",
-      "sourceHash": "47c6044eb8bf88f68ba9b98826ce0d65bccffb7e705b7f9bdc0a08d9c02ae0bc",
-      "renditionHash": "320bb38517fd818eecaab8a4dffccc3328cbe8f67fb7e64df2c6d0d407c374fe",
-      "filename": "e-11-detail.mp3",
-      "duration": 25.029,
+      "duration": 22.55,
       "speakers": [
         "诺拉"
       ],
@@ -439,7 +419,27 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "1ca7ada427e95e5e6d9d9b08f362891d974910d6cc7d836c0c991d3180f54882",
+      "sha256": "69f6528a419a2dc6cbf7847b4988c499f4fff4a60fefb0e520217a35be612a0f",
+      "part": "body"
+    },
+    {
+      "id": "E-11",
+      "sourceHash": "47c6044eb8bf88f68ba9b98826ce0d65bccffb7e705b7f9bdc0a08d9c02ae0bc",
+      "renditionHash": "9a63bd8a5278506eb343c007baf276100374a795c192b2ade6905785c02e972d",
+      "filename": "e-11-detail.mp3",
+      "duration": 23.125,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "59a56ca7884cc64799ade2c62f1966a283f19b9619e07cca3f605df02ac3c87d",
       "part": "detail"
     },
     {
@@ -465,9 +465,9 @@
     {
       "id": "E-12",
       "sourceHash": "e2287173af8c8d2d5256c111f3ea31d8f7da257fdd5db7b0f9663e0ee927d503",
-      "renditionHash": "35546c049dea6e8c4b590813004fcb931bfbf6194590fd1bee3d6ca078e9060e",
+      "renditionHash": "fcd746a2499f24e2577aa46bb75b9c832307311856247724892a09af5859ed19",
       "filename": "e-12-detail.mp3",
-      "duration": 15.15,
+      "duration": 13.75,
       "speakers": [
         "诺拉"
       ],
@@ -479,17 +479,17 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "316730a99351976d67394e5702f6071563d16b156aca58ac1e843d81579c5a19",
+      "sha256": "da2ca4b660b2b3f6383690b45f74ec0ef11ad0b20728c5950851236ee42ef258",
       "part": "detail"
     },
     {
       "id": "E-13",
       "sourceHash": "966afc88bc32f04ce769371b7a70590908c2d2c707aa8364cccea19b305e3353",
-      "renditionHash": "db4aae0e9da32c70dd88254c380506e3d7e58320f414948295b74f0a580e63b7",
+      "renditionHash": "14c85814d53c61d6573ce466de1b4aaea24eec6526c731d096a85e1e3cfb78e6",
       "filename": "e-13-body.mp3",
-      "duration": 14.85,
+      "duration": 12.55,
       "speakers": [
-        "旁白"
+        "诺拉"
       ],
       "music": {
         "title": "Long Note One",
@@ -499,13 +499,13 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "4b454b8c10ddc3f3f842f26b36b7063aae26068c3554fa52ce0addeb8dcadbb0",
+      "sha256": "ef09af79062e50534c7bfd10b7f7b1dbbdb241f0edce36b2db16aa73169daba7",
       "part": "body"
     },
     {
       "id": "E-13",
       "sourceHash": "8ec405b0464bac4ac0aaa50413b57fcaf9e24a5edae467b7da7d4043dd17bc69",
-      "renditionHash": "263c4ab2e7f56e647e87e6b84b1ccb28cb4b7e753c60c1a049ac592bdb87c80f",
+      "renditionHash": "eb4dc9692637f019218929a91b6ff6b53cd2993e7f204eb8d0ab156ff9d5d19c",
       "filename": "e-13-detail.mp3",
       "duration": 21.15,
       "speakers": [
@@ -519,35 +519,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "830597760549c57abe767d2ed4f474ff18ec8146d85311615dbdd016b044bbc8",
+      "sha256": "caed3837716cdf13bd0a55ac8bd50100b99fa28d3cb7f8cd382103491bdd543f",
       "part": "detail"
     },
     {
       "id": "E-14",
       "sourceHash": "7a1ddad111d0ccb224594955beb5e34cc6f3bb6d9b44d795e76a284bc294f33d",
-      "renditionHash": "3b800a0acd8c437a73ab277ca5c067c15fe47139cd4919f58654b3bc71911ad4",
+      "renditionHash": "942f717d035c0b992c26748eb340324f1e35ba7a04b81a8f26f486dc42b38920",
       "filename": "e-14-body.mp3",
-      "duration": 14.65,
-      "speakers": [
-        "旁白"
-      ],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、淡入淡出、音量调整与对白混音"
-      },
-      "sha256": "0f5c69c24cb640b80dd24b2c6246b31f455d7e1510595cc464b692690bec0a52",
-      "part": "body"
-    },
-    {
-      "id": "E-14",
-      "sourceHash": "3bc964902f6c937fa103944a88ad965b015101f2be439f93ae20533697320c58",
-      "renditionHash": "ded22804cab933098907885e57f34162036594a22b574b7aec22b1e89454fa7f",
-      "filename": "e-14-detail.mp3",
-      "duration": 20.244,
+      "duration": 13.65,
       "speakers": [
         "诺拉"
       ],
@@ -559,7 +539,27 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "55feb9a85f188b332ca9e6b89aa2af019cbdc5ed44f17518da2fc67787c16b7c",
+      "sha256": "1d729a42c7b1743dc766bd704f8ff033cac3e18e4bd88703c42dd8a99d281ba1",
+      "part": "body"
+    },
+    {
+      "id": "E-14",
+      "sourceHash": "3bc964902f6c937fa103944a88ad965b015101f2be439f93ae20533697320c58",
+      "renditionHash": "72768b4f2ecb6aef7060dab170c2c60fe5b7e57f2fedfe3ffd43631c5a5dbab1",
+      "filename": "e-14-detail.mp3",
+      "duration": 19.75,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "07f103c67f00f719381ea5b4d0c202ff8ce3ed01c69628203d2ccefb40aef9cb",
       "part": "detail"
     },
     {
@@ -585,9 +585,9 @@
     {
       "id": "E-15",
       "sourceHash": "6b3ef3b71c88c17a49fecb8113a4caad04d6bee0865cee9c6cc2211e09f8debe",
-      "renditionHash": "81e50bffb8b9a65e0b56bd14b546ba6c7d669de1dd2a69350c89d200b7c2eba6",
+      "renditionHash": "d566e25c5314bc0c1a7b35fd2ce40f5aaed69ac123247b39acf8dca19e62f4bc",
       "filename": "e-15-detail.mp3",
-      "duration": 19.559,
+      "duration": 19.05,
       "speakers": [
         "诺拉"
       ],
@@ -599,7 +599,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "7080dc02ba1f4762780af3954fed98f5ba2fcf94bf894f547bf3b0b079a3c681",
+      "sha256": "7968bf2f769ffed60a7964d32385a8be49a0f7291f0faa47f6771d20d859a37f",
       "part": "detail"
     },
     {
@@ -607,7 +607,7 @@
       "sourceHash": "66e2411053b85414db9f12036f6eea2dab670be2522b84ba87c6c58ff1671814",
       "renditionHash": "06f02d2f0a54c39f6b0be6780d439dea079fb26ad8d80f78502c83405020cffe",
       "filename": "e-16-body.mp3",
-      "duration": 20.15,
+      "duration": 19.65,
       "speakers": [
         "旁白"
       ],
@@ -619,15 +619,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "26286b70aace86d2e3436cdbfe855b06dbd68d4e9af9fe13b9038bb00473a97c",
+      "sha256": "e74300ef894f9b8130bb2cf8299653c615329eb93be1aec31178233057ea0f66",
       "part": "body"
     },
     {
       "id": "E-16",
       "sourceHash": "bf71d6b709b60f5329dbd4794032f73cbd9cdd949b16a7ce906a84b8fd163b15",
-      "renditionHash": "adb92bd4d7207fa70fac4cd38783d038025ff5e79c05767d48b1f3509b942e84",
+      "renditionHash": "f761246860916a0774de2f0ea35aa9d67dbc0992ea984d763887e7d48d405937",
       "filename": "e-16-detail.mp3",
-      "duration": 21.35,
+      "duration": 20.25,
       "speakers": [
         "诺拉"
       ],
@@ -639,35 +639,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "db11e5c93d162d4f98132c44ee138e9868092dc2a3fbdd85e4801496e8ba2458",
+      "sha256": "96aee4268aecfc84968a105d2100318e289a16483e66db5562ba20e85cd50af0",
       "part": "detail"
     },
     {
       "id": "E-17",
       "sourceHash": "cac8538f6aefa8c5891a3b3cfdc6ab1caee4a5cca6be0a162a62d09208edbad8",
-      "renditionHash": "dc335e2cb02b1698492021f11219854416bd096c49f5645934e3b9bd3a5d2115",
+      "renditionHash": "7508f6b6097e74487069b144f1fbe452c20a5eba9f6c6984b7be267ce0b8fbf6",
       "filename": "e-17-body.mp3",
-      "duration": 16.15,
-      "speakers": [
-        "旁白"
-      ],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、淡入淡出、音量调整与对白混音"
-      },
-      "sha256": "6d4dfa4fa5874abff3664130eba2e408860c81aff4c607d62472163a89c0453f",
-      "part": "body"
-    },
-    {
-      "id": "E-17",
-      "sourceHash": "18a3b93abfe93394a345b58e6a6e7ca86ddeeb115cac1a438ddd1273ad79a0fe",
-      "renditionHash": "a54bf6c4931f5ca4abd56b3d3b67ccba5b74358d25051fd8f5e1c22d9d4aea08",
-      "filename": "e-17-detail.mp3",
-      "duration": 25.92,
+      "duration": 15.25,
       "speakers": [
         "诺拉"
       ],
@@ -679,7 +659,27 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "268a2c639c0d092dae244a0e7b77efb0653edc65b9c11a88feb1094d0e6673ea",
+      "sha256": "84c95f0a7102c73be6ea5cc2b811ac62da2099068e85f63675adf9708e54badb",
+      "part": "body"
+    },
+    {
+      "id": "E-17",
+      "sourceHash": "18a3b93abfe93394a345b58e6a6e7ca86ddeeb115cac1a438ddd1273ad79a0fe",
+      "renditionHash": "bd601aa0c2a92eb5505aea8a12eb8c3a6727d7b55b44e33549691e318a25d179",
+      "filename": "e-17-detail.mp3",
+      "duration": 25.645,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "2c0709a065234db65ff193a3b6f9755ca1e2a650aa72ac623ba1c467f4593594",
       "part": "detail"
     },
     {
@@ -705,9 +705,9 @@
     {
       "id": "E-18",
       "sourceHash": "db93a1b9a61239ff5547f7e822863af5a597e647a10654999817da9a0ae2d0ed",
-      "renditionHash": "5288b2721efee19051b853eafa439197fa2f715cc7ceb2c788bcac05f94bfc3a",
+      "renditionHash": "0f6df21d9d88d28ce32325d1d6f455a625ae1d15aa6dcd25974aed2af6d8ef96",
       "filename": "e-18-detail.mp3",
-      "duration": 28.32,
+      "duration": 27.337,
       "speakers": [
         "诺拉"
       ],
@@ -719,7 +719,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "7e8ed7787ff86971275add95e3ea1d18b8dda1acb55776758d8deae3a6cb9390",
+      "sha256": "68b99dec9ff791c1d2ac19ca1966168bef4403bed44fce8b441486b5ac5d020f",
       "part": "detail"
     },
     {
@@ -727,7 +727,7 @@
       "sourceHash": "bafb37ccc2a84f72f7d060ba282d7a2ddeddf82ff5519eb70172fc8a2c1b3d9f",
       "renditionHash": "fb48558417d6627780a7a10e57c09fe58c46c5a40d4f42a6305335c92253ea46",
       "filename": "e-19-body.mp3",
-      "duration": 27.55,
+      "duration": 25.141,
       "speakers": [
         "旁白"
       ],
@@ -739,15 +739,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "27b064265e941805d15cd87257d7a60f5ca134ce6744b92824b12eb427ca6fa7",
+      "sha256": "560e6dcbcb41eb42b2da850bf5c4ae8a5540fa873f7e0e3a3e6ac98cd324f937",
       "part": "body"
     },
     {
       "id": "E-19",
       "sourceHash": "98e1d3b22d1a0230abeeb3d53fe6e26be9ee252b3a26a497794211161ffc7e67",
-      "renditionHash": "e7bdda7fe3746e7c5613c42b9dfe0315f39d4745feb0f9e0843e97ec5cb897cd",
+      "renditionHash": "d32a38f02a7cbbae95e585670cb853e5d954dbbcaca688789b9baab7677e418f",
       "filename": "e-19-detail.mp3",
-      "duration": 27.496,
+      "duration": 26.221,
       "speakers": [
         "诺拉"
       ],
@@ -759,7 +759,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "fbc79461a952571e63806469b746e4f7b0fc9af64a3dc47368c2471a09603663",
+      "sha256": "ea83e3442da0e8a566e12719bf2bddb238a1efa7f25df9e637a65c7745c3d2d2",
       "part": "detail"
     },
     {
@@ -785,9 +785,9 @@
     {
       "id": "E-20",
       "sourceHash": "c8a28229917ebddf045062b24fd93115e9174d6e04533fa3864af8d79d0163b0",
-      "renditionHash": "ff6e684e9312966b5498f88376bc792cf26174067b0a4b5e4169d55f263ac526",
+      "renditionHash": "49c9947287080d335dcb1d335327f428db048c252c1b64cf9f30181c85f02bcb",
       "filename": "e-20-detail.mp3",
-      "duration": 20.941,
+      "duration": 19.55,
       "speakers": [
         "诺拉"
       ],
@@ -799,7 +799,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "e2876c1eceb28c13dc7cd86ddcbc67cb761c55d39c155d3c6efed8f6fafba708",
+      "sha256": "7394d91c6469f5a9f3c0d2cdb4f1c725fe0153df31e59b51603acd5bfac27969",
       "part": "detail"
     },
     {
@@ -807,7 +807,7 @@
       "sourceHash": "cee4ad1c3e9dc0066548391fe8d583d05ef8f614c0edcda34811614eb470b409",
       "renditionHash": "9f7b0eb4d785a869c8b3a8e2557ab589dd74a0a305430f49808565e271897c46",
       "filename": "e-21-body.mp3",
-      "duration": 19.85,
+      "duration": 19.95,
       "speakers": [
         "旁白"
       ],
@@ -819,15 +819,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "9e352e057b2885dc3b503eabc707cdb582cf188b691df5445c4db922776ee276",
+      "sha256": "6efaa6e3f9a9eb33ce7971ae1a95d20773eaebc3cc218d44ca4cb5a71eb5d7e0",
       "part": "body"
     },
     {
       "id": "E-21",
       "sourceHash": "4c81719f61685cd89bfc4bb48a7872149c0442216df316e852c1536651f70eef",
-      "renditionHash": "76b325d13e966a0bde558c72982c07f1e89412a4276ce9a136acda5be3e8e1d7",
+      "renditionHash": "5c9f7e2c3fd055aa5b5b8e974de98ec6c62a294b00194bca38be02a82fa45e6e",
       "filename": "e-21-detail.mp3",
-      "duration": 24.75,
+      "duration": 24.85,
       "speakers": [
         "诺拉"
       ],
@@ -839,7 +839,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "825460f354e4270ab842f23abe462f3b4fd8de4be490ad2614c7dc0de20ecec2",
+      "sha256": "05cf8d2aad84dde71cbd262e225b1d7222676f4ab4c31bc492b7fd9d281cb460",
       "part": "detail"
     },
     {
@@ -865,9 +865,9 @@
     {
       "id": "E-22",
       "sourceHash": "ce93b01a80e1938d704960c5b040e6be62a1acccccdb998d7bc0dc11422324e3",
-      "renditionHash": "4e03d744a8ae493df45dcc8ac0bf36768514b4c9efcc7bd70f38f1b2a20c5ced",
+      "renditionHash": "b8aca71194b32eae875a8c5521aff867bb72ee04ccc1011a3be5a13f78923726",
       "filename": "e-22-detail.mp3",
-      "duration": 17.923,
+      "duration": 17.35,
       "speakers": [
         "诺拉"
       ],
@@ -879,35 +879,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "d9ac3fe8e3b5300acf04d4731b90dc6622a9ca1921a54a34c1b42e77adbd5ef8",
+      "sha256": "e5e07e84ab6e97b4039299ae331df3a727c976c292dd3ce650afca9d1159c960",
       "part": "detail"
     },
     {
       "id": "E-23",
       "sourceHash": "9a8ef4bb7f04ab9795ce10e1b948e97629d7271846b4745c8d0ac808ddc48008",
-      "renditionHash": "de935052b6a338869b57c31f929a46eaaf9ef2479d8f3ba6f7a1f8059e59b27b",
+      "renditionHash": "c4e7c5fc7c6677fdf66c5430100c3b87b958ecf6d14447ac46fe08f633eff2e6",
       "filename": "e-23-body.mp3",
-      "duration": 18.05,
-      "speakers": [
-        "旁白"
-      ],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、淡入淡出、音量调整与对白混音"
-      },
-      "sha256": "e31df79a279f0d7d0db770f7beaca2378179c919b2643a48d242aa6b6279cfb8",
-      "part": "body"
-    },
-    {
-      "id": "E-23",
-      "sourceHash": "157152a4215a41241bdaf7a3cfbc3fa2271eb378d3bb529ea5cf239930f6a1cf",
-      "renditionHash": "d45174161edf870d0fd7416eef426cb528026a9b736db695bd56fdecc3019851",
-      "filename": "e-23-detail.mp3",
-      "duration": 19.05,
+      "duration": 16.25,
       "speakers": [
         "诺拉"
       ],
@@ -919,7 +899,27 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "cbb6b2ef8a29e3c3eff070972349e35d1e6582ddb4a29761b79dfdf65ab69d33",
+      "sha256": "06831ed7e34ea433e6a3b244f4b06c2254fe271111e8cb2ac645a7129046a0ed",
+      "part": "body"
+    },
+    {
+      "id": "E-23",
+      "sourceHash": "157152a4215a41241bdaf7a3cfbc3fa2271eb378d3bb529ea5cf239930f6a1cf",
+      "renditionHash": "07a7e95e98f3823f91b0d5027aa31ce073c2e0d01a07f9536a17f158ada0a83d",
+      "filename": "e-23-detail.mp3",
+      "duration": 19.95,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "7e7af6acbcbaeed9b48e5c676f0b365c7f61b19392997bfcf5ca8f98fe7ab05e",
       "part": "detail"
     },
     {
@@ -927,7 +927,7 @@
       "sourceHash": "cc73761e3dce13c48769f86633f934b00ffe6a933355676fa372c48d1f889781",
       "renditionHash": "a9b66224600d39d42cdae0ac593aac54329ca43a42ecfcd18c538c360545167f",
       "filename": "e-24-body.mp3",
-      "duration": 17.95,
+      "duration": 16.95,
       "speakers": [
         "旁白"
       ],
@@ -939,15 +939,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "3cc68aa70eb76a6dfaf07a53f0d55f1d27588db20bb60acea8874de003972910",
+      "sha256": "2f30419b1173a47d13d34ef64215165963ec7085ea135a8c988d17ad7deff9e8",
       "part": "body"
     },
     {
       "id": "E-24",
       "sourceHash": "1084a413c786a71931a92819d691dde27fdc1eb9385e020b80a3ba2b0b8e63a6",
-      "renditionHash": "94bbc124cd64b88164b5e4f952f5b659a7cf7f46479c44aa2abc77efc18b9687",
+      "renditionHash": "8feea029958909df8cc9dd71aa90e4da6141c9dac5fd34d09edc6289865ef214",
       "filename": "e-24-detail.mp3",
-      "duration": 23.307,
+      "duration": 22.046,
       "speakers": [
         "诺拉"
       ],
@@ -959,35 +959,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "0b2dee9c23d30c7567c633deb80c65b26765e025368c1600fc64546cd87f733e",
+      "sha256": "04e2b9e86854a6b845243fbc5a9a1bbfe684d256ab87b261f1694e2950ea3957",
       "part": "detail"
     },
     {
       "id": "E-25",
       "sourceHash": "7ed6b393699efd10650d784547ad8fe1228b561fecb76b7c471d1dffa8c1eabe",
-      "renditionHash": "e9dfefa7f610baaa78719f092c93ab6b7d4d64c5bfc24b5170038ae356c312e2",
+      "renditionHash": "75bcca62e0f91540e9a51596cab2e9c0e0f308bc0563b77a70b6f86f212b6d8f",
       "filename": "e-25-body.mp3",
-      "duration": 19.25,
-      "speakers": [
-        "旁白"
-      ],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、淡入淡出、音量调整与对白混音"
-      },
-      "sha256": "bf02b355183a09f8f4e6ce85dfa4df082295da4630a5754205002fe1b56a2cf7",
-      "part": "body"
-    },
-    {
-      "id": "E-25",
-      "sourceHash": "f34a1425d165dbf6df0965c72dc96993b156280a095e692ffca4a0ba0436e6e8",
-      "renditionHash": "a432313e76c3de1a076eb641df07115601a605762fbc86965fec3922c49c25f4",
-      "filename": "e-25-detail.mp3",
-      "duration": 18.828,
+      "duration": 18.75,
       "speakers": [
         "诺拉"
       ],
@@ -999,7 +979,27 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "1e5996b5350b44985207a556bcbaf363161aaa1abbc6a041a4cbdc9630f4d30a",
+      "sha256": "e85b186f6a5c71928128c683dc60dce74c69d2198c05ef46db8f0602fe88563d",
+      "part": "body"
+    },
+    {
+      "id": "E-25",
+      "sourceHash": "f34a1425d165dbf6df0965c72dc96993b156280a095e692ffca4a0ba0436e6e8",
+      "renditionHash": "9ef67a5edbd474b7ed143dd41bc184f5064271dac422b5f74639ce5ac3a8baaa",
+      "filename": "e-25-detail.mp3",
+      "duration": 18.85,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "e7018c3e64e2778ba174942ba9498881ec4a353791a7deb21ae6328bdd5d6f82",
       "part": "detail"
     },
     {
@@ -1025,9 +1025,9 @@
     {
       "id": "E-26",
       "sourceHash": "964bc9514c7b280e1cf5906c0dc1453502258665400b0b4745786b1fa619f2dd",
-      "renditionHash": "56de8eb0bf7df28351fae3d9a45c79a5f0fa048f874a46613c072c8e607efa53",
+      "renditionHash": "f9ed3a9c25842e1319ab5577411ae951ca8248d4b645416999e49f9687154be8",
       "filename": "e-26-detail.mp3",
-      "duration": 25.631,
+      "duration": 24.817,
       "speakers": [
         "诺拉"
       ],
@@ -1039,15 +1039,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "f4a63007b45e5be0b84f3b1c107cb7776140fa4f3959fa28f2a1be4e3b61daf8",
+      "sha256": "1e14382e95c473f176a1a75a0e7c511003444e7253764b1220053bb55111efbe",
       "part": "detail"
     },
     {
       "id": "AR-01",
-      "part": "body",
       "sourceHash": "cee4463d53eeeff38a6a0a05f8df772c95cdc3f8891fc2a51506740fde4f4430",
+      "renditionHash": "c515ec58493079e705c8b7a190da1bb5ac622decfcf96c8cc132adf7e45a927a",
       "filename": "ar-01-body.mp3",
-      "duration": 16.25,
+      "duration": 16.05,
       "speakers": [
         "诺拉"
       ],
@@ -1059,14 +1059,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "97e75410399363af634617c78013efea95b71dc5f3775c934f2daff5c4063ef8"
+      "sha256": "59e10d981933f6d5e3a6873ca488ab34cf30a83c2e87e0c6c314a9183a990c23",
+      "part": "body"
     },
     {
       "id": "AR-02",
-      "part": "body",
       "sourceHash": "931686528053cdd1b6459f5a67b10ad7dfc0631bddf4c3ba77d5f621a2b0138b",
+      "renditionHash": "c7e06a25094d2d9019910f7e99d7e37f85d5cae9d21d2dc159a5871a9093a7f1",
       "filename": "ar-02-body.mp3",
-      "duration": 17.35,
+      "duration": 17.446,
       "speakers": [
         "诺拉"
       ],
@@ -1078,14 +1079,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "9bce86d59fe74719c121abfd61f3890a450b4c210bf061e7b3c85da651622991"
+      "sha256": "c3f992984b444c72a0e8e1eede2bcfc1173b165b40a8bfce7b13c4700973018f",
+      "part": "body"
     },
     {
       "id": "AR-03",
-      "part": "body",
       "sourceHash": "97b7972811138f71657d13a43065068d8c596c4d8acd3e6bbf349928eefe07ad",
+      "renditionHash": "8ea6de4e2aded077017423752926c3b52c4d92477a9c1b6e975d0b432e7013c1",
       "filename": "ar-03-body.mp3",
-      "duration": 16.15,
+      "duration": 15.75,
       "speakers": [
         "诺拉"
       ],
@@ -1097,14 +1099,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "d41be1c08e64809d9b712dcb7151f6fe37c446197e26c1398ed39d0a102eff02"
+      "sha256": "76eabbde7ff1261903d888f8eabd0a559bc74d4ada22a4266aa9be66b2058c47",
+      "part": "body"
     },
     {
       "id": "AR-04",
-      "part": "body",
       "sourceHash": "f8534c7a53b0dce38d98d6e8d298f0a0087db3290a3396274cb0ce20b3fcd49d",
+      "renditionHash": "2fee7432a7edf41c22edf51c3d00ad58a8e456c002ec54b1f308f9e3bcce81ef",
       "filename": "ar-04-body.mp3",
-      "duration": 16.25,
+      "duration": 15.55,
       "speakers": [
         "诺拉"
       ],
@@ -1116,14 +1119,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "3f4f72c421ba36dbea43d0c4e10d8ce959b6a6b56c2a2c8790bc97f4d5202a89"
+      "sha256": "96e5a872f54d3e4bcd9e44bbd68b8b313f0c25595191a1a6a623a8ab4812a34b",
+      "part": "body"
     },
     {
       "id": "AR-05",
-      "part": "body",
       "sourceHash": "9c60b045b5558d1b6afdbd7cd86254cb4a114bfcf9434d7d0fef33c9aa1c1d37",
+      "renditionHash": "0a54336be72979c24075c961b73a49ed1c6844d72b0819ca79ff9c0d8b69349b",
       "filename": "ar-05-body.mp3",
-      "duration": 17.35,
+      "duration": 16.65,
       "speakers": [
         "诺拉"
       ],
@@ -1135,14 +1139,15 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "d83bb3b95209dd18e8e32467279afbe3c4a7f277d0198978d71fd369818c9ccc"
+      "sha256": "33c36032725621ce37079e6dd15a8f2fb3446a6d6df2453b96c77b394cc86a6e",
+      "part": "body"
     },
     {
       "id": "AR-06",
-      "part": "body",
       "sourceHash": "18da17f13fe195edf1bc4e577393997ee58de3df0f4b9ae721d62bb517bde05c",
+      "renditionHash": "490ec9585b73683a346224096e428cb7e7937a43181eea0ce3221dcdec3d9ad7",
       "filename": "ar-06-body.mp3",
-      "duration": 16.924,
+      "duration": 18.05,
       "speakers": [
         "诺拉"
       ],
@@ -1154,7 +1159,8 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "b37aa2d3a7a4948a318a0f530f920c16dee882190964a64246a3528d76cf5d9b"
+      "sha256": "77dfe59c2d0fa539aa75650facc2f7f656c1f37c72351e0075309b10ea5ec09e",
+      "part": "body"
     }
   ]
 }

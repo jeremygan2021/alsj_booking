@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | N00 | host | 阿德里安·索恩 | src/assets/npcs/host.webp | 庄园主人、ADS创始人 |
 | N01 | attorney | 伊芙琳·维尔 | src/assets/npcs/attorney.webp | ADS首席人格架构师 |
-| N02 | detective | 诺拉·里德 | src/assets/npcs/detective.webp | ADS外聘合规顾问；案发后揭示探员身份 |
+| N02 | detective | 诺拉·里德 | src/assets/npcs/detective.webp | 男性FBI特别探员、ADS外聘合规顾问；登场即公开探员身份 |
 | N03 | security | 里昂·默瑟 | src/assets/npcs/security.webp | ADS首席财务官 |
 | N04 | scientist | 西奥多·布莱克 | src/assets/npcs/scientist.webp | 拍卖师、发布活动主持人 |
 | N05 | singer | 克拉拉·沃克 | src/assets/npcs/singer.webp | 艺术策展人、瑟琳娜生前好友 |

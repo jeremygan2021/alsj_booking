@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-15",
+  "version": "2026-10-31-independent-entrances-male-nora-female-theodore",
   "model": "speech-2.8-hd",
   "voices": {
     "旁白": [
@@ -24,11 +24,11 @@
       "41岁科学家，理性克制，触及女儿时逐渐失控。"
     ],
     "诺拉": [
-      "Chinese (Mandarin)_News_Anchor",
-      "新闻女声",
+      "Chinese (Mandarin)_Male_Announcer",
+      "播报男声",
       0.99,
       0,
-      "36岁调查者，清晰、冷静、果断，短句给出指令。"
+      "36岁男性FBI特别探员，冷静、清楚、果断；全剧统一男声。"
     ],
     "里昂": [
       "male-qn-jingying",
@@ -38,11 +38,11 @@
       "财务掌舵者，精明、礼貌，压力下咬字更硬。"
     ],
     "西奥多": [
-      "Chinese (Mandarin)_Gentleman",
-      "温润男声",
-      1.03,
+      "Chinese (Mandarin)_Mature_Woman",
+      "成熟女拍卖师",
+      1.0,
       0,
-      "拍卖师，优雅、善于控场，发现异常后笑意消失。"
+      "39岁女性拍卖师，优雅、干练、善于控场；全剧统一女声。"
     ],
     "克拉拉": [
       "Chinese (Mandarin)_Wise_Women",
@@ -64,31 +64,39 @@
       "id": "E-01",
       "part": "body",
       "title": "数字人格处置声明",
-      "sourceText": "草案拟公开ECHO局限与未授权数据问题，暂停未经充分授权的逝者模拟，移交独立审查。",
-      "sourceHash": "70a17b113b0b8c894994e6fedd2eba645472a09b029d56f74dc62439e94cfb7c",
+      "sourceText": "索恩拟于2026年10月31日23:30最终确认：暂停授权不足的数字人格交互服务，保全数据和运行状态，移交独立审查。案发时尚未确认。",
+      "sourceHash": "adaebc0828d4a1a293e64d5bfff6c1edcb43988d7ab9656f7d2629480c7f10a0",
       "lines": [
         {
           "role": "诺拉",
-          "text": "数字人格处置声明。草案拟公开伊寇局限与未授权数据问题，暂停未经充分授权的逝者模拟，移交独立审查。",
-          "emotion": "calm"
+          "text": "数字人格处置声明。索恩拟于2026年10月31日二十三点三十分最终确认：暂停授权不足的数字人格交互服务，保全数据和运行状态，移交独立审查。案发时尚未确认。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 17.55
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "8b120fc3b44a849f1756f40b27b90f360ccbde47af38b9653aca2fbc7822dc6d"
     },
     {
       "id": "E-01",
       "part": "detail",
       "title": "数字人格处置声明",
-      "sourceText": "并非财富遗嘱或永久关闭全部ECHO；23:30前须索恩最后确认。死亡前尚未完成批准。",
-      "sourceHash": "1ddb4859451d4eeab5e4440f772fd602615172c583dab9de39bd96875388a50c",
+      "sourceText": "声明不要求当晚删除数据，也不终止所有ECHO业务。独立审查将分别决定恢复、限制或终止运行；财产遗嘱另行处理。",
+      "sourceHash": "d0ce0968fe6e10fe29dbcb332814454cf6cd9668966907e7fcac79b6f5e50c1d",
       "lines": [
         {
           "role": "诺拉",
-          "text": "数字人格处置声明。鉴定补充说明。并非财富遗嘱或永久关闭全部伊寇；二十三点三十分前须索恩最后确认。死亡前尚未完成批准。",
-          "emotion": "calm"
+          "text": "数字人格处置声明。鉴定补充说明。声明不要求当晚删除数据，也不终止所有伊寇业务。独立审查将分别决定恢复、限制或终止运行；财产遗嘱另行处理。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 15.25
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "36d786ceb483c8c3dced7cba6b6193cdb7dfb2befdf135295f9fac381bf8267c"
     },
     {
       "id": "E-02",
@@ -113,17 +121,21 @@
     {
       "id": "E-02",
       "part": "detail",
-      "title": "股权收购协议",
-      "sourceText": "商业夺权构成动机线，但交易室影像可支持20:58不在场，不能由协议独立认定谋杀。",
-      "sourceHash": "4237761810c2d2c3f6932285553d64751ca5b6456919867bb03b898e910efbea",
+      "title": "董事会夺权协议与行程采购单",
+      "sourceText": "两份文件的签名与付款相符。协议写明拟以董事会表决取代索恩的经营权，行程采购用途登记为“接触投资人与安排谈判”。采购方为里昂；行程供应方见E-21。",
+      "sourceHash": "32235ecc18077a4c94b03be50efc4bd680ceef883139b9eae80ce6d298b2cc22",
       "lines": [
         {
           "role": "诺拉",
-          "text": "股权收购协议。鉴定补充说明。商业夺权构成动机线，但交易室影像可支持二十点五十八分不在场，不能由协议独立认定谋杀。",
-          "emotion": "calm"
+          "text": "董事会夺权协议与行程采购单。鉴定补充说明。两份文件的签名与付款相符。协议写明拟以董事会表决取代索恩的经营权，行程采购用途登记为“接触投资人与安排谈判”。采购方为里昂；行程供应方见E-21。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 21.029
         }
       ],
-      "music": "Darkest Child.mp3"
+      "music": "Darkest Child.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "f780e1126ed05cb9788af186bcead2d825d7aead6e73549ec2e190f376b38b8f"
     },
     {
       "id": "E-03",
@@ -144,46 +156,58 @@
       "id": "E-03",
       "part": "detail",
       "title": "档案室刷卡日志",
-      "sourceText": "该记录早于20:51安全通行模式；模式期间无需刷卡，正常日志不能覆盖全部进出。",
-      "sourceHash": "087c553c81ebf798048f5a14f746d17dabe6fcba4252363ec6baa712963a26ff",
+      "sourceText": "正常刷卡日志保留完整。20:51—21:02的通行方式另见E-04，刷卡日志未覆盖无需刷卡时段的人员进出。",
+      "sourceHash": "74b5f26aef46d2bfc0a0a902a647597c41ed62d3a06462c3f3ccbbf5c81ed731",
       "lines": [
         {
           "role": "诺拉",
-          "text": "档案室刷卡日志。鉴定补充说明。该记录早于二十点五十一分安全通行模式；模式期间无需刷卡，正常日志不能覆盖全部进出。",
-          "emotion": "calm"
+          "text": "档案室刷卡日志。鉴定补充说明。正常刷卡日志保留完整。二十点五十一分至二十一点零二分的通行方式另见E-04，刷卡日志未覆盖无需刷卡时段的人员进出。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 14.65
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "f3366e1350e9b69f83bc44930342ba0024315911a25bad6b94c5b2b9d9c54397"
     },
     {
       "id": "E-04",
       "part": "body",
       "title": "安全通行模式日志",
-      "sourceText": "20:51—21:02，档案室为临时安全通行模式，无需刷卡。21:02恢复门禁，21:05静默锁闭。",
-      "sourceHash": "e7e8afe31c185fc2b3f43e5251d9fa9e6776a784d08170fcd82fdb12c4a21df9",
+      "sourceText": "20:51—21:02，档案室按演示计划启用临时安全通行，无需刷卡；21:02恢复门禁，21:05进入演示静默锁闭。",
+      "sourceHash": "f7402aabde44490883c98b6c7951c820f682011ded2192904bc43fc82bd33dfe",
       "lines": [
         {
           "role": "诺拉",
-          "text": "安全通行模式日志。二十点五十一分至二十一点零二分，档案室为临时安全通行模式，无需刷卡。二十一点零二分恢复门禁，二十一点零五分静默锁闭。",
-          "emotion": "calm"
+          "text": "安全通行模式日志。二十点五十一分至二十一点零二分，档案室按演示计划启用临时安全通行，无需刷卡；二十一点零二分恢复门禁，二十一点零五分进入演示静默锁闭。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 17.05
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "5b3a11086411d2ebc37fc983fe6f4f82a153127ebb19a2e1ef8d38f892c1c1c4"
     },
     {
       "id": "E-04",
       "part": "detail",
       "title": "安全通行模式日志",
-      "sourceText": "模式是既有演示安排，非凶手入侵修改；西侧路线不在东侧镜头覆盖范围。",
-      "sourceHash": "7b7ad04d40148b9492a51781974d60b02b090608213ed86bfabc9c4e108dd21a",
+      "sourceText": "模式起止与完整审批一致，历史刷卡记录未删除。东侧镜头不覆盖西侧通道；庄园路线图标注，档案室经西侧通道到舞台快走约45—60秒。",
+      "sourceHash": "d86a45619d566c0967e5f52ce217a1585e028cb78750b0ec37a88885d88e75e6",
       "lines": [
         {
           "role": "诺拉",
-          "text": "安全通行模式日志。鉴定补充说明。模式是既有演示安排，非凶手入侵修改；西侧路线不在东侧镜头覆盖范围。",
-          "emotion": "calm"
+          "text": "安全通行模式日志。鉴定补充说明。模式起止与完整审批一致，历史刷卡记录未删除。东侧镜头不覆盖西侧通道；庄园路线图标注，档案室经西侧通道到舞台快走约45至60秒。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 19.25
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "220aa01b7ad09c1e8ef4ec935a1321c3ea679dc24d7859794bcf493a88506090"
     },
     {
       "id": "E-05",
@@ -204,16 +228,20 @@
       "id": "E-05",
       "part": "detail",
       "title": "音频播放日志",
-      "sourceText": "推翻“21:07声音证明索恩存活”。21:13原计划本人登台见演出脚本。",
-      "sourceHash": "447dcad908d7236255ee9a33fa15810066c2de094da37614f842d61724c789c5",
+      "sourceText": "文件版本、导出校验值与预定演出包一致，21:07没有临时替换或重新生成文件。对应演出安排见E-16。",
+      "sourceHash": "10f0157a0c9543a5e7a89266bfae8ad17a34be21390243fc4c11a23327d4c16e",
       "lines": [
         {
           "role": "诺拉",
-          "text": "音频播放日志。鉴定补充说明。推翻“二十一点零七分声音证明索恩存活”。二十一点十三分原计划本人登台见演出脚本。",
-          "emotion": "calm"
+          "text": "音频播放日志。鉴定补充说明。文件版本、导出校验值与预定演出包一致，二十一点零七分没有临时替换或重新生成文件。对应演出安排见E-16。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 15.15
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "6c68c8e74c4424c562f01dc213867677aa079fd7aab583957b2c3d1707667f3c"
     },
     {
       "id": "E-06",
@@ -234,16 +262,20 @@
       "id": "E-06",
       "part": "detail",
       "title": "极光奖杯破损照片",
-      "sourceText": "该物件需与创伤比对和银灰纤维鉴定结合；破损照片不能单独确定袭击者。",
-      "sourceHash": "762c1df6e4ce718d3dcc16bf048aa14879a84756e7aea6511085fcd615137372",
+      "sourceText": "裂口边缘锋利，没有旧积尘；19:20的奖杯陈列照片中，该处底座完整。织边仍夹在新裂口内，另有对应样本比对记录。",
+      "sourceHash": "5299746d0a68c83f7d0ba61f391abe585a30e2df266bf4558c8d2a0a3bf18726",
       "lines": [
         {
           "role": "诺拉",
-          "text": "极光奖杯破损照片。鉴定补充说明。该物件需与创伤比对和银灰纤维鉴定结合；破损照片不能单独确定袭击者。",
-          "emotion": "calm"
+          "text": "极光奖杯破损照片。鉴定补充说明。裂口边缘锋利，没有旧积尘；十九点二十分的奖杯陈列照片中，该处底座完整。织边仍夹在新裂口内，另有对应样本比对记录。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 16.85
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "fc7eca41ace6903d9ffcdb2ccff53110635a8687e074f364d33b3d0702ac6aca"
     },
     {
       "id": "E-07",
@@ -268,17 +300,21 @@
     {
       "id": "E-07",
       "part": "detail",
-      "title": "瑟琳娜生前授权声明",
-      "sourceText": "2022真人录音和2026 ECHO模拟必须标明来源。声音相似不代表主体同意或意识延续。",
-      "sourceHash": "152cdae8bf33b081d8ed9bf392473f13a6b5394c46a18a11029edf56de5ff5ef",
+      "title": "瑟琳娜2022年授权声明与真人录音",
+      "sourceText": "录音载体与签署日期可核对。2023年瑟琳娜去世，索恩随后将ADS研究重点转向ECHO。2026年数字生成的瑟琳娜语音与这份2022年真人录音来源不同。",
+      "sourceHash": "7a95718dfa0fcd25275883dcb999dd8a326374523ed6e917d870e66c60831ae1",
       "lines": [
         {
           "role": "诺拉",
-          "text": "瑟琳娜生前授权声明。鉴定补充说明。二〇二二年真人录音和二〇二六年 伊寇模拟必须标明来源。声音相似不代表主体同意或意识延续。",
-          "emotion": "calm"
+          "text": "瑟琳娜2022年授权声明与真人录音。鉴定补充说明。录音载体与签署日期可核对。2023年瑟琳娜去世，索恩随后将艾迪艾斯研究重点转向伊寇。2026年数字生成的瑟琳娜语音与这份2022年真人录音来源不同。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 21.825
         }
       ],
-      "music": "At Rest.mp3"
+      "music": "At Rest.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "16ebe24dade7d6466314498fb9f5586af72248a38bd47bf1c4cf1f5331ba4926"
     },
     {
       "id": "E-08",
@@ -298,112 +334,135 @@
     {
       "id": "E-08",
       "part": "detail",
-      "title": "21:03舞台照片",
-      "sourceText": "照片只证明21:03位置。银灰披巾边缘已破损，不能据此证明20:58也在舞台。",
-      "sourceHash": "5ae280c78ce4bad20c5069a2e48efcd1a60b692601dd2fb318986d9af2583618",
+      "title": "19:20与21:03披巾对照照片",
+      "sourceText": "两张原始照片时间可核对，织边纹样连续一致。迎宾至舞台之间的活动照片均显示披巾由伊芙琳佩戴；21:03照片只记录该时刻的位置。",
+      "sourceHash": "da5763230d91e1f2a6da9fcd6e0601c9c69294176f47d2ffb7b70303a3efba7e",
       "lines": [
         {
           "role": "诺拉",
-          "text": "二十一点零三分舞台照片。鉴定补充说明。照片只证明二十一点零三分位置。银灰披巾边缘已破损，不能据此证明二十点五十八分也在舞台。",
-          "emotion": "calm"
+          "text": "十九点二十分与二十一点零三分披巾对照照片。鉴定补充说明。两张原始照片时间可核对，织边纹样连续一致。迎宾至舞台之间的活动照片均显示披巾由伊芙琳佩戴；二十一点零三分照片只记录该时刻的位置。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 21.05
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "787f068641acace206969eceef7aa911562375b2b148e34fbd5f1b32352d32e3"
     },
     {
       "id": "E-09",
       "part": "body",
       "title": "拍卖物品档案",
-      "sourceText": "拍卖登记记载了一件古董手枪舞台模型。",
-      "sourceHash": "58207358d294f3c762601cfeb09c98c7785d0188eb2f9f51eed31352f7fcac92",
+      "sourceText": "拍卖登记记载了一件古董手枪舞台模型，拍品编号与现场模型一致。",
+      "sourceHash": "912adfbe7070d15cb7a69ef491e7ed08ca5f497680b05aea8b8f80e03421efb6",
       "lines": [
         {
           "role": "西奥多",
-          "text": "拍卖物品档案。拍卖登记记载了一件古董手枪舞台模型。",
-          "emotion": "calm"
+          "text": "拍卖物品档案。拍卖登记记载了一件古董手枪舞台模型，拍品编号与现场模型一致。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 10.05
         }
       ],
-      "music": "Darkest Child.mp3"
+      "music": "Darkest Child.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "d3fb59656092cb772521eb1cce16bc2bb4c163585fff6ab37f752eac19debe09"
     },
     {
       "id": "E-09",
       "part": "detail",
       "title": "拍卖物品档案",
-      "sourceText": "模型没有发射能力，尸体也没有枪伤，与死因无关。",
-      "sourceHash": "1aac91095078c43ddc8cb5f0d87034d22b2424adb3978363b18379a422bd5e88",
+      "sourceText": "模型枪管为封闭结构，没有发射能力；索恩头部伤情为钝性外伤，未见枪伤。",
+      "sourceHash": "01250116a3a44fde87cd7f114a4ff9828aade8557748966503cb5a8131b7aebf",
       "lines": [
         {
           "role": "诺拉",
-          "text": "拍卖物品档案。鉴定补充说明。模型没有发射能力，尸体也没有枪伤，与死因无关。",
-          "emotion": "calm"
+          "text": "拍卖物品档案。鉴定补充说明。模型枪管为封闭结构，没有发射能力；索恩头部伤情为钝性外伤，未见枪伤。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 11.75
         }
       ],
-      "music": "Darkest Child.mp3"
+      "music": "Darkest Child.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "7b5c74a43e3bc1e3d516d530f48007c548c06f69e5c2f4acbe29dc5977f4139e"
     },
     {
       "id": "E-10",
       "part": "body",
       "title": "90天应急冻结条款",
-      "sourceText": "重大数据处置须创始人最后确认；如批准前死亡，进入90天应急冻结及继任审查。",
-      "sourceHash": "9b553c47fb00129d6e6af1b2ffb32204535d746964128b06eb109b5d64f8d4f0",
+      "sourceText": "重大数字人格处置须创始人最终确认；若其在确认前死亡，未批准的处置进入90天应急冻结，由继任管理人组织独立审查。",
+      "sourceHash": "e0f2665e7fabeac7e4f390b9a3de4f0a6192ddb93064b263ac8a5646f1db6cdc",
       "lines": [
         {
           "role": "诺拉",
-          "text": "九十天应急冻结条款。重大数据处置须创始人最后确认；如批准前死亡，进入九十天应急冻结及继任审查。",
-          "emotion": "calm"
+          "text": "九十天应急冻结条款。重大数字人格处置须创始人最终确认；若其在确认前死亡，未批准的处置进入九十天应急冻结，由继任管理人组织独立审查。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 14.85
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "86f0130168ec6a65c1a529a5bdfb382073338479985de13e3c7b6db70b3c0c5e"
     },
     {
       "id": "E-10",
       "part": "detail",
       "title": "90天应急冻结条款",
-      "sourceText": "死亡只暂缓当晚处置，不会永久保护数字人格。结合莉娅档案理解凶手利益。",
-      "sourceHash": "43da64956798e8ac266f5086d54e220ac4c22036af2536a7c4a33936448b62ea",
+      "sourceText": "冻结保留现有实例运行及既有交互服务，访问全部留痕；不得删除、迁出或扩大权限。调查可限制特定个人访问。该公司内部条款只暂缓处置，不保证永久保留人格。",
+      "sourceHash": "ab575b717401878907c1ae4eb03982b81531c5aa3fcfe2037e65cc1956f948c8",
       "lines": [
         {
           "role": "诺拉",
-          "text": "九十天应急冻结条款。鉴定补充说明。死亡只暂缓当晚处置，不会永久保护数字人格。结合莉娅档案理解凶手利益。",
-          "emotion": "calm"
+          "text": "九十天应急冻结条款。鉴定补充说明。冻结保留现有实例运行及既有交互服务，访问全部留痕；不得删除、迁出或扩大权限。调查可限制特定个人访问。该公司内部条款只暂缓处置，不保证永久保留人格。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 20.95
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "7d14559cd85e6be75181297d0fe4824f2884bcaea61b3199f8413074711d2ba8"
     },
     {
       "id": "E-11",
       "part": "body",
-      "title": "西奥多补充证言",
-      "sourceText": "西奥多补充：伊芙琳约21:02才抵达舞台区域。",
-      "sourceHash": "ccd3a348a4bc2723d6f43bf53bbda0f8ab4b8564036d899126302bb07f03c5b2",
+      "title": "舞台值守记录与西奥多补充证言",
+      "sourceText": "舞台固定机位的未剪辑记录连续覆盖20:55—21:01：诺拉核对设备，西奥多排练提问，两人均未离开画面；21:02伊芙琳进入舞台区。",
+      "sourceHash": "25f0c7ee3235d147f911ceeca528452b14a782569dab6434fb7a0f460bab4dad",
       "lines": [
         {
           "role": "诺拉",
-          "text": "西奥多，关于伊芙琳抵达舞台区域的时间，请补充。",
-          "emotion": "calm"
-        },
-        {
-          "role": "西奥多",
-          "text": "我补充一下，伊芙琳大约在晚上九点零二分，才抵达舞台区域。",
-          "emotion": "calm"
+          "text": "舞台值守记录与西奥多补充证言。舞台固定机位的未剪辑记录连续覆盖二十点五十五分至二十一点零一分：诺拉核对设备，西奥多排练提问，两人均未离开画面；二十一点零二分伊芙琳进入舞台区。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 19.45
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "cb7e3981c31cf948d68223a88c908994aba8fbcaefdd60debfa7015c5af20da2"
     },
     {
       "id": "E-11",
       "part": "detail",
-      "title": "西奥多补充证言",
-      "sourceText": "此前“20:55后一直在大厅”的说法无法由该证言支持。证人不知道她此前去向。",
-      "sourceHash": "7e23cb267a1e02ae75bcb969be37f4b876c44587822885bf91cb4ceb5e96e370",
+      "title": "舞台值守记录与西奥多补充证言",
+      "sourceText": "原始片段时间连续、无剪接，值班人员另有签字记录。西奥多补充：“她约21:02才到。我不知道她此前在哪里。”该证言只补充摄影机已经记录的抵达时间。",
+      "sourceHash": "47c6044eb8bf88f68ba9b98826ce0d65bccffb7e705b7f9bdc0a08d9c02ae0bc",
       "lines": [
         {
           "role": "诺拉",
-          "text": "西奥多补充证言。鉴定补充说明。此前“二十点五十五分后一直在大厅”的说法无法由该证言支持。证人不知道她此前去向。",
-          "emotion": "calm"
+          "text": "舞台值守记录与西奥多补充证言。鉴定补充说明。原始片段时间连续、无剪接，值班人员另有签字记录。西奥多补充：“她约二十一点零二分才到。我不知道她此前在哪里。”该证言只补充摄影机已经记录的抵达时间。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 20.025
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "9a63bd8a5278506eb343c007baf276100374a795c192b2ade6905785c02e972d"
     },
     {
       "id": "E-12",
@@ -429,76 +488,96 @@
       "id": "E-12",
       "part": "detail",
       "title": "索恩私人会面通知",
-      "sourceText": "证明伊芙琳有会面理由，不能把邀请当作已经进入的直接目击。",
-      "sourceHash": "b8a4d6e3fc5995814df046eae42c5f9c5520d3a5a2fd5882c87c384aa8e1f130",
+      "sourceText": "通知已送达并读阅。它记录会面安排；没有拍到收件人实际进入档案室。",
+      "sourceHash": "e2287173af8c8d2d5256c111f3ea31d8f7da257fdd5db7b0f9663e0ee927d503",
       "lines": [
         {
           "role": "诺拉",
-          "text": "索恩私人会面通知。鉴定补充说明。证明伊芙琳有会面理由，不能把邀请当作已经进入的直接目击。",
-          "emotion": "calm"
+          "text": "索恩私人会面通知。鉴定补充说明。通知已送达并读阅。它记录会面安排；没有拍到收件人实际进入档案室。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 10.65
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "fcd746a2499f24e2577aa46bb75b9c832307311856247724892a09af5859ed19"
     },
     {
       "id": "E-13",
       "part": "body",
       "title": "初步法医报告",
-      "sourceText": "死者阿德里安·索恩，现场初检显示头部钝性外伤，未发现枪伤。",
-      "sourceHash": "8b859513be18119e6a2e236573addc376e3ffc06eccb61422e4670ccae26c4cf",
+      "sourceText": "索恩头部存在致命钝性外伤，现场未见枪伤，初检未见毒物作用征象。",
+      "sourceHash": "966afc88bc32f04ce769371b7a70590908c2d2c707aa8364cccea19b305e3353",
       "lines": [
         {
           "role": "诺拉",
-          "text": "初步法医报告。死者阿德里安·索恩，现场初检显示头部钝性外伤，未发现枪伤。",
-          "emotion": "calm"
+          "text": "初步法医报告。索恩头部存在致命钝性外伤，现场未见枪伤，初检未见毒物作用征象。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 9.45
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "14c85814d53c61d6573ce466de1b4aaea24eec6526c731d096a85e1e3cfb78e6"
     },
     {
       "id": "E-13",
       "part": "detail",
       "title": "初步法医报告",
-      "sourceText": "死亡时间需结合创伤、佩戴设备和出入记录综合判断，不能凭体表观察精确到分钟。",
-      "sourceHash": "0720ea340617eafd543f9b022fb7d074bd87529701dd0e7ff6717b1d73ebd42b",
+      "sourceText": "创伤情况支持重物打击。精确死亡时间无法仅凭现场体表观察确定，需结合设备、物证及活动记录；佩戴设备异常不等同医学死亡时刻。",
+      "sourceHash": "8ec405b0464bac4ac0aaa50413b57fcaf9e24a5edae467b7da7d4043dd17bc69",
       "lines": [
         {
           "role": "诺拉",
-          "text": "初步法医报告。鉴定补充说明。死亡时间需结合创伤、佩戴设备和出入记录综合判断，不能凭体表观察精确到分钟。",
-          "emotion": "calm"
+          "text": "初步法医报告。鉴定补充说明。创伤情况支持重物打击。精确死亡时间无法仅凭现场体表观察确定，需结合设备、物证及活动记录；佩戴设备异常不等同医学死亡时刻。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 18.05
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "eb4dc9692637f019218929a91b6ff6b53cd2993e7f204eb8d0ab156ff9d5d19c"
     },
     {
       "id": "E-14",
       "part": "body",
       "title": "凶器与创伤对比报告",
-      "sourceText": "头部钝伤形态与极光之眼奖杯底座边缘及新破损形态相符。",
-      "sourceHash": "c0f1855e31df8fb12e7109b93826df0d4e4ffca08b0f7a8fff88c0c5c2b181de",
+      "sourceText": "头部钝伤的接触形态与极光之眼奖杯底座边缘相符，底座有新鲜撞击破损。",
+      "sourceHash": "7a1ddad111d0ccb224594955beb5e34cc6f3bb6d9b44d795e76a284bc294f33d",
       "lines": [
         {
           "role": "诺拉",
-          "text": "凶器与创伤对比报告。头部钝伤形态与极光之眼奖杯底座边缘及新破损形态相符。",
-          "emotion": "calm"
+          "text": "凶器与创伤对比报告。头部钝伤的接触形态与极光之眼奖杯底座边缘相符，底座有新鲜撞击破损。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 10.55
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "942f717d035c0b992c26748eb340324f1e35ba7a04b81a8f26f486dc42b38920"
     },
     {
       "id": "E-14",
       "part": "detail",
       "title": "凶器与创伤对比报告",
-      "sourceText": "支持奖杯是致伤物；不靠伤口单独推断凶手，需结合纤维与机会链。",
-      "sourceHash": "4d5b7f4db21d866845687399dc0fe21f1c5633eb19a932f478ff449f089fb6c1",
+      "sourceText": "创伤边缘的形态与底座新破损对应；新裂口夹着银灰织边。伤口与凶器比对不包含持握者身份信息，织边另见E-17。",
+      "sourceHash": "3bc964902f6c937fa103944a88ad965b015101f2be439f93ae20533697320c58",
       "lines": [
         {
           "role": "诺拉",
-          "text": "凶器与创伤对比报告。鉴定补充说明。支持奖杯是致伤物；不靠伤口单独推断凶手，需结合纤维与机会链。",
-          "emotion": "calm"
+          "text": "凶器与创伤对比报告。鉴定补充说明。创伤边缘的形态与底座新破损对应；新裂口夹着银灰织边。伤口与凶器比对不包含持握者身份信息，织边另见E-17。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 16.65
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "72768b4f2ecb6aef7060dab170c2c60fe5b7e57f2fedfe3ffd43631c5a5dbab1"
     },
     {
       "id": "E-15",
@@ -530,82 +609,97 @@
     {
       "id": "E-15",
       "part": "detail",
-      "title": "21:07索恩语音",
-      "sourceText": "听见声音不等于看见本人存活；需要调查文件来源和现场播控方式。",
-      "sourceHash": "3ea27a038e48718bf0be3548d4b3a1b65b71cec1b8c5e9ef0164a49de34e34b1",
+      "title": "21:07索恩数字语音",
+      "sourceText": "保存的播放片段来自ECHO数字生成；播控来源见E-05。现场听到的是扬声器播放，不是目击索恩实时讲话。",
+      "sourceHash": "6b3ef3b71c88c17a49fecb8113a4caad04d6bee0865cee9c6cc2211e09f8debe",
       "lines": [
         {
           "role": "诺拉",
-          "text": "二十一点零七分索恩语音。鉴定补充说明。听见声音不等于看见本人存活；需要调查文件来源和现场播控方式。",
-          "emotion": "calm"
+          "text": "二十一点零七分索恩数字语音。鉴定补充说明。保存的播放片段来自伊寇数字生成；播控来源见E-05。现场听到的是扬声器播放，不是目击索恩实时讲话。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 15.95
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "d566e25c5314bc0c1a7b35fd2ce40f5aaed69ac123247b39acf8dca19e62f4bc"
     },
     {
       "id": "E-16",
       "part": "body",
       "title": "数字人格演出脚本",
-      "sourceText": "演出单：21:07数字人格发言；21:13索恩本人登台揭晓。",
-      "sourceHash": "0b1fa1d7afff463aa06538d0c50bc5c378abe7c80f929e21d9123679a837c9ec",
+      "sourceText": "索恩于案发前批准的演出单写明：20:41导出演示包，21:07播放数字人格语音，21:13索恩本人登台揭晓。",
+      "sourceHash": "66e2411053b85414db9f12036f6eea2dab670be2522b84ba87c6c58ff1671814",
       "lines": [
         {
           "role": "旁白",
-          "text": "数字人格演出脚本。",
-          "emotion": "calm"
-        },
-        {
-          "role": "西奥多",
-          "text": "演出单上的安排是，晚上九点零七分，数字人格发言。九点十三分，索恩本人登台揭晓。",
-          "emotion": "calm"
+          "text": "数字人格演出脚本。索恩于案发前批准的演出单写明：二十点四十一分导出演示包，二十一点零七分播放数字人格语音，二十一点十三分索恩本人登台揭晓。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 16.55
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "06f02d2f0a54c39f6b0be6780d439dea079fb26ad8d80f78502c83405020cffe"
     },
     {
       "id": "E-16",
       "part": "detail",
       "title": "数字人格演出脚本",
-      "sourceText": "原定演示在谋杀前已安排，凶手只是利用既有程序制造时间误认。",
-      "sourceHash": "b146554142411666854686cbcf25b6a84050a361fc6719d40450d263ed346fe0",
+      "sourceText": "演出单在当日18:30发送给舞台值守人员，保留收件记录。数字语音与临时安全通行均为原定演示安排，未在发现尸体后追加。",
+      "sourceHash": "bf71d6b709b60f5329dbd4794032f73cbd9cdd949b16a7ce906a84b8fd163b15",
       "lines": [
         {
           "role": "诺拉",
-          "text": "数字人格演出脚本。鉴定补充说明。原定演示在谋杀前已安排，凶手只是利用既有程序制造时间误认。",
-          "emotion": "calm"
+          "text": "数字人格演出脚本。鉴定补充说明。演出单在当日十八点三十分发送给舞台值守人员，保留收件记录。数字语音与临时安全通行均为原定演示安排，未在发现尸体后追加。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 17.15
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "f761246860916a0774de2f0ea35aa9d67dbc0992ea984d763887e7d48d405937"
     },
     {
       "id": "E-17",
       "part": "body",
-      "title": "银灰色披巾纤维比对",
-      "sourceText": "奖杯破损处的银灰纤维织法与伊芙琳披巾破损边缘具有显著关联。",
-      "sourceHash": "241b5507726e4ab1fc5da0962f684e481b143bca62ff04b214e0f9c1f9b7aec4",
+      "title": "银灰织边断口与披巾比对",
+      "sourceText": "奖杯新裂口内夹住的银灰织边，与伊芙琳披巾缺口的断口形状、线迹及织纹连续相接。",
+      "sourceHash": "cac8538f6aefa8c5891a3b3cfdc6ab1caee4a5cca6be0a162a62d09208edbad8",
       "lines": [
         {
           "role": "诺拉",
-          "text": "银灰色披巾纤维比对。奖杯破损处的银灰纤维织法与伊芙琳披巾破损边缘具有显著关联。",
-          "emotion": "calm"
+          "text": "银灰织边断口与披巾比对。奖杯新裂口内夹住的银灰织边，与伊芙琳披巾缺口的断口形状、线迹及织纹连续相接。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 12.15
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "7508f6b6097e74487069b144f1fbe452c20a5eba9f6c6984b7be267ce0b8fbf6"
     },
     {
       "id": "E-17",
       "part": "detail",
-      "title": "银灰色披巾纤维比对",
-      "sourceText": "结合舞台照片、会面通知与通行窗口才形成完整链；演员不能否认已确认纤维关联。",
-      "sourceHash": "22bc6734ddda18efc6f27892a0623d26213cdadad30e604e6ceb2d2e5bc26744",
+      "title": "银灰织边断口与披巾比对",
+      "sourceText": "样本展开后，断口曲线和三条不规则织线可逐一衔接；不是仅有颜色与材质相似。19:20照片显示该处完整，21:03已出现对应缺口；比对图保留原始比例。",
+      "sourceHash": "18a3b93abfe93394a345b58e6a6e7ca86ddeeb115cac1a438ddd1273ad79a0fe",
       "lines": [
         {
           "role": "诺拉",
-          "text": "银灰色披巾纤维比对。鉴定补充说明。结合舞台照片、会面通知与通行窗口才形成完整链；演员不能否认已确认纤维关联。",
-          "emotion": "calm"
+          "text": "银灰织边断口与披巾比对。鉴定补充说明。样本展开后，断口曲线和三条不规则织线可逐一衔接；不是仅有颜色与材质相似。十九点二十分照片显示该处完整，二十一点零三分已出现对应缺口；比对图保留原始比例。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 22.545
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "bd601aa0c2a92eb5505aea8a12eb8c3a6727d7b55b44e33549691e318a25d179"
     },
     {
       "id": "E-18",
@@ -625,52 +719,59 @@
     {
       "id": "E-18",
       "part": "detail",
-      "title": "莉娅数字人格档案",
-      "sourceText": "处置建议为独立审查/暂停；伊芙琳保存数字女儿，解释反对关停的个人动机。",
-      "sourceHash": "63ac1418c2f827d606e769e6d9f1c3372c7a59242bf74fd48a5708b11108ea5c",
+      "title": "莉娅实例与权限档案",
+      "sourceText": "照片、素材和对话可备份，当前运行实例由ADS托管。维护权限与完整实例导出权限独立，访问令牌不含导出权限；外部重建相似模型无法迁走现有实例。伊芙琳参加过E-10条款评审。",
+      "sourceHash": "db93a1b9a61239ff5547f7e822863af5a597e647a10654999817da9a0ae2d0ed",
       "lines": [
         {
           "role": "诺拉",
-          "text": "莉娅数字人格档案。鉴定补充说明。处置建议为独立审查或暂停；伊芙琳保存数字女儿，解释反对关停的个人动机。",
-          "emotion": "calm"
+          "text": "莉娅实例与权限档案。鉴定补充说明。照片、素材和对话可备份，当前运行实例由艾迪艾斯托管。维护权限与完整实例导出权限独立，访问令牌不含导出权限；外部重建相似模型无法迁走现有实例。伊芙琳参加过E-10条款评审。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 24.237
         }
       ],
-      "music": "At Rest.mp3"
+      "music": "At Rest.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "0f6df21d9d88d28ce32325d1d6f455a625ae1d15aa6dcd25974aed2af6d8ef96"
     },
     {
       "id": "E-19",
       "part": "body",
-      "title": "安保例外审批单",
-      "sourceText": "诺拉按演示要求确认20:51—21:02临时安全通行。",
-      "sourceHash": "92337cec575a25aa0f6ca4e49c314ccce13b624c9a7127a8077e5016f0187a83",
+      "title": "安保审批原件与21:18私人节选",
+      "sourceText": "完整审批写明：申请人索恩，用途为数字人格演示，执行人为诺拉，20:51—21:02免刷卡。另存西奥多21:18散发的私人节选，只留下执行人和时段。",
+      "sourceHash": "bafb37ccc2a84f72f7d060ba282d7a2ddeddf82ff5519eb70172fc8a2c1b3d9f",
       "lines": [
         {
           "role": "旁白",
-          "text": "安保例外审批单。按审批内容进行角色演绎。",
-          "emotion": "calm"
-        },
-        {
-          "role": "诺拉",
-          "text": "我按演示要求，确认了晚上八点五十一分至九点零二分的临时安全通行。",
-          "emotion": "calm"
+          "text": "安保审批原件与二十一点十八分私人节选。完整审批写明：申请人索恩，用途为数字人格演示，执行人为诺拉，二十点五十一分至二十一点零二分免刷卡。另存西奥多二十一点十八分散发的私人节选，只留下执行人和时段。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 22.041
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "fb48558417d6627780a7a10e57c09fe58c46c5a40d4f42a6305335c92253ea46"
     },
     {
       "id": "E-19",
       "part": "detail",
-      "title": "安保例外审批单",
-      "sourceText": "她起初未主动公开此事；审批不能证明她看见伊芙琳进入，也不能单独证明其实施袭击。",
-      "sourceHash": "00f64c7d3ecfa4aae2a1645a7093a76fa5d9fc501bb75a7c7468adbe461bd19a",
+      "title": "安保审批原件与21:18私人节选",
+      "sourceText": "节选裁去申请人与演示用途，并附西奥多的私人指控：“诺拉删过出入记录。”原件可免费核对；历史刷卡记录完整，模式日志也保留。该指控是西奥多的说法，不是系统鉴定结论。",
+      "sourceHash": "98e1d3b22d1a0230abeeb3d53fe6e26be9ee252b3a26a497794211161ffc7e67",
       "lines": [
         {
           "role": "诺拉",
-          "text": "安保例外审批单。鉴定补充说明。她起初未主动公开此事；审批不能证明她看见伊芙琳进入，也不能单独证明其实施袭击。",
-          "emotion": "calm"
+          "text": "安保审批原件与二十一点十八分私人节选。鉴定补充说明。节选裁去申请人与演示用途，并附西奥多的私人指控：“诺拉删过出入记录。”原件可免费核对；历史刷卡记录完整，模式日志也保留。该指控是西奥多的说法，不是系统鉴定结论。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 23.121
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "d32a38f02a7cbbae95e585670cb853e5d954dbbcaca688789b9baab7677e418f"
     },
     {
       "id": "E-20",
@@ -691,51 +792,58 @@
       "id": "E-20",
       "part": "detail",
       "title": "东侧走廊影像",
-      "sourceText": "镜头仅覆盖东侧。克拉拉听见争执但听不清内容、未识别争执者。",
-      "sourceHash": "58cccdfc9c301b6a8b99b3bfc89fcd851120723f7ba5431fdaa1d3d6e402f831",
+      "sourceText": "镜头只覆盖东侧走廊，不覆盖西侧通道。克拉拉说自己听见争执，但听不清内容，也没有看见争执者；摄影区后续记录见E-25。",
+      "sourceHash": "c8a28229917ebddf045062b24fd93115e9174d6e04533fa3864af8d79d0163b0",
       "lines": [
         {
           "role": "诺拉",
-          "text": "东侧走廊影像。鉴定补充说明。镜头仅覆盖东侧。克拉拉听见争执但听不清内容、未识别争执者。",
-          "emotion": "calm"
+          "text": "东侧走廊影像。鉴定补充说明。镜头只覆盖东侧走廊，不覆盖西侧通道。克拉拉说自己听见争执，但听不清内容，也没有看见争执者；摄影区后续记录见E-25。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 16.45
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "49c9947287080d335dcb1d335327f428db048c252c1b64cf9f30181c85f02bcb"
     },
     {
       "id": "E-21",
       "part": "body",
-      "title": "私人数据交易合同",
-      "sourceText": "西奥多从部分ADS员工购买私人数据，并向富豪客户出售资料。",
-      "sourceHash": "d23a4c4d4daed3fc4b65654da0f3e45a7836718f538c6217ef2900c1021bd2cd",
+      "title": "私人数据及行程交易合同",
+      "sourceText": "合同与交付清单记载：西奥多从部分ADS员工处购买私人数据，再转售客户；里昂支付的索恩行程采购款与其中一笔交付相符。",
+      "sourceHash": "cee4ad1c3e9dc0066548391fe8d583d05ef8f614c0edcda34811614eb470b409",
       "lines": [
         {
           "role": "旁白",
-          "text": "私人数据交易合同。依照合同所记内容，演绎如下陈述。",
-          "emotion": "calm"
-        },
-        {
-          "role": "西奥多",
-          "text": "我从部分艾迪艾斯员工那里购买私人数据，再向富豪客户出售资料。",
-          "emotion": "calm"
+          "text": "私人数据及行程交易合同。合同与交付清单记载：西奥多从部分艾迪艾斯员工处购买私人数据，再转售客户；里昂支付的索恩行程采购款与其中一笔交付相符。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 16.85
         }
       ],
-      "music": "Darkest Child.mp3"
+      "music": "Darkest Child.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "9f7b0eb4d785a869c8b3a8e2557ab589dd74a0a305430f49808565e271897c46"
     },
     {
       "id": "E-21",
       "part": "detail",
-      "title": "私人数据交易合同",
-      "sourceText": "解释其不愿公开播控后台的原因，属于另一条犯罪嫌疑，不等于谋杀事实。",
-      "sourceHash": "fa0734a64dd3b8887bcd07ed2ce7a489a621a2e2470a40906f7d6519ce57119b",
+      "title": "私人数据及行程交易合同",
+      "sourceText": "交付包括私人数据与索恩会面行程，未写有杀人委托。合同、交付清单与付款记录可相互核对；21:07演示的实际安排与文件形成时间另见E-05、E-16。",
+      "sourceHash": "4c81719f61685cd89bfc4bb48a7872149c0442216df316e852c1536651f70eef",
       "lines": [
         {
           "role": "诺拉",
-          "text": "私人数据交易合同。鉴定补充说明。解释其不愿公开播控后台的原因，属于另一条犯罪嫌疑，不等于谋杀事实。",
-          "emotion": "calm"
+          "text": "私人数据及行程交易合同。鉴定补充说明。交付包括私人数据与索恩会面行程，未写有杀人委托。合同、交付清单与付款记录可相互核对；二十一点零七分演示的实际安排与文件形成时间另见E-05、E-16。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 21.75
         }
       ],
-      "music": "Darkest Child.mp3"
+      "music": "Darkest Child.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "5c9f7e2c3fd055aa5b5b8e974de98ec6c62a294b00194bca38be02a82fa45e6e"
     },
     {
       "id": "E-22",
@@ -756,116 +864,134 @@
       "id": "E-22",
       "part": "detail",
       "title": "21:09自动代理回复",
-      "sourceText": "文字消息与预录语音一样不能独立证明当时存活。",
-      "sourceHash": "aa66aa8e3c31214f36f85828331b0f60bc24f72383e3ee3a5b1931371df47444",
+      "sourceText": "审计记录为预设代理发送，没有索恩手动输入或实时确认记录。该账户活动由自动任务执行。",
+      "sourceHash": "ce93b01a80e1938d704960c5b040e6be62a1acccccdb998d7bc0dc11422324e3",
       "lines": [
         {
           "role": "诺拉",
-          "text": "二十一点零九分自动代理回复。鉴定补充说明。文字消息与预录语音一样不能独立证明当时存活。",
-          "emotion": "calm"
+          "text": "二十一点零九分自动代理回复。鉴定补充说明。审计记录为预设代理发送，没有索恩手动输入或实时确认记录。该账户活动由自动任务执行。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 14.25
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "b8aca71194b32eae875a8c5521aff867bb72ee04ccc1011a3be5a13f78923726"
     },
     {
       "id": "E-23",
       "part": "body",
       "title": "索恩佩戴设备异常记录",
-      "sourceText": "20:58:34佩戴设备记录异常冲击；此后生理传感器持续异常并有效数据中断。",
-      "sourceHash": "b272c79f94b2c2978f60c9b954dc7c662a5f59330f8998f6415441dc33f9e876",
+      "sourceText": "20:58:34，索恩佩戴设备记录一次异常冲击；随后生理传感数据持续异常，有效记录中断。",
+      "sourceHash": "9a8ef4bb7f04ab9795ce10e1b948e97629d7271846b4745c8d0ac808ddc48008",
       "lines": [
         {
           "role": "诺拉",
-          "text": "索恩佩戴设备异常记录。二十点五十八分三十四秒佩戴设备记录异常冲击；此后生理传感器持续异常并有效数据中断。",
-          "emotion": "calm"
+          "text": "索恩佩戴设备异常记录。二十点五十八分三十四秒，索恩佩戴设备记录一次异常冲击；随后生理传感数据持续异常，有效记录中断。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 13.15
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "c4e7c5fc7c6677fdf66c5430100c3b87b958ecf6d14447ac46fe08f633eff2e6"
     },
     {
       "id": "E-23",
       "part": "detail",
       "title": "索恩佩戴设备异常记录",
-      "sourceText": "可与创伤和出入记录支持约20:58遭致命伤判断；设备异常不等同医学死亡时刻。",
-      "sourceHash": "dfd4b128cdbe77dbd76a9ba1e9df93931196ef98de94b03314d096ff52915d66",
+      "sourceText": "冲击记录与头部创伤可共同核对受伤窗口。设备无法单独判定医学死亡时刻；此前数据连续，未见同等级冲击。",
+      "sourceHash": "157152a4215a41241bdaf7a3cfbc3fa2271eb378d3bb529ea5cf239930f6a1cf",
       "lines": [
         {
           "role": "诺拉",
-          "text": "索恩佩戴设备异常记录。鉴定补充说明。可与创伤和出入记录支持约二十点五十八分遭致命伤判断；设备异常不等同医学死亡时刻。",
-          "emotion": "calm"
+          "text": "索恩佩戴设备异常记录。鉴定补充说明。冲击记录与头部创伤可共同核对受伤窗口。设备无法单独判定医学死亡时刻；此前数据连续，未见同等级冲击。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 16.85
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "07a7e95e98f3823f91b0d5027aa31ce073c2e0d01a07f9536a17f158ada0a83d"
     },
     {
       "id": "E-24",
       "part": "body",
-      "title": "里昂交易室视频记录",
-      "sourceText": "20:55—21:04投资人视频会议；交易室影像和参会者证言支持里昂20:58仍在室内。",
-      "sourceHash": "fadbdc1e162f939de0e31ef7a07883ba22ad7733db128f39e6a3072260935601",
+      "title": "里昂交易室连续视频记录",
+      "sourceText": "交易室原始影像连续记录20:55—21:04的投资人视频会议，里昂在整个时段均位于室内。",
+      "sourceHash": "cc73761e3dce13c48769f86633f934b00ffe6a933355676fa372c48d1f889781",
       "lines": [
         {
           "role": "旁白",
-          "text": "里昂交易室视频记录。晚上八点五十五分至九点零四分，投资人视频会议进行中。",
-          "emotion": "calm"
-        },
-        {
-          "role": "诺拉",
-          "text": "交易室影像和参会者证言，支持里昂在八点五十八分，仍然在室内。",
-          "emotion": "calm"
+          "text": "里昂交易室连续视频记录。交易室原始影像连续记录二十点五十五分至二十一点零四分的投资人视频会议，里昂在整个时段均位于室内。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 13.85
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "a9b66224600d39d42cdae0ac593aac54329ca43a42ecfcd18c538c360545167f"
     },
     {
       "id": "E-24",
       "part": "detail",
-      "title": "里昂交易室视频记录",
-      "sourceText": "可削弱里昂作案机会，与夺权协议共同完成嫌疑排除。",
-      "sourceHash": "5b22114ac67759ad4b17a64867027743761a9ca3775b6ef67645ed8b05bbc366",
+      "title": "里昂交易室连续视频记录",
+      "sourceText": "视频时间连续、无剪接，两名参会者另有书面证言；20:58:34前后里昂仍在画面中。会议讨论董事会改选，内容与E-02协议相符。",
+      "sourceHash": "1084a413c786a71931a92819d691dde27fdc1eb9385e020b80a3ba2b0b8e63a6",
       "lines": [
         {
           "role": "诺拉",
-          "text": "里昂交易室视频记录。鉴定补充说明。可削弱里昂作案机会，与夺权协议共同完成嫌疑排除。",
-          "emotion": "calm"
+          "text": "里昂交易室连续视频记录。鉴定补充说明。视频时间连续、无剪接，两名参会者另有书面证言；二十点五十八分三十四秒前后里昂仍在画面中。会议讨论董事会改选，内容与E-02协议相符。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 18.946
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "8feea029958909df8cc9dd71aa90e4da6141c9dac5fd34d09edc6289865ef214"
     },
     {
       "id": "E-25",
       "part": "body",
-      "title": "克拉拉摄影区记录",
-      "sourceText": "20:59克拉拉已在摄影区，留下可核对记录。",
-      "sourceHash": "3fc9484714283b3b2765276972ba12339a7cb14620b4713f2776fd7f22d10a09",
+      "title": "克拉拉摄影区连续工作录像",
+      "sourceText": "摄影师保留的未剪辑工作录像连续覆盖20:57—21:01，克拉拉始终参与展品拍摄；20:59照片为其中一帧。",
+      "sourceHash": "7ed6b393699efd10650d784547ad8fe1228b561fecb76b7c471d1dffa8c1eabe",
       "lines": [
         {
           "role": "诺拉",
-          "text": "克拉拉摄影区记录。记录中，克拉拉在什么时间出现在摄影区？",
-          "emotion": "calm"
-        },
-        {
-          "role": "旁白",
-          "text": "晚上八点五十九分，克拉拉已经在摄影区，并留下可供核对的记录。",
-          "emotion": "calm"
+          "text": "克拉拉摄影区连续工作录像。摄影师保留的未剪辑工作录像连续覆盖二十点五十七分至二十一点零一分，克拉拉始终参与展品拍摄；二十点五十九分照片为其中一帧。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 15.65
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "75bcca62e0f91540e9a51596cab2e9c0e0f308bc0563b77a70b6f86f212b6d8f"
     },
     {
       "id": "E-25",
       "part": "detail",
-      "title": "克拉拉摄影区记录",
-      "sourceText": "与20:56东侧走廊影像形成路线；仍不能单凭照片推断档案室里谁在争执。",
-      "sourceHash": "5bbbc9e2278fd7d9065e3c323cdae249d542013c1d9854d83bf2f6b001309272",
+      "title": "克拉拉摄影区连续工作录像",
+      "sourceText": "原片时间连续、无剪接，摄影师确认克拉拉没有离开画面。该片段衔接她20:56离开东侧走廊后的行程。",
+      "sourceHash": "f34a1425d165dbf6df0965c72dc96993b156280a095e692ffca4a0ba0436e6e8",
       "lines": [
         {
           "role": "诺拉",
-          "text": "克拉拉摄影区记录。鉴定补充说明。与二十点五十六分东侧走廊影像形成路线；仍不能单凭照片推断档案室里谁在争执。",
-          "emotion": "calm"
+          "text": "克拉拉摄影区连续工作录像。鉴定补充说明。原片时间连续、无剪接，摄影师确认克拉拉没有离开画面。该片段衔接她二十点五十六分离开东侧走廊后的行程。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 15.75
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "9ef67a5edbd474b7ed143dd41bc184f5064271dac422b5f74639ce5ac3a8baaa"
     },
     {
       "id": "E-26",
@@ -886,16 +1012,20 @@
       "id": "E-26",
       "part": "detail",
       "title": "索恩真实遗言视频",
-      "sourceText": "庭审后开放；之后保留/封存审查/终止模拟的价值投票不改变已查明谋杀事实。",
-      "sourceHash": "13ca235486c847aa227828f08a1ba7a82069439323ecdd15aa024b11de1e9df5",
+      "sourceText": "他说：“我一直知道她2022年的意愿，审计只是把它重新送回我面前。会回答不意味着她同意留下。”现场价值表决作为审查意见提交，不立即改变90天冻结，也不代替逝者授权。",
+      "sourceHash": "964bc9514c7b280e1cf5906c0dc1453502258665400b0b4745786b1fa619f2dd",
       "lines": [
         {
           "role": "诺拉",
-          "text": "索恩真实遗言视频。鉴定补充说明。庭审后开放；之后保留或封存审查或终止模拟的价值投票不改变已查明谋杀事实。",
-          "emotion": "calm"
+          "text": "索恩真实遗言视频。鉴定补充说明。他说：“我一直知道她2022年的意愿，审计只是把它重新送回我面前。会回答不意味着她同意留下。”现场价值表决作为审查意见提交，不立即改变九十天冻结，也不代替逝者授权。",
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 21.717
         }
       ],
-      "music": "At Rest.mp3"
+      "music": "At Rest.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "f9ed3a9c25842e1319ab5577411ae951ca8248d4b645416999e49f9687154be8"
     },
     {
       "id": "AR-01",
@@ -907,10 +1037,14 @@
         {
           "role": "诺拉",
           "text": "尸体位置分析。观察索恩倒地位置与周围环境。现场初步记录显示头部钝性外伤，具体死亡时间应结合其他证据判断。",
-          "emotion": "calm"
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 12.95
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "c515ec58493079e705c8b7a190da1bb5ac622decfcf96c8cc132adf7e45a927a"
     },
     {
       "id": "AR-02",
@@ -922,10 +1056,14 @@
         {
           "role": "诺拉",
           "text": "头部创伤鉴定。查看非血腥创伤示意，比较头部钝伤轮廓与奖杯底座形态。模型仅用于虚构案件分析，结论以对应鉴定报告为准。",
-          "emotion": "calm"
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 14.346
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "c7e06a25094d2d9019910f7e99d7e37f85d5cae9d21d2dc159a5871a9093a7f1"
     },
     {
       "id": "AR-03",
@@ -937,10 +1075,14 @@
         {
           "role": "诺拉",
           "text": "佩戴设备分析。观察手表、表带与传感器。设备异常和生理数据中断能支持时间分析，但不等于精确医学死亡时刻。",
-          "emotion": "calm"
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 12.65
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "8ea6de4e2aded077017423752926c3b52c4d92477a9c1b6e975d0b432e7013c1"
     },
     {
       "id": "AR-04",
@@ -952,10 +1094,14 @@
         {
           "role": "诺拉",
           "text": "奖杯微量物证。旋转极光之眼奖杯，检查底座背面的破损和附着纤维。纤维来源需通过交叉比对确认，不能只看模型判断。",
-          "emotion": "calm"
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 12.45
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "2fee7432a7edf41c22edf51c3d00ad58a8e456c002ec54b1f308f9e3bcce81ef"
     },
     {
       "id": "AR-05",
@@ -967,10 +1113,14 @@
         {
           "role": "诺拉",
           "text": "酒杯检验。查看酒杯与模拟检验样本。案件现有资料不支持枪击或酒杯毒物为直接死因；排除性调查仍需与初步法医报告结合。",
-          "emotion": "calm"
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 13.55
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "0a54336be72979c24075c961b73a49ed1c6844d72b0819ca79ff9c0d8b69349b"
     },
     {
       "id": "AR-06",
@@ -982,10 +1132,14 @@
         {
           "role": "诺拉",
           "text": "档案室出入路线。观察档案室与东西两条通道。东侧摄像机只覆盖东侧，不能据此判断西侧无人进出。门禁时间窗口以记录为准。",
-          "emotion": "calm"
+          "emotion": "calm",
+          "start": 1.25,
+          "end": 14.95
         }
       ],
-      "music": "Long Note One.mp3"
+      "music": "Long Note One.mp3",
+      "legacyCompatible": false,
+      "renditionHash": "490ec9585b73683a346224096e428cb7e7937a43181eea0ce3221dcdec3d9ad7"
     }
   ]
 }

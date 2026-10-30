@@ -1,4 +1,5 @@
 import { phases } from "./content.js";
+import { npcCastingFields } from "./story-materials.js";
 class GenerationError extends Error {}
 
 export function generationConfig(options = {}) {
@@ -321,6 +322,7 @@ export async function generateStory(character, npcs, config, context = {}) {
       english,
       role,
       bio,
+      ...npcCastingFields(id),
     })),
   };
   const input = Object.fromEntries(

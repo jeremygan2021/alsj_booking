@@ -20,12 +20,16 @@ import {
 test("现场演绎只纳入16段更新成片，摘要不携带私稿和服务器路径", async () => {
   const catalog = createPerformanceAudioCatalog();
   const summary = await catalog.describe();
-  assert.equal(summary.version, "2026-10-30-blackout-voice-clarity-v5");
+  assert.equal(summary.version, "2026-10-31-independent-entrances-male-nora-female-theodore");
   assert.equal(summary.provider, "MiniMax");
   assert.equal(summary.model, "speech-2.8-hd");
   assert.equal(summary.tracks.length, 16);
-  assert.equal(summary.totalDuration, 1660.73);
-  assert.equal(summary.voices.length, 8);
+  assert.equal(summary.totalDuration, 1692.342);
+  assert.equal(summary.voices.length, 9);
+  const voices = Object.fromEntries(summary.voices.map((voice) => [voice.role, voice.voiceId]));
+  assert.equal(voices["诺拉"], "Chinese (Mandarin)_Male_Announcer");
+  assert.equal(voices["西奥多"], "Chinese (Mandarin)_Mature_Woman");
+  assert.equal(voices["主持人"], "Chinese (Mandarin)_Radio_Host");
   assert.equal(summary.credits.length, 7);
   assert.deepEqual(
     summary.tracks.filter((track) => track.spoiler).map((track) => track.id),
@@ -44,12 +48,12 @@ test("现场演绎只纳入16段更新成片，摘要不携带私稿和服务器
   const opening = summary.tracks.find((track) => track.id === "A02");
   assert.equal(
     opening.events.find((event) => event.cue === "money").time,
-    26.388,
+    27.667,
   );
   const entrances = summary.tracks.find((track) => track.id === "B03").events;
   assert.deepEqual(
     entrances.map((event) => event.role),
-    ["西奥多", "索恩", "伊芙琳", "里昂", "克拉拉", "诺拉"],
+    ["索恩", "伊芙琳", "里昂", "克拉拉", "诺拉", "西奥多"],
   );
   const json = JSON.stringify(summary);
   for (const privateField of [

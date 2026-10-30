@@ -39,7 +39,7 @@ test("NPC与GM速览取消演员八分评分，GM按当前多数与三项证明�
   }
   assert.match(run(npc), /GM统一核对动机、手段和机会三项证明/);
   assert.match(run(npc), /终局.*由GM宣布/);
-  assert.doesNotMatch(npc, /唯一凶手|20:58|E-26|莉娅|FBI/);
+  assert.doesNotMatch(npc, /唯一凶手|20:58|E-26|莉娅/);
   assert.match(run(gm), /五问只帮助复盘/);
   assert.match(run(gm), /多数正确指认且三项成立，调查方赢得主案/);
   assert.match(run(gm), /不自动替代GM的证据审核/);

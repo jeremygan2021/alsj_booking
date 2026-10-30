@@ -1,5 +1,10 @@
 import materials from "./story-materials.json" with { type: "json" };
 
+export function npcCastingFields(id) {
+  const gender = materials.npcs.find((npc) => npc.id === id)?.gender;
+  return gender ? { gender, pronoun: gender === "男" ? "他" : "她" } : {};
+}
+
 // Keep actor-only prose on the server, never in a public or client-side manifest.
 export const npcMaterialSeeds = materials.npcs.map((n) => [
   n.id,

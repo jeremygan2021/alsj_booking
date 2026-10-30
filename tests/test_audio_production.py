@@ -6,10 +6,13 @@ import json
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
+import io
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
 from audio_production import atomic_json, digest, fingerprint, payload_for, synthesize
+import audio_production
 
 
 def module(filename, name):
@@ -48,6 +51,18 @@ class AudioJobTests(unittest.TestCase):
         return synthesize(self.config, self.line, self.cache, 'fake-not-a-key',
                           api_fn=kwargs.pop('api_fn', self.api), download_fn=self.download,
                           poll_seconds=0, **kwargs)
+
+    def test_task_queries_bypass_a_cached_processing_response_without_reposting(self):
+        requests = []
+        def response(request, timeout):
+            requests.append(request)
+            return io.BytesIO(b'{"status":"Success","base_resp":{"status_code":0}}')
+        with patch('audio_production.urllib.request.urlopen', side_effect=response):
+            for _ in range(2):
+                self.assertEqual(audio_production.api('/v1/query/t2a_async_query_v2?task_id=123', 'test-key')['status'], 'Success')
+        self.assertNotEqual(requests[0].full_url, requests[1].full_url)
+        self.assertTrue(all(request.get_method() == 'GET' for request in requests))
+        self.assertTrue(all(request.get_header('Cache-control') == 'no-cache' for request in requests))
 
     def test_second_run_reuses_verified_cached_payload(self):
         first = self.generate()

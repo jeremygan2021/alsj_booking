@@ -230,5 +230,5 @@ test("六名NPC故事、段落及来源一致，完整证据链交GM核对后按
     /临时造假|事后造假|事发后临时生成/,
   );
   assert.match(theo.story, /从开始就知道声音不是实时发言/);
-  assert.match(theo.story, /声称她删过记录/);
+  assert.match(theo.story, /声称他删过记录/);
 });

@@ -4,6 +4,8 @@ import { applyCharacterPhoto } from "./migrations/character-photo.js";
 import { applyNpcMaterials } from "./migrations/npc-materials-v4.js";
 import { applyStoryV5 } from "./migrations/story-v5.js";
 import { applyAmateurNpc } from "./migrations/amateur-npc.js";
+import { applyMaleNora } from "./migrations/nora-male.js";
+import { applyFemaleTheodore } from "./migrations/theodore-female.js";
 import { migrateFactionPlay } from "./faction-play.js";
 import { applyNpcStory } from "./migrations/npc-story-v3.js";
 import pg from "pg";
@@ -133,6 +135,8 @@ export async function openPostgres(connectionString) {
     await db.transaction(() => applyEventCapacity(db));
     await db.transaction(() => applyStoryV5(db));
     await db.transaction(() => applyAmateurNpc(db));
+    await db.transaction(() => applyMaleNora(db));
+    await db.transaction(() => applyFemaleTheodore(db));
     await db.transaction(() => migrateFactionPlay(db));
     return db;
   } catch (error) {

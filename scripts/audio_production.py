@@ -46,16 +46,25 @@ def payload_for(config, line):
 
 
 def rendition_hash(config, track):
-    return fingerprint({'lines': [payload_for(config, line) for line in track['lines']],
+    rendition = {'lines': [payload_for(config, line) for line in track['lines']],
                         'gaps': [line.get('gap', .6) for line in track['lines']],
                         'music': track['music'], 'intro': track.get('intro', 1.25),
-                        'outro': track.get('outro', 2.5), 'mixVersion': 2})
+                        'outro': track.get('outro', 2.5), 'mixVersion': track.get('mixVersion', 2)}
+    for field in ('legacyMix', 'musicOffset', 'bitrate'):
+        if field in track:
+            rendition[field] = track[field]
+    return fingerprint(rendition)
 
 
 def api(path, key, payload=None):
+    # Status and file lookups must not reuse a proxy's earlier Processing/404
+    # response. Keep paid POST bodies and their fingerprints unchanged.
+    if payload is None:
+        path += ('&' if '?' in path else '?') + '_fresh=' + str(time.time_ns())
     req = urllib.request.Request(API_ROOT + path,
         data=None if payload is None else json.dumps(payload).encode('utf-8'),
-        headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'})
+        headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json',
+                 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'})
     try:
         with urllib.request.urlopen(req, timeout=60) as response:
             result = json.load(response)

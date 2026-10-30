@@ -1,11 +1,17 @@
 """Add public prologue, picture story, NPC entrance, and procedural cues."""
 from pathlib import Path
 import json
+import importlib.util
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'交付包_阿拉斯加之夜'/'现场演绎音频'
 FILE=OUT/'演绎制作源稿.json'
 cfg=json.loads(FILE.read_text())
+spec=importlib.util.spec_from_file_location('entrance_casting',ROOT/'scripts/revise-character-casting.py')
+casting=importlib.util.module_from_spec(spec);spec.loader.exec_module(casting)
+cfg['voices']['诺拉']=casting.NORA_VOICE
+cfg['voices']['主持人']=casting.HOST_VOICE
+cfg['voices']['西奥多']=casting.THEODORE_VOICE
 def say(role,text,emotion='calm',gap=.65,cue=None):
  d=dict(role=role,text=text,emotion=emotion,gap=gap)
  if cue:d['cue']=cue
@@ -31,14 +37,15 @@ new=[
  say('旁白','第六幕，拍卖。西奥多已经把拍品摆上台面。游戏券、金币、承诺和秘密，都可能在今晚换一个主人。请看一眼你的身份卡，想想你要争取什么，也想想你愿意为此付出多少。宴会即将开始，庄园的主人还没有给出他承诺的答案。',gap=2),
  ],images=['01_极光庄园.png','02_万圣节来客.png','03_瑟琳娜记忆展厅.png','04_ECHO数字演示.png','05_六位人物关系.png','06_命运拍卖厅.png']),
  track('B03','六位人物登场','入场公开','B02画面结束后，19:06左右；六位真人NPC依序入场，约1分半','gala',
- '替代旧A03前置介绍。演员不必开口；每人听见自己声音时走到定点、做一个动作，等下一人接棒。诺拉仅使用公开的合规顾问身份。',[
- say('西奥多','各位晚上好。我是西奥多·布莱克，今晚的拍卖师。举槌之前，先请认识这座庄园里最值得交谈的几个人。',cue='entrance'),
- say('索恩','阿德里安·索恩。欢迎来到我的庄园。我创办了艾迪艾斯，也邀请你们来到这里。今晚，请先尽情享受宴会。',cue='entrance'),
- say('伊芙琳','伊芙琳·维尔，伊寇的首席人格架构师。索恩负责提出问题，我负责让机器给出回答。希望今晚，你们也会提出好问题。',cue='entrance'),
- say('里昂','里昂·默瑟，艾迪艾斯的财务总监。索恩先生擅长创造未来，而我负责让未来能够付得起账单。很高兴认识各位。',cue='entrance'),
- say('克拉拉','克拉拉·沃克，策展人。墙上的照片，是我和瑟琳娜一起挑选的。若你对画里的人感兴趣，晚些时候来找我。',cue='entrance'),
- say('诺拉','诺拉·里德，外聘安全合规顾问。请佩戴好身份卡，按指引进入各区域。如果遇到权限问题，可以来问我。',cue='entrance'),
- say('西奥多','现在，六位都在这里了。各位，请自由交谈。一个名字，也许就是今晚第一条有用的线索。',gap=1),
+ '替代旧A03前置介绍。演员不必开口；每人听见自己声音时走到定点、做一个动作，等下一人接棒。诺拉为男性FBI特别探员，登场时公开身份。',[
+ say('主持人','各位晚上好，欢迎来到阿拉斯加之夜。接下来，请六位人物依次介绍自己。'),
+ say('索恩','我是阿德里安·索恩。欢迎来到我的庄园。我创办了艾迪艾斯，也邀请你们来到这里。今晚，请先尽情享受宴会。',cue='entrance'),
+ say('伊芙琳','我是伊芙琳·维尔，伊寇的首席人格架构师。索恩负责提出问题，我负责让机器给出回答。希望今晚，你们也会提出好问题。',cue='entrance'),
+ say('里昂','我是里昂·默瑟，艾迪艾斯的财务总监。索恩先生擅长创造未来，而我负责让未来能够付得起账单。很高兴认识各位。',cue='entrance'),
+ say('克拉拉','我是克拉拉·沃克，策展人。墙上的照片，是我和瑟琳娜一起挑选的。若你对画里的人感兴趣，晚些时候来找我。',cue='entrance'),
+ say('诺拉','我是诺拉·里德，FBI，联邦调查局特别探员。今晚由我关注现场安全与秩序。请佩戴好身份卡，遇到异常，及时告诉我。',cue='entrance'),
+ say('西奥多','我是西奥多·布莱克，庄园的私人拍卖师。今晚的拍品由我介绍。无论是旧物还是秘密，真正的价值，往往藏在故事里。',cue='entrance'),
+ say('主持人','现在，六位都在这里了。各位，请自由交谈。一个名字，也许就是今晚第一条有用的线索。',gap=1),
  ]),
  track('B04','命运拍卖规则','拍卖公开','19:40，西奥多站上拍卖台、首件拍品亮灯前；30—60秒','gala',
  '系统当前规则为页面显示起拍价及下一口有效报价；最高有效价在GM落槌结算后成交。播报不指定统一加价幅度或不存在的转让规则。',[
@@ -54,6 +61,8 @@ new=[
  say('诺拉','如果证人的回答与已确认的客观记录冲突，我会要求核对。评分满分八分：指认凶手两分，死亡时间与方式一分，解释语音两分，解释通行一分，说明动机两分。现在，各组选定代表，整理证据，第一组准备。',gap=1),
  ]),
 ]
+
+next(t for t in new if t['id']=='B03')['lines']=casting.entrance_lines()
 
 retire={'A01','A03','A09'}
 for t in new:

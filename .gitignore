@@ -12,6 +12,7 @@ output/releases/
 output/transcribe/
 output/clue-audio/
 output/performance-audio/blackout/
+output/performance-audio/casting-20261031/
 交付包_阿拉斯加之夜/
 __pycache__/
 *.pyc

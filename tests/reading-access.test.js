@@ -47,7 +47,7 @@ test("/reading sends distinct GM and NPC documents without exposing spoilers", a
   assert.equal(npc.status, 200);
   const npcHtml = await npc.text();
   assert.match(npcHtml, /六位 NPC/);
-  assert.doesNotMatch(npcHtml, /唯一凶手|20:58|E-26|莉娅|FBI/);
+  assert.doesNotMatch(npcHtml, /唯一凶手|20:58|E-26|莉娅/);
 
   assert.equal((await get("/reading/hero.webp")).status, 401);
   const hero = await get("/reading/hero.webp", "reading-npc");

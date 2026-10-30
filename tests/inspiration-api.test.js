@@ -309,7 +309,7 @@ test("真实GM路由隔离现场演绎清单与终局MP3，允许Range和HEAD", 
   assert.equal(response.status, 200);
   const catalog = await response.json();
   assert.equal(catalog.tracks.length, 16);
-  assert.equal(catalog.voices.length, 8);
+  assert.equal(catalog.voices.length, 9);
   assert.equal(
     catalog.tracks.find((track) => track.id === "A10").spoiler,
     true,

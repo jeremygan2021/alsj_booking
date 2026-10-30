@@ -1,5 +1,6 @@
 import sharp from "sharp";
 import { phases } from "./content.js";
+import { npcCastingFields } from "./story-materials.js";
 import {
   analyzeCharacterAppearance,
   characterAppearanceSummary,
@@ -365,6 +366,7 @@ export async function generateCharacterDraft(
       english,
       role,
       bio,
+      ...npcCastingFields(id),
     })),
   };
   const data = await request(

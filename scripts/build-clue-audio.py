@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import subprocess
+from functools import lru_cache
 import numpy as np
 from audio_production import (atomic_json, digest, fingerprint, payload_for, read_json,
                               rendition_hash, synthesize)
@@ -23,6 +24,14 @@ def decode(path, af=''):
     if af:
         command += ['-af', af]
     return np.frombuffer(subprocess.check_output(command + ['-ar', str(SR), '-ac', '2', '-f', 'f32le', 'pipe:1']), dtype='<f4').reshape(-1, 2).copy()
+
+
+@lru_cache(maxsize=8)
+def normalized_background(path):
+    # The tile below copies this immutable source before ducking or adding SFX.
+    result = decode(path, 'loudnorm=I=-25:TP=-4:LRA=9')
+    result.flags.writeable = False
+    return result
 
 
 def audio_file(root, kind, track):
@@ -93,11 +102,15 @@ def compatible_file(root, config, track, prior):
     return path
 
 
-def save_audio(array, path):
+def save_audio(array, path, bitrate='128k', normalize=True):
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp = path.with_name(path.stem + '.new.mp3')
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', 'pipe:0',
-        '-af', 'loudnorm=I=-16:TP=-1.8:LRA=9', '-ar', str(SR), '-c:a', 'libmp3lame', '-b:a', '128k',
+    temp = path.with_name(path.stem + '.new' + path.suffix)
+    command = ['ffmpeg','-v','error','-y','-f','f32le','-ar',str(SR),'-ac','2','-i','pipe:0']
+    if normalize:
+        command += ['-af','loudnorm=I=-16:TP=-1.8:LRA=9']
+    command += ['-ar',str(SR)]
+    command += ['-c:a','pcm_s16le'] if path.suffix=='.wav' else ['-c:a','libmp3lame','-b:a',bitrate]
+    subprocess.run(command + [
         '-metadata', 'comment=AI dramatization: MiniMax. Music by Kevin MacLeod (incompetech.com), CC BY 4.0. Edited and mixed.', str(temp)],
         input=array.astype('<f4').tobytes(), check=True)
     os.replace(temp, path)
@@ -115,7 +128,10 @@ def mix(root, config, track, paths):
         line['end'] = round(cursor + len(voice)/SR, 3)
         segments.append((cursor, voice))
         if line.get('cue'):
-            events.append(dict(time=round(cursor, 3), cue=line['cue'],
+            cue_time = cursor
+            if track.get('legacyMix') and line['cue'] != 'entrance':
+                cue_time = cursor+5.1 if line['cue']=='money' else cursor+len(voice)/SR+(.3 if line['cue']=='terminal' else .1)
+            events.append(dict(time=round(cue_time, 3), cue=line['cue'],
                                instruction=cue_instructions.get(line['cue'], '按当前台词配合动作。'), role=line['role']))
         cursor += len(voice)/SR + line.get('gap', .6)
     n = int((cursor + track.get('outro', 2.5))*SR)
@@ -124,8 +140,8 @@ def mix(root, config, track, paths):
         a = int(start*SR)
         speech[a:a+len(voice)] += voice
     music_path = Path(config['performanceDir'])/'配乐与音效'/track['music']
-    background = decode(music_path, 'loudnorm=I=-25:TP=-4:LRA=9')
-    offset = 0 if track['music'] == 'At Rest.mp3' else 20*SR
+    background = normalized_background(music_path)
+    offset = round(track['musicOffset']*SR) if 'musicOffset' in track else 0 if track['music'] == 'At Rest.mp3' else 20*SR
     background = background[offset:]
     if not len(background):
         raise RuntimeError('Empty background music')
@@ -141,9 +157,26 @@ def mix(root, config, track, paths):
     envelope[:fade] *= np.linspace(0, 1, fade)
     envelope[-end_fade:] *= np.linspace(1, 0, end_fade)
     background *= envelope[:, None]
+    if track.get('legacyMix'):
+        effects={'door':'doorOpen_1.ogg','money':'card-shuffle.ogg','impact':'impactSoft_heavy_000.ogg',
+                 'terminal':'confirmation_001.ogg','recorder':'metalClick.ogg','gavel':'impactWood_medium_000.ogg'}
+        for event in events:
+            filename=effects.get(event['cue'])
+            if not filename: continue
+            effect=decode(Path(config['performanceDir'])/'配乐与音效/音效'/filename)
+            target=.13 if event['cue']=='impact' else .08
+            effect*=target/max(float(np.max(np.abs(effect))),.001)
+            for delay,gain in ([(0,1),(.7,.6),(1.5,.6),(2.3,.6)] if event['cue']=='money' else [(0,1)]):
+                a=round((event['time']+delay)*SR);length=min(len(effect),n-a)
+                if length>0: background[a:a+length]+=effect[:length]*gain
     filename = filename_for(track)
     destination = audio_file(root, config['kind'], {'filename':filename})
-    save_audio(speech+background, destination)
+    save_audio(speech+background, destination, track.get('bitrate','128k'))
+    if config.get('exportProduction') and config['kind']=='performance':
+        production=Path(config['exportProduction']);name=track['id']+'_'+track['title']
+        save_audio(speech+background,production/'无损母带_WAV'/(name+'.wav'))
+        save_audio(speech,production/'制作分轨/人声'/(name+'_人声.mp3'),'256k',False)
+        save_audio(background,production/'制作分轨/配乐音效'/(name+'_配乐音效.mp3'),'256k',False)
     credit = dict(title=track['music'].removesuffix('.mp3'), artist='Kevin MacLeod',
                   source='https://incompetech.com/music/royalty-free/index.html?isrc='+MUSIC_IDS[track['music']],
                   license='CC BY 4.0', licenseUrl='https://creativecommons.org/licenses/by/4.0/',

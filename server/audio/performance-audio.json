@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-30-blackout-voice-clarity-v5",
+  "version": "2026-10-31-independent-entrances-male-nora-female-theodore",
   "provider": "MiniMax",
   "model": "speech-2.8-hd",
   "notice": "角色语音为MiniMax系统音色的AI剧情演绎；配乐与音效已混合。仅供GM/音控按现场进度手动播放，每段结束后停止。A10、A11、A12包含终局剧情，请先核对释放条件。",
@@ -30,11 +30,11 @@
     },
     {
       "role": "诺拉",
-      "voiceId": "Chinese (Mandarin)_News_Anchor",
-      "label": "新闻女声",
+      "voiceId": "Chinese (Mandarin)_Male_Announcer",
+      "label": "播报男声",
       "speed": 0.99,
       "pitch": 0,
-      "direction": "36岁调查者，清晰、冷静、果断，短句给出指令。"
+      "direction": "36岁男性FBI特别探员，冷静、清楚、果断；全剧统一男声。"
     },
     {
       "role": "里昂",
@@ -46,11 +46,11 @@
     },
     {
       "role": "西奥多",
-      "voiceId": "Chinese (Mandarin)_Gentleman",
-      "label": "温润男声",
-      "speed": 1.03,
+      "voiceId": "Chinese (Mandarin)_Mature_Woman",
+      "label": "成熟女拍卖师",
+      "speed": 1.0,
       "pitch": 0,
-      "direction": "拍卖师，优雅、善于控场，发现异常后笑意消失。"
+      "direction": "39岁女性拍卖师，优雅、干练、善于控场；全剧统一女声。"
     },
     {
       "role": "克拉拉",
@@ -67,6 +67,14 @@
       "speed": 0.93,
       "pitch": 0,
       "direction": "回忆中的摄影艺术家，温柔但意志清楚；为虚构人物录音演绎。"
+    },
+    {
+      "role": "主持人",
+      "voiceId": "Chinese (Mandarin)_Radio_Host",
+      "label": "电台男主播",
+      "speed": 0.98,
+      "pitch": 0,
+      "direction": "独立男性主持人，只报幕及收尾，不代替六位角色自我介绍。"
     }
   ],
   "tracks": [
@@ -121,167 +129,185 @@
     },
     {
       "id": "B03",
-      "title": "六位人物登场",
-      "stage": "入场公开",
-      "trigger": "B02画面结束后，19:06左右；六位真人NPC依序入场，约1分半",
-      "notes": "替代旧A03前置介绍。演员不必开口；每人听见自己声音时走到定点、做一个动作，等下一人接棒。诺拉仅使用公开的合规顾问身份。",
-      "spoiler": false,
-      "evidence": null,
-      "duration": 85.237,
+      "sourceHash": "a5e433f23d09fdba729259abd1c54860cd9dbd67d40081b4fba7ec8f06227bbf",
+      "renditionHash": "133e47a7d61a35b399cc80866885ae3772d9b0d03796e40c10b768547ff2da2c",
       "filename": "b03.mp3",
-      "sha256": "fecc45a3fb26f8ffcdd1c4e036f44fee7014bb90dc21fcb4f3644fc4aacdfd07",
+      "duration": 97.997,
       "speakers": [
-        "西奥多",
+        "主持人",
         "索恩",
         "伊芙琳",
         "里昂",
         "克拉拉",
-        "诺拉"
-      ],
-      "events": [
-        {
-          "time": 3.0,
-          "cue": "entrance",
-          "instruction": "该角色真人NPC入场定点，保持静默，随自己的配音做表情和动作。",
-          "role": "西奥多"
-        },
-        {
-          "time": 11.85,
-          "cue": "entrance",
-          "instruction": "该角色真人NPC入场定点，保持静默，随自己的配音做表情和动作。",
-          "role": "索恩"
-        },
-        {
-          "time": 23.2,
-          "cue": "entrance",
-          "instruction": "该角色真人NPC入场定点，保持静默，随自己的配音做表情和动作。",
-          "role": "伊芙琳"
-        },
-        {
-          "time": 36.75,
-          "cue": "entrance",
-          "instruction": "该角色真人NPC入场定点，保持静默，随自己的配音做表情和动作。",
-          "role": "里昂"
-        },
-        {
-          "time": 49.149,
-          "cue": "entrance",
-          "instruction": "该角色真人NPC入场定点，保持静默，随自己的配音做表情和动作。",
-          "role": "克拉拉"
-        },
-        {
-          "time": 60.899,
-          "cue": "entrance",
-          "instruction": "该角色真人NPC入场定点，保持静默，随自己的配音做表情和动作。",
-          "role": "诺拉"
-        }
+        "诺拉",
+        "西奥多"
       ],
       "music": {
         "title": "Danse Macabre",
         "artist": "Kevin MacLeod",
         "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100546",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、循环、交叉淡化、对白闪避及音效混音"
-      }
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "674301e53917f88ec4bb1bd397a60891b9f6357742125798bf2fa242d5ad3528",
+      "title": "六位人物登场",
+      "stage": "入场公开",
+      "trigger": "B02结束后，约19:06；男主持报幕，六位真人NPC依序独立入场。",
+      "notes": "独立男主持报幕和收尾。六人各自报全名；西奥多有独立自介，不承担本段报幕。诺拉为男性FBI特别探员，登场即公开身份。演员随各自声音走位。",
+      "spoiler": false,
+      "evidence": null,
+      "events": [
+        {
+          "time": 10.597,
+          "cue": "entrance",
+          "instruction": "对应角色走到定点。",
+          "role": "索恩"
+        },
+        {
+          "time": 21.797,
+          "cue": "entrance",
+          "instruction": "对应角色走到定点。",
+          "role": "伊芙琳"
+        },
+        {
+          "time": 35.597,
+          "cue": "entrance",
+          "instruction": "对应角色走到定点。",
+          "role": "里昂"
+        },
+        {
+          "time": 47.297,
+          "cue": "entrance",
+          "instruction": "对应角色走到定点。",
+          "role": "克拉拉"
+        },
+        {
+          "time": 59.697,
+          "cue": "entrance",
+          "instruction": "对应角色走到定点。",
+          "role": "诺拉"
+        },
+        {
+          "time": 72.297,
+          "cue": "entrance",
+          "instruction": "对应角色走到定点。",
+          "role": "西奥多"
+        }
+      ]
     },
     {
       "id": "B04",
+      "sourceHash": "af612980d56a4131ec75f6f3b518331286d4ba0303e4ba17e4e367d26382ddee",
+      "renditionHash": "86892120ef7eaf0c8adf553179477ce4eb353f3f4db34c130b722f8f5d74b580",
+      "filename": "b04.mp3",
+      "duration": 51.276,
+      "speakers": [
+        "西奥多"
+      ],
+      "music": {
+        "title": "Danse Macabre",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100546",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "59325cdc239634bb6b955ead00d067bd90e578033c4a36aab713e170815bd04f",
       "title": "命运拍卖规则",
       "stage": "拍卖公开",
       "trigger": "19:40，西奥多站上拍卖台、首件拍品亮灯前；30—60秒",
       "notes": "系统当前规则为页面显示起拍价及下一口有效报价；最高有效价在GM落槌结算后成交。播报不指定统一加价幅度或不存在的转让规则。",
       "spoiler": false,
       "evidence": null,
-      "duration": 42.305,
-      "filename": "b04.mp3",
-      "sha256": "da84bdef19c12da0d5534d1b123758adc5e82d224391f171b4cd2544d30091d3",
-      "speakers": [
-        "西奥多"
-      ],
       "events": [
         {
-          "time": 37.405,
+          "time": 46.376,
           "cue": "gavel",
-          "instruction": "拍卖师落槌，第一件拍品亮灯。"
+          "instruction": "拍卖师落槌，第一件拍品亮灯。",
+          "role": "西奥多"
         }
+      ]
+    },
+    {
+      "id": "A02",
+      "sourceHash": "9460bef96f407c66a3e805dfe92a5980918b76e06dac2e4b8c8fb8a6c7bf8a28",
+      "renditionHash": "1fb58b61134f294d4028c53d3f9a97ce10e386a8c88c945249270996b71b3de6",
+      "filename": "a02.mp3",
+      "duration": 95.142,
+      "speakers": [
+        "西奥多",
+        "索恩"
       ],
       "music": {
         "title": "Danse Macabre",
         "artist": "Kevin MacLeod",
         "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100546",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、循环、交叉淡化、对白闪避及音效混音"
-      }
-    },
-    {
-      "id": "A02",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "dc306511bc21862fea2bc04291bb9b895308a1b007c125d351d6d7b66e638827",
       "title": "索恩登场与撒钱",
       "stage": "开场公开",
       "trigger": "20:28索恩登台；西奥多举手引灯后启动",
       "notes": "撒钱为新增舞台演绎，抛撒庄园游戏券，不引入金额或新增财产线索。仅向舞台前预留空区轻抛。以时间轴“撒钱窗口”配合动作。",
       "spoiler": false,
       "evidence": null,
-      "duration": 93.862,
-      "filename": "a02.mp3",
-      "sha256": "6fe4692587fa2a1302de948cb52b52d9b6b324ca67fb0ac68639dafe88843033",
+      "events": [
+        {
+          "time": 10.8,
+          "cue": "applause",
+          "instruction": "引导现场观众鼓掌，索恩走至灯区。",
+          "role": "西奥多"
+        },
+        {
+          "time": 27.667,
+          "cue": "money",
+          "instruction": "撒钱窗口：听到“接住”开始轻抛游戏券；随后8秒停顿可完成动作。",
+          "role": "索恩"
+        },
+        {
+          "time": 89.242,
+          "cue": "glass",
+          "instruction": "索恩举杯，演员配合，声音留给现场。",
+          "role": "索恩"
+        }
+      ]
+    },
+    {
+      "id": "A04",
+      "sourceHash": "f26b8b267fe7a66c5de40f0121be095c48b995b5a0d12c5fdf5cda8b94f0b343",
+      "renditionHash": "7d15915de5a9b74b7c2d328bb60fd7a228509c43e87ad6d4b70e45dfad7d05d8",
+      "filename": "a04.mp3",
+      "duration": 68.677,
       "speakers": [
         "西奥多",
         "索恩"
       ],
-      "events": [
-        {
-          "time": 9.52,
-          "cue": "applause",
-          "instruction": "引导现场观众鼓掌，索恩走至灯区。"
-        },
-        {
-          "time": 26.388,
-          "cue": "money",
-          "instruction": "撒钱窗口：听到“接住”开始轻抛游戏券；随后8秒停顿可完成动作。"
-        },
-        {
-          "time": 87.962,
-          "cue": "glass",
-          "instruction": "索恩举杯，演员配合，声音留给现场。"
-        }
-      ],
       "music": {
-        "title": "Danse Macabre",
+        "title": "Long Note One",
         "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100546",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、循环、交叉淡化、对白闪避及音效混音"
-      }
-    },
-    {
-      "id": "A04",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "0c41624515736238abd7fceeeb689a3519ead6877de8ade8cf30987e2e5a25f1",
       "title": "21点07分的声音",
       "stage": "时间诡计公开",
       "trigger": "剧情时钟21:07；索恩本人不得出场",
       "notes": "主持提问及索恩回答为固定播控演示。首次播放不可读出本说明、文件来源或“预录”字样。此时听见声音，不出现真人直播画面。证据E-15/原稿EV-006。",
       "spoiler": false,
       "evidence": "E-15 / EV-006",
-      "duration": 64.447,
-      "filename": "a04.mp3",
-      "sha256": "63cd890ab76ef81cad77573ff3c12f02cb7eaa5e0ad2daa02bfa68d4b7e682d2",
-      "speakers": [
-        "西奥多",
-        "索恩"
-      ],
       "events": [
         {
-          "time": 12.495,
+          "time": 14.6,
           "cue": "terminal",
-          "instruction": "音效已混入，演员按台词继续。"
+          "instruction": "音效已混入，演员按台词继续。",
+          "role": "西奥多"
         }
-      ],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、循环、交叉淡化、对白闪避及音效混音"
-      }
+      ]
     },
     {
       "id": "B06",
@@ -301,7 +327,7 @@
         "诺拉"
       ],
       "trigger": "A04结束后、A05之前；现场摔杯→熄主灯→点击“从头播放”。",
-      "notes": "1:40环境声主导版；新下载的室内枪声保留原速和自然尾响，保留原15条短对白与惊叫。FBI仅三处短口令，短句按实际发声段统一音量并减少高频遮挡，说话时配乐与人群适度闪避；保留大厅远近感，不逐句解释剧情。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。",
+      "notes": "1:40环境声主导版；新下载的室内枪声保留原速和自然尾响，保留原15条短对白与惊叫。FBI仅三处短口令，短句按实际发声段统一音量并减少高频遮挡，说话时配乐与人群适度闪避；保留大厅远近感，不逐句解释剧情。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。 诺拉统一男性FBI音色，西奥多统一女性拍卖师音色；29秒和90秒处短句已重制，其他十三条台词及枪声时间保持原编排。",
       "events": [
         {
           "time": 0,
@@ -318,7 +344,7 @@
           "time": 1.4,
           "cue": "dialogue",
           "role": "男宾客甲",
-          "instruction": "别挤！别挤！"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 7,
@@ -329,104 +355,104 @@
           "time": 7.2,
           "cue": "dialogue",
           "role": "女宾客甲",
-          "instruction": "啊——！"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 9.4,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "FBI！蹲下！"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 15.2,
           "cue": "dialogue",
           "role": "克拉拉",
-          "instruction": "手给我。别松！"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 18.4,
           "cue": "sound",
-          "instruction": "短促连续枪响与门响；演员原地做惊慌反应。"
+          "instruction": "第一声枪响与急促脚步：仅作宴会混乱的舞台音效，不作为死因或案发时间证据。"
         },
         {
           "time": 19.1,
           "cue": "dialogue",
           "role": "女宾客甲",
-          "instruction": "啊！"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 29,
           "cue": "dialogue",
           "role": "西奥多",
-          "instruction": "先别动——"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 40,
           "cue": "sound",
-          "instruction": "脚步与碰撞逐渐密集，危险感上升；不增加角色对白或身份信息。"
+          "instruction": "第一声枪响与急促脚步：仅作宴会混乱的舞台音效，不作为死因或案发时间证据。"
         },
         {
           "time": 40,
           "cue": "dialogue",
           "role": "伊芙琳",
-          "instruction": "别碰那个！"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 43,
           "cue": "dialogue",
           "role": "伊芙琳",
-          "instruction": "我……我没事。"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 49,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "别起来！"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 62,
           "cue": "dialogue",
           "role": "里昂",
-          "instruction": "索恩呢？"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 70,
           "cue": "sound",
-          "instruction": "混乱进入高潮，保持暗场；枪声不对应索恩受伤。"
+          "instruction": "第一声枪响与急促脚步：仅作宴会混乱的舞台音效，不作为死因或案发时间证据。"
         },
         {
           "time": 74.5,
           "cue": "dialogue",
           "role": "女宾客乙",
-          "instruction": "啊！"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 86,
           "cue": "dialogue",
           "role": "克拉拉",
-          "instruction": "别动，我陪着你。"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 88,
           "cue": "sound",
-          "instruction": "混乱退去，留下冰冷悬念；音控准备下一环节。"
+          "instruction": "第一声枪响与急促脚步：仅作宴会混乱的舞台音效，不作为死因或案发时间证据。"
         },
         {
           "time": 90,
           "cue": "dialogue",
           "role": "诺拉",
-          "instruction": "都别动。听。"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 94,
           "cue": "dialogue",
           "role": "FBI现场探员",
-          "instruction": "原地等，别动。"
+          "instruction": "怎么黑了？"
         },
         {
           "time": 99,
           "cue": "sound",
-          "instruction": "等待尾音结束；不自动连播，灯光及A05由GM另行给口令。"
+          "instruction": "第一声枪响与急促脚步：仅作宴会混乱的舞台音效，不作为死因或案发时间证据。"
         }
       ],
       "music": {
@@ -447,7 +473,10 @@
       "stage": "案发氛围",
       "spoiler": false,
       "evidence": null,
-      "sha256": "13602e421f2362fefaa7d8939127430c1a0441f3ba25585e03eb06df60b3a0bc"
+      "sha256": "0b938c0301ea99121b73aba2aaa8318d220e6dddb9cb39f5f508dbed8eb3e214",
+      "castingRevision": "2026-10-31-independent-entrances-male-nora-female-theodore",
+      "noraVoiceId": "Chinese (Mandarin)_Male_Announcer",
+      "theodoreVoiceId": "Chinese (Mandarin)_Mature_Woman"
     },
     {
       "id": "B07",
@@ -474,9 +503,9 @@
     {
       "id": "A05",
       "sourceHash": "cd59103dce82bbc3ce49025cbe6bdbc9df024153a8ea260102776307afb91622",
-      "renditionHash": "67312e3f1c1dff5b07cd44ef0153f8a31c454e795678314078ce8980834aed43",
+      "renditionHash": "d15745e5ca016dc49696bc63b35cd9a60c531ec66255bf7439a2df0947f1b3af",
       "filename": "a05.mp3",
-      "duration": 77.292,
+      "duration": 75.313,
       "speakers": [
         "西奥多",
         "诺拉",
@@ -491,16 +520,16 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "b8389f83f2279abb2e394909532be6ff6c14bc7d42c2c4005dbb6455fcc2ed9d",
+      "sha256": "e11a5a0477c84da70f21b3aa242b8e94be80a457d461618d8718ba19bbf7147b",
       "title": "档案室的门",
       "stage": "发现尸体",
       "trigger": "21:13，演员已提前倒地；诺拉开门后启动",
-      "notes": "不要在此播放行凶声或让索恩此刻才倒地。此段配合发现尸体与身份揭露。",
+      "notes": "不要在此播放行凶声或让索恩此刻才倒地。此段配合发现尸体与保护现场；FBI身份已在B03公开。",
       "spoiler": false,
       "evidence": null,
       "events": [
         {
-          "time": 7.65,
+          "time": 9.264,
           "cue": "door",
           "instruction": "配合开门或进入动作。",
           "role": "诺拉"
@@ -539,10 +568,10 @@
     },
     {
       "id": "A07",
-      "sourceHash": "3a16245ce86fcd068d7b8c729c6031b7a40317a7d54084ece4fae8c7d8ee3bd8",
-      "renditionHash": "8270f09403208181fce91a35cab22471000e8c7239d0ab066676735a25db9488",
+      "sourceHash": "96f8f638c995f9059f6e55d7a070daf3831bf85fa5959a7ba3b9282cc559128e",
+      "renditionHash": "6215a7518df15be221a639cf60e97d2bfa41c0893406f674d4f72d58a1c3f817",
       "filename": "a07.mp3",
-      "duration": 129.916,
+      "duration": 135.791,
       "speakers": [
         "诺拉",
         "西奥多",
@@ -558,7 +587,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "70dba20d677f5841420c24c7fd6fe853de2cc32559e41301a7a464473927eca7",
+      "sha256": "b1f7b2378fb25c34e3a2b425024be4adca45e9f4fcada6d1b954d2ef6422e663",
       "title": "证言交锋",
       "stage": "深度调查补充",
       "trigger": "仅当本段涉及的全部证据已获准后由GM手动播放；默认跳过",
@@ -569,57 +598,63 @@
     },
     {
       "id": "A08",
+      "sourceHash": "0799b9f309fbe844d051517fd6267178552285a5bc9351ed32f1ad24f3e391fc",
+      "renditionHash": "0c9243e6708070b1d2cd0298a9ad5cba4df7ffdd52558b40e34c5ce850b91e59",
+      "filename": "a08.mp3",
+      "duration": 45.1,
+      "speakers": [
+        "诺拉"
+      ],
+      "music": {
+        "title": "Long Note One",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "3accdb9e76dc64945694f5cdd7763f1da037bd76cb50bfcc38fc9fafabafffc7",
       "title": "重新校准时间",
       "stage": "二次调查公开",
       "trigger": "22:15；按流程释放已核实的预录事实后",
       "notes": "第三幕保底提示；不直接点名凶手、不替玩家作结论。",
       "spoiler": false,
       "evidence": null,
-      "duration": 46.579,
-      "filename": "a08.mp3",
-      "sha256": "d5a9741d06ad1772637627d6f8b11cd5a997e42697fc1e5015a949f5acfebc23",
-      "speakers": [
-        "诺拉"
-      ],
-      "events": [],
-      "music": {
-        "title": "Long Note One",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100418",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、循环、交叉淡化、对白闪避及音效混音"
-      }
+      "events": []
     },
     {
       "id": "B05",
+      "sourceHash": "963304729752277cbfb7c69a6b736feaf89e556f8161539a52c2220c6809bb2f",
+      "renditionHash": "3ab2bebc61b80c016da32a17ee1e2cab9ab22d07b12baf04bcbd1c11d1e56bc8",
+      "filename": "b05.mp3",
+      "duration": 84.645,
+      "speakers": [
+        "诺拉",
+        "西奥多"
+      ],
+      "music": {
+        "title": "Darkest Child",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "ca518b68aed436b2f3b9c1dcfb1a5ca53ef89214305e8ed55e125854fea1de79",
       "title": "最后的庭审规则",
       "stage": "庭审公开",
       "trigger": "22:40，诺拉宣布庭审开始、六组到齐后；约1分半",
       "notes": "替代旧A09。只讲程序与评分，不揭答案；全员按六组约36人流程。每组选陈述代表和质询代表各一位，可由同一人兼任。",
       "spoiler": false,
       "evidence": null,
-      "duration": 83.455,
-      "filename": "b05.mp3",
-      "sha256": "4564ee8cf8f92e83c233a1bbf289ccda4e1eeed488c6391cc5ba16a4b79244d0",
-      "speakers": [
-        "诺拉",
-        "西奥多"
-      ],
-      "events": [],
-      "music": {
-        "title": "Darkest Child",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100783",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、循环、交叉淡化、对白闪避及音效混音"
-      }
+      "events": []
     },
     {
       "id": "A10",
       "sourceHash": "c669aacb67157824940c077c582a87510e3ccd5f7f1575193225185e3436f941",
-      "renditionHash": "146ef9e65f92a281edc197cdc291d1a76902d07135854f51cc03b0ba8c5da7a8",
+      "renditionHash": "0a4e225f4ed9604e3d5a122fca78bce7724cd6f52be003d3f1b0ad40d763d29d",
       "filename": "a10.mp3",
-      "duration": 253.147,
+      "duration": 253.247,
       "speakers": [
         "旁白",
         "伊芙琳",
@@ -634,7 +669,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "f25ee52ff69238b5852916627c9138f08cdff21123d96692feceb4abbd3b9fed",
+      "sha256": "8c253278f6db9835d4cf177c19b13d2b0bf8698ca8a70cb0c1ba94052473b7d9",
       "title": "档案室最后三分钟",
       "stage": "终局绝密",
       "trigger": "23:15后；六组案件答案提交封存且GM宣布真相后，价值投票在遗言后",
@@ -664,40 +699,44 @@
     },
     {
       "id": "A11",
+      "sourceHash": "d72c3ff35305e34f88020725ea79f7970e60c78b2c09112af4770ce06a36bee7",
+      "renditionHash": "141b0766d9fcaad9436531a56ad14a113e175ea7991a1b78439cfebdd2757295",
+      "filename": "a11.mp3",
+      "duration": 141.176,
+      "speakers": [
+        "西奥多",
+        "索恩"
+      ],
+      "music": {
+        "title": "At Rest",
+        "artist": "Kevin MacLeod",
+        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "截取、淡入淡出、音量调整与对白混音"
+      },
+      "sha256": "51e60f23708ac97d4581029c4f48e48813ae1ace635430af132da8bd9f83ecf3",
       "title": "索恩真实遗言",
       "stage": "终局绝密",
       "trigger": "23:35，真相揭露结束，开放E-26后",
       "notes": "剧中为索恩生前本人预录遗言，提供音频替代版；不声称已制作视频。此段不出现他不可能预知的凶手姓名或作案细节。",
       "spoiler": true,
       "evidence": "E-26 / EV-025",
-      "duration": 139.435,
-      "filename": "a11.mp3",
-      "sha256": "dc9b4c78b736f68fdcedfd40d465a00e14dcef222acf013e4745b6ecb6e86670",
-      "speakers": [
-        "西奥多",
-        "索恩"
-      ],
       "events": [
         {
-          "time": 11.459,
+          "time": 13.2,
           "cue": "recorder",
-          "instruction": "音效已混入，演员按台词继续。"
+          "instruction": "音效已混入，演员按台词继续。",
+          "role": "西奥多"
         }
-      ],
-      "music": {
-        "title": "At Rest",
-        "artist": "Kevin MacLeod",
-        "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100748",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "截取、循环、交叉淡化、对白闪避及音效混音"
-      }
+      ]
     },
     {
       "id": "A12",
       "sourceHash": "e07186d9dfe8e376d17b6f624ac91fbc3849efa1b64de41e0c6fb52b5fb57074",
-      "renditionHash": "98433e6a0a23c1b636af8149a4c4639af635cd5262716de2b3a6777664cccd02",
+      "renditionHash": "53aa7a507185613abb954e7361939c6eef467be3020d6ae6e3fe499e646783f6",
       "filename": "a12.mp3",
-      "duration": 70.876,
+      "duration": 69.799,
       "speakers": [
         "诺拉",
         "克拉拉",
@@ -711,7 +750,7 @@
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "changes": "截取、淡入淡出、音量调整与对白混音"
       },
-      "sha256": "1d9efdf5eaf9f85755256fcaa0f8780485e158f167e3691d9f14cf89f422d0cf",
+      "sha256": "75814f53cabbfca387e7bde9f8beedc8936987184a1dfff0a15f536fdce226b2",
       "title": "下一场雪",
       "stage": "结尾公开",
       "trigger": "真相与遗言结束后；各阵营陈述审查建议，再进入评奖合照",
