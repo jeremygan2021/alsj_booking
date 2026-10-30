@@ -26,3 +26,15 @@ B07《凶险暗流·纯BGM循环版》98秒：只使用下载的背景音乐，�
 发布归档：`output/releases/alsj-blackout-20261030.tar.gz`，8,745,029字节，SHA-256：`cccfd62ee4df6dc25c4a2a40e24c452e68f41e23bd9162c73cf8aebd17b4d7a6`。
 
 回滚：在 `/opt/alsj_booking/releases/20261030T094637Z-de20ff6-auto-review` 使用该目录的 `deployment/.env` 执行 `docker compose --env-file deployment/.env -f deployment/compose.yaml up -d --no-build app`，再将 `/opt/alsj_booking/current` 指回旧目录。无需恢复数据库。
+
+## 18:33 枪声、人群及FBI重混版
+
+- 功能提交 `e9b3d17a9b67a41963101bca644c5ff37a6d1fe8`，发布目录 `20261030T103351Z-e9b3d17-crowd-v3`。补丁仅更新B06、音频清单和OSS资源映射，复用原前端与其他媒体；数据库备份成功，前版保留。
+- B06仍为100秒。新增四位普通宾客（两男两女）与一位FBI现场探员，分别绑定固定系统音色。原五位角色沿用原音色，改为交错短句、回应与打断；共42条MiniMax语音片段，全部通过供应商字幕与审定台词的规范化核验。
+- FBI协助人员在混乱中给出短促控场口令，不提前讲诺拉的调查秘密，不宣布死因。宾客声分近远和左右方位，人群层使用实际宾客语音，不再重复截取主角的同一句惊叫。
+- 枪声采用kurt在OpenGameArt发布的CC0实录素材，来源 https://opengameart.org/node/70780 。在7、18.4、18.78、48、74.2秒播放，响枪时短暂降低其他声部。前80毫秒的枪声RMS比同时段其他声部高21.24—22.94dB；编码后五处峰值约-1.9dBFS。该测量用于确认枪声没有被混音掩盖，不替代现场音响听感校准。
+- B07字节保持原样，SHA-256仍为 `5ce115cdd8beaa12b8aae3760a0c8d40b9b4e22ba8592af1e4fbf72615584134`。
+- 本地178项自动检查及页面播放回归通过。新版B06已上传私有OSS并完整回读核验，匿名对象访问403。
+- 发布包 `output/releases/alsj-blackout-crowd-v3.tar.gz`，3,217,960字节，SHA-256 `69cc479b49cb698af75fec88f6f27e5e179c900c1c1282edb688946febe28d25`。
+- 回滚目标为 `/opt/alsj_booking/releases/20261030T102153Z-1b09991-blackout`，用该目录的Compose环境启动旧应用后切回current，无需恢复数据库。
+- 上线后B06/B07均完成GM授权后的OSS直连、完整SHA-256及Range 206核验；未登录入口401，验证会话已退出，容器healthy。
