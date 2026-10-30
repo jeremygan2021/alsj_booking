@@ -18,6 +18,7 @@ if __name__ == '__main__':
     config = {'model': scene['model'], 'voices': {
         v['role']: [v['voiceId'], v['label'], v['speed'], v['pitch'], v['direction']]
         for v in manifest['voices']}}
+    config['voices'].update(scene.get('extraVoices', {}))
     cache = ROOT/'output/performance-audio/blackout/tts'
 
     def generate(item):

@@ -58,20 +58,6 @@ def foley():
         end = min(len(result), start + len(stereo))
         result[start:end] += stereo[:end-start] * level
 
-    def shot():
-        # Original theatrical gunshot: sharp transient, low body, room reflections.
-        t = np.arange(int(.85 * SR)) / SR
-        noise = rng.normal(0, 1, len(t))
-        dry = noise * np.exp(-t*95) + .65*np.sin(2*np.pi*92*t)*np.exp(-t*24)
-        dry += .12*noise*np.exp(-t*7)
-        wet = dry.copy()
-        for delay, gain in [(.047, .24), (.091, .16), (.153, .09)]:
-            n = int(delay*SR)
-            wet[n:] += dry[:-n] * gain
-        return wet
-
-    for when, pan in [(7, -.45), (18.4, .45), (18.78, .35), (48, -.3), (74.2, .4)]:
-        place(shot(), when, .58, pan)
     sfx = ROOT / 'output/performance-audio/sfx'
     steps = [decode(sfx / f'rpg-audio/footstep{i:02d}.ogg') for i in range(10)]
     for start, end, pan in [(2, 14, -.65), (9, 26, .7), (34, 58, -.5), (60, 84, .5)]:
@@ -105,6 +91,7 @@ def install(music_path, action_path):
     manifest_path = ROOT/'server/audio/performance-audio.json'
     manifest = json.loads(manifest_path.read_text())
     voices = {v['role']: [v['voiceId'], v['label'], v['speed'], v['pitch'], v['direction']] for v in manifest['voices']}
+    voices.update(scene.get('extraVoices', {}))
     config = dict(model=scene['model'], voices=voices)
     music = decode(music_path, 'loudnorm=I=-22:TP=-4:LRA=10')[30*SR:130*SR]
     action = decode(action_path, 'loudnorm=I=-23:TP=-4:LRA=10')[20*SR:120*SR]
@@ -124,7 +111,17 @@ def install(music_path, action_path):
         actual = subtitle_text(json.loads((job/'response.titles').read_text()))
         if normalized(actual) != normalized(line['text']):
             raise ValueError(f"Provider subtitle differs: {line['role']}")
-        voice = decode(job/'speech.mp3', 'highpass=f=75,loudnorm=I=-17:TP=-3:LRA=8')
+        voice = decode(job/'speech.mp3', 'highpass=f=85,loudnorm=I=-19:TP=-4:LRA=10')
+        # Close voices retain clarity; distant guests have less bass and more room.
+        pan=float(line.get('pan',0)); distant=line.get('distance')=='far'
+        mono=voice.mean(axis=1)
+        voice=mono[:,None]*np.sqrt(np.array([1-pan,1+pan])[None,:]/2)
+        if distant:
+            voice*=.64
+        dry=voice.copy()
+        for delay,level in [(.041,.13),(.079,.09),(.137,.06)]:
+            n=round(delay*SR)
+            voice[n:]+=dry[:-n]*level*(1.5 if distant else 1)
         start = round(line['start']*SR)
         end = start+len(voice)
         if end > 99*SR:
@@ -140,15 +137,51 @@ def install(music_path, action_path):
     archive.mkdir(parents=True,exist_ok=True)
     encode(speech,archive/'B06_固定角色对白.wav')
     encode(score,archive/'B06_背景配乐.wav')
-    # Low-level overlapping vocal reactions add human commotion without new dialogue.
-    crowd = np.zeros_like(score)
-    for start in [4,12,25,34,45,55,64,72,80]:
-        for offset in [0,.17,.43]:
-            a=int((start+offset)*SR);source=int((7.15 if start%2 else 19)*SR)
-            chunk=speech[source:source+int(1.2*SR)]
-            crowd[a:a+len(chunk)] += chunk*.075
-    effects = decode(CACHE/'B06_混乱音效分轨.wav')
-    drama = score*duck[:,None] + speech + effects + crowd
+    # A bed of independently generated ordinary guests, never recycled main-role shouts.
+    crowd=np.zeros_like(score)
+    guest_lines=[l for l in scene['lines'] if '宾客' in l['role']]
+    for i,start in enumerate([.7,4,10,15,22,27,34,40,45,53,58,64,70,76,82,87]):
+        for j in range(2):
+            line=guest_lines[(i*3+j)%len(guest_lines)]
+            job=CACHE/'tts/jobs'/fingerprint(payload_for(config,line))
+            clip=decode(job/'speech.mp3','highpass=f=250,lowpass=f=3200,loudnorm=I=-30:TP=-9:LRA=8')
+            mono=clip.mean(axis=1);pan=(-.8 if j==0 else .8)
+            clip=mono[:,None]*np.sqrt(np.array([1-pan,1+pan])[None,:]/2)
+            a=round((start+j*.37)*SR);n=min(len(clip),len(crowd)-a)
+            crowd[a:a+n]+=clip[:n]*.7
+    effects=decode(CACHE/'B06_混乱音效分轨.wav')
+    # Recorded pistol cracks get their own clear windows rather than hiding in percussion.
+    source=decode(CACHE/'22 Pistol.wav','highpass=f=100')[round(.129*SR):round(.55*SR)]
+    source/=max(float(np.max(np.abs(source))),.001)
+    guns=np.zeros_like(score)
+    gun_duck=np.ones(len(score),np.float32)
+    speech_duck=np.ones(len(score),np.float32)
+    shot_audit=[]
+    for moment,pan in [(7,-.2),(18.4,.2),(18.78,.15),(48,-.18),(74.2,.18)]:
+        a=round(moment*SR);shot=source.mean(axis=1)[:,None]*np.sqrt(np.array([1-pan,1+pan])[None,:]/2)
+        guns[a:a+len(shot)]+=shot*1.15
+        for delay,level in [(.064,.16),(.118,.09)]:
+            n=round(delay*SR);guns[a+n:a+n+len(shot)]+=shot*level
+        lo=max(0,a-round(.06*SR));hi=min(len(score),a+round(1.15*SR))
+        envelope=np.interp(np.arange(lo,hi)/SR,[lo/SR,moment,moment+.20,hi/SR],[1,.08,.08,1])
+        gun_duck[lo:hi]=np.minimum(gun_duck[lo:hi],envelope)
+        hi_voice=min(len(score),a+round(.16*SR))
+        speech_duck[a:hi_voice]=np.minimum(speech_duck[a:hi_voice],.25)
+    crowd[-12*SR:]*=np.linspace(1,0,12*SR)[:,None]
+    backing=score*duck[:,None]*gun_duck[:,None]+speech*speech_duck[:,None]+(effects+crowd)*gun_duck[:,None]
+    for moment in [7,18.4,18.78,48,74.2]:
+        a=round(moment*SR);b=a+round(.08*SR)
+        gun_rms=float(np.sqrt(np.mean(guns[a:b]**2)))
+        bed_rms=float(np.sqrt(np.mean(backing[a:b]**2)))
+        margin=20*np.log10(max(gun_rms,1e-9)/max(bed_rms,1e-9))
+        if margin<6:raise ValueError(f'Gunshot masked at {moment}: {margin:.1f} dB')
+        shot_audit.append(dict(time=moment,gunAboveBackingDb=round(margin,2)))
+    (archive/'枪声可辨识核验.json').write_text(json.dumps(shot_audit,indent=2)+'\n')
+    shutil.copy2(CACHE/'22 Pistol.wav',archive/'22 Pistol_CC0原始素材.wav')
+    (archive/'枪声来源.json').write_text(json.dumps(dict(author='kurt',license='CC0',source='https://opengameart.org/node/70780',download='https://opengameart.org/sites/default/files/22%20Pistol.wav',excerpt=[.129,.55]),ensure_ascii=False,indent=2)+'\n')
+    encode(guns,archive/'B06_实录枪声分轨.wav')
+    encode(crowd,archive/'B06_普通宾客人群底声.wav')
+    drama=backing+guns
     # Pure background: one cue, no dialogue/foley, two-second wrap crossfade.
     cross=2*SR
     blend=np.linspace(0,1,cross)[:,None]
@@ -157,7 +190,7 @@ def install(music_path, action_path):
         dict(id='B06',title='熄灯惊变·剧情版',duration=100,kind='drama',loop=False,
              speakers=list(dict.fromkeys(l['role'] for l in lines)),
              trigger='A04结束后、A05之前；现场摔杯→熄主灯→点击“从头播放”。',
-             notes='1:40固定角色对白、枪声、嘈杂、混乱和尖叫。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。',
+             notes='1:40实录枪声、四位普通宾客的惊叫与交错人群、FBI短促控场、五位原角色短对白。索恩此时已遇害，不新增其现场发言；枪声属于舞台氛围，不改变奖杯致伤设定。对白为舞台改编，不作为推理证据。',
              events=sorted(EVENTS+[dict(time=l['start'],cue='dialogue',role=l['role'],instruction=l['text']) for l in lines],key=lambda e:e['time']),
              music=music_credit('Controlled Chaos','USUAN1200059'),
              additionalMusic=[music_credit('Volatile Reaction','USUAN1400039')]),
@@ -167,12 +200,19 @@ def install(music_path, action_path):
              events=[],music=music_credit('Controlled Chaos','USUAN1200059')),
     ]
     for track,audio in zip(descriptions,[drama,background]):
+        if track['id']=='B07':
+            old=next(t for t in manifest['tracks'] if t['id']=='B07')
+            track.update(old)
+            previous=json.loads((OUT/'播放清单.json').read_text())
+            offline=next(t for t in previous['tracks'] if t['id']=='B07')
+            track.update(offlineFile=offline['file'],offlineWav=offline['wav'])
+            continue
         name=track['id']+'_'+track['title']
         raw=CACHE/(track['id']+'-premaster.wav');encode(audio,raw)
         master=OUT/'无损母带_WAV'/(name+'.wav')
-        subprocess.run(['ffmpeg','-v','error','-y','-i',str(raw),'-af','loudnorm=I=-18:TP=-2:LRA=10','-ar',str(SR),'-c:a','pcm_s24le',str(master)],check=True)
+        subprocess.run(['ffmpeg','-v','error','-y','-i',str(raw),'-af','loudnorm=I=-18:TP=-2:LRA=14','-ar',str(SR),'-c:a','pcm_s24le',str(master)],check=True)
         dest=OUT/'现场播放版_MP3'/(name+'.mp3')
-        subprocess.run(['ffmpeg','-v','error','-y','-i',str(master),'-c:a','libmp3lame','-b:a','256k','-metadata','title='+track['title'],'-metadata','comment=Music: Kevin MacLeod (incompetech.com), CC BY 4.0. B06 voices: MiniMax speech-2.8-hd; SFX: Kenney CC0 and original theatrical effects. B07: music only.',str(dest)],check=True)
+        subprocess.run(['ffmpeg','-v','error','-y','-i',str(master),'-c:a','libmp3lame','-b:a','256k','-metadata','title='+track['title'],'-metadata','comment=Music: Kevin MacLeod (incompetech.com), CC BY 4.0. B06 voices: MiniMax speech-2.8-hd; SFX: Kenney CC0; recorded pistol by kurt (OpenGameArt), CC0. B07: music only.',str(dest)],check=True)
         track.update(filename=track['id'].lower()+'.mp3',stage='案发氛围' if track['id']=='B06' else '循环背景',spoiler=False,evidence=None,sha256=hashlib.sha256(dest.read_bytes()).hexdigest())
         shutil.copy2(dest,ROOT/'server/audio/performance-files'/track['filename'])
         track['offlineFile']='现场播放版_MP3/'+dest.name
@@ -180,7 +220,7 @@ def install(music_path, action_path):
     manifest['tracks']=[t for t in manifest['tracks'] if t['id'] not in ['B06','B07']]
     index=next(i for i,t in enumerate(manifest['tracks']) if t['id']=='A05')
     manifest['tracks'][index:index]=[{k:v for k,v in t.items() if not k.startswith('offline')} for t in descriptions]
-    manifest['version']='2026-10-30-blackout-dialogue-v2'
+    manifest['version']='2026-10-30-blackout-crowd-v3'
     manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     offline_path=OUT/'播放清单.json';offline=json.loads(offline_path.read_text())
     offline['tracks']=[t for t in offline['tracks'] if t['id'] not in ['B06','B07']]

@@ -20,7 +20,7 @@ import {
 test("现场演绎只纳入16段更新成片，摘要不携带私稿和服务器路径", async () => {
   const catalog = createPerformanceAudioCatalog();
   const summary = await catalog.describe();
-  assert.equal(summary.version, "2026-10-30-blackout-dialogue-v2");
+  assert.equal(summary.version, "2026-10-30-blackout-crowd-v3");
   assert.equal(summary.provider, "MiniMax");
   assert.equal(summary.model, "speech-2.8-hd");
   assert.equal(summary.tracks.length, 16);
@@ -34,7 +34,8 @@ test("现场演绎只纳入16段更新成片，摘要不携带私稿和服务器
   const drama = summary.tracks.find((track) => track.id === "B06");
   assert.equal(drama.duration, 100);
   assert.equal(drama.loop, false);
-  assert.deepEqual(drama.speakers, ["西奥多", "克拉拉", "伊芙琳", "里昂", "诺拉"]);
+  assert.equal(drama.speakers.length, 10);
+  for (const role of ["西奥多", "克拉拉", "伊芙琳", "里昂", "诺拉", "FBI现场探员", "女宾客甲", "男宾客甲", "女宾客乙", "男宾客乙"]) assert.ok(drama.speakers.includes(role));
   const background = summary.tracks.find((track) => track.id === "B07");
   assert.equal(background.kind, "background");
   assert.equal(background.loop, true);
