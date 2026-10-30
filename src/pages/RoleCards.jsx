@@ -63,7 +63,7 @@ export default function RoleCards() {
     (async () => {
       if (access) {
         await api("/auth/role-card", { access });
-        if (active) setAccess(null);
+        if (active) location.replace("/play");
         return;
       }
       const ids = new URLSearchParams(location.search).get("players");
@@ -155,6 +155,25 @@ export default function RoleCards() {
       window.print();
     });
   const pages = roleCardSheets(rendered, a4);
+  if (access)
+    return (
+      <main className="boot">
+        {error ? (
+          <section role="alert">
+            <h1>暂时无法登录</h1>
+            <p>{error}</p>
+            <a className="button" href="/play">
+              手机号登录
+            </a>
+            <Button kind="ghost" onClick={() => setRevision((v) => v + 1)}>
+              重试
+            </Button>
+          </section>
+        ) : (
+          <p role="status">正在登录宾客账号，进入我的角色…</p>
+        )}
+      </main>
+    );
   return (
     <main className={`role-card-page ${a4 ? "print-a4" : "print-half"}`}>
       <style>{`@page { size: ${a4 ? "210mm 297mm" : "210mm 148.5mm"}; margin: 0; }`}</style>

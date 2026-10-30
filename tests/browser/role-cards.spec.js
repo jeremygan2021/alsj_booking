@@ -160,9 +160,11 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
     const scan = await scanContext.newPage();
     scan.on("pageerror", (e) => errors.push(e.message));
     await scan.goto(qr.data);
-    await expect(
-      scan.getByRole("button", { name: "下载双面 PDF", exact: true }),
-    ).toBeEnabled();
+    await expect(scan).toHaveURL(`${baseURL}/play`);
+    await expect(scan.locator(".player-mini-identity strong")).toHaveText(
+      first.name,
+    );
+    await expect(scan.locator(".role-card-workspace")).toHaveCount(0);
     expect(new URL(scan.url()).hash).toBe("");
     expect(
       await (await scanContext.request.get("/api/session")).json(),
@@ -229,7 +231,8 @@ test("已付款角色卡：网页预览、PNG与半A4 PDF、两人合排、扫�
       await second.context.request.post("/api/role-cards", { data: {} })
     ).json();
     await scan.goto(new URL(secondCards.cards[0].accessPath, baseURL).href);
-    await expect(scan.locator(".role-card-guest-list")).toContainText(
+    await expect(scan).toHaveURL(`${baseURL}/play`);
+    await expect(scan.locator(".player-mini-identity strong")).toHaveText(
       second.name,
     );
     expect(

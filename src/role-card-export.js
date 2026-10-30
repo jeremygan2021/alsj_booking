@@ -336,7 +336,7 @@ export async function renderRoleCard(card, origin = location.origin) {
   back.ctx.stroke();
   back.text("YOUR PRIVATE ACCESS", 1041, 342, 18, "#997743", display);
   back.ctx.drawImage(qr, 1041, 378, 260, 260);
-  back.text("扫码，回到你的故事", 1039, 691, 25, palette.ink, serif);
+  back.text("扫码，进入我的角色", 1039, 691, 25, palette.ink, serif);
   back.paragraph(
     "自动登录此宾客账号\n请妥善保管",
     1041,
