@@ -1,3 +1,4 @@
+import { createCharacterVoiceJobs } from "./character-voice-jobs.js";
 import { createCharacterPhotoService } from "./character-photo.js";
 import { redirectOssDownload } from "./oss-download.js";
 import { characterMediaStorageConfig, isCharacterMediaStorageConfigured, putCharacterMedia, readCharacterMedia, characterMediaDownloadUrl } from "./character-media-storage.js";
@@ -5,7 +6,7 @@ import { characterTranscriptionConfig, isCharacterTranscriptionConfigured, norma
 import { sendStoredAsset } from "./asset-storage.js";
 import { onsitePropHint } from "./onsite-props.js";
 import { selectCharacterMusic, getCharacterMusicTrack } from "./audio/character-music.js";
-import { characterVoiceConfig, isCharacterVoiceConfigured, submitCharacterVoice, pollCharacterVoice } from "./character-voice.js";
+import { characterVoiceConfig, isCharacterVoiceConfigured, submitCharacterVoice } from "./character-voice.js";
 import { modelInspectionPoints } from "../src/model-inspection.js";
 import { createFactionService } from "./factions/service.js";
 import { createFactionPlayService, mountFactionPlayRoutes } from "./faction-play.js";
@@ -703,7 +704,8 @@ export async function createApp({
     s.send(data);
   });
 
-  const voiceCreationTimeoutMs = Math.max(120000, 3 * voiceConfig.timeoutMs + 30000);
+  const voiceCreationTimeoutMs = Math.max(120000, 5 * voiceConfig.timeoutMs + 30000);
+  const voiceJobs = createCharacterVoiceJobs({ one, all, run, voiceConfig, mediaConfig, creationTimeoutMs: voiceCreationTimeoutMs });
   const voicePublic = (row, character) => {
     if (!row || row.character_revision !== character?.revision) return { status: "none" };
     let subtitles = [];
@@ -718,11 +720,12 @@ export async function createApp({
     const p = await player(r);
     if (!isCharacterMediaStorageConfigured(mediaConfig)) fail("角色音频云存储尚未配置，请联系GM", 503);
     if (!isCharacterVoiceConfigured(voiceConfig)) fail("语音介绍服务尚未配置，请联系GM", 503);
+    await voiceJobs.pollPlayer(p.id);
     const job = await tx(async () => {
       const c = await one("SELECT * FROM characters WHERE player_id=?", p.id);
       if (!c?.story || !c.avatar_url) fail("请先确认并提交角色，再生成语音介绍");
       const prior = await one("SELECT * FROM character_voices WHERE player_id=?", p.id);
-      if (prior?.character_revision === c.revision && ["creating", "processing", "ready"].includes(prior.status) && (prior.status === "ready" || (prior.status === "creating" ? Date.now() - prior.created_at < voiceCreationTimeoutMs : Date.now() - prior.updated_at < 600000)))
+      if (prior?.character_revision === c.revision && ["creating", "processing", "ready"].includes(prior.status) && (prior.status !== "creating" || Date.now() - prior.created_at < voiceCreationTimeoutMs))
         return { prior, c };
       const { n } = await one("SELECT COUNT(*) n FROM character_voice_requests WHERE player_id=? AND requested_at>?", p.id, Date.now() - 86400000);
       if (n >= 5) fail("今天的语音生成次数已用完，请保留当前介绍或联系GM", 429);
@@ -743,35 +746,18 @@ export async function createApp({
             fail("角色已更新，本次语音任务已取消", 409);
         } });
         await run("UPDATE character_voices SET status='processing',script=?,voice_id=?,voice_name=?,task_id=?,file_id=?,updated_at=? WHERE player_id=? AND job_token=? AND character_revision=(SELECT revision FROM characters WHERE player_id=?)", result.script, result.voice_id, result.voice_name, String(result.task_id), String(result.file_id || ""), Date.now(), p.id, job.lock, p.id);
+        await voiceJobs.pollPlayer(p.id);
       } catch (error) {
-        await run("UPDATE character_voices SET status='error',error=?,updated_at=? WHERE player_id=? AND job_token=?", "语音介绍暂时生成失败，请重试。" + (error.status ? error.message : ""), Date.now(), p.id, job.lock);
+        await run("UPDATE character_voices SET status='error',error=?,updated_at=? WHERE player_id=? AND job_token=? AND status='creating'", "语音介绍暂时生成失败，请重试。" + (error.status ? error.message : ""), Date.now(), p.id, job.lock);
       }
     })().catch(() => {});
     s.status(202).set("Cache-Control", "private, no-store").json({ status: "creating" });
   });
-  const voicePolls = new Set();
   app.get("/api/character/voice", auth("player"), async (r, s) => {
-    const p = await player(r), c = await one("SELECT * FROM characters WHERE player_id=?", p.id);
-    let row = await one("SELECT * FROM character_voices WHERE player_id=?", p.id);
-    if (row && row.character_revision === c?.revision && ["creating", "processing"].includes(row.status)) {
-      if (Date.now() - (row.status === "creating" ? row.created_at : row.updated_at) > (row.status === "creating" ? voiceCreationTimeoutMs : 600000)) {
-        await run("UPDATE character_voices SET status='error',error=? WHERE player_id=? AND job_token=?", "语音生成超时，请重试", p.id, row.job_token);
-      } else if (row.status === "processing" && !voicePolls.has(p.id)) {
-        voicePolls.add(p.id);
-        try {
-          const result = await pollCharacterVoice(row, voiceConfig);
-          if (result.status === "ready") {
-            const stored = await putCharacterMedia({ playerId: p.id, kind: "intro", data: result.audioMp3, contentType: "audio/mpeg" }, mediaConfig);
-            await run("UPDATE character_voices SET status='ready',audio_object_key=?,subtitles=?,duration=?,subtitle_source=?,error=NULL,updated_at=? WHERE player_id=? AND job_token=?", stored.object_key, JSON.stringify(result.subtitles || []), result.duration || 0, result.subtitle_source || "none", Date.now(), p.id, row.job_token);
-          } else if (["failed", "expired"].includes(result.status)) {
-            await run("UPDATE character_voices SET status='error',error=?,updated_at=? WHERE player_id=? AND job_token=?", "语音生成失败或任务已过期，请重试", Date.now(), p.id, row.job_token);
-          }
-        } catch {
-          // A transient status query failure should not discard a paid async task.
-        } finally { voicePolls.delete(p.id); }
-      }
-      row = await one("SELECT * FROM character_voices WHERE player_id=?", p.id);
-    }
+    const p = await player(r);
+    await voiceJobs.pollPlayer(p.id);
+    const c = await one("SELECT * FROM characters WHERE player_id=?", p.id);
+    const row = await one("SELECT * FROM character_voices WHERE player_id=?", p.id);
     s.set("Cache-Control", "private, no-store").json(voicePublic(row, c));
   });
   app.get("/api/character/voice/audio", auth("player"), async (r, s) => {
@@ -1689,5 +1675,6 @@ export async function createApp({
   return {
     app,
     db,
+    voiceJobs,
   };
 }

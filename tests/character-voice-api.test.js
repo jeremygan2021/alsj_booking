@@ -4,10 +4,10 @@ import { createApp } from "../server/app.js";
 
 test("confirmed角色语音持久化、复用、私有音频和旧修订隔离", async (t) => {
   const mp3 = Buffer.concat([Buffer.from("ID3"), Buffer.alloc(125)]);
-  let creates = 0;
+  let creates = 0, providerStatus = "Success";
   const objects = new Map();
-  const { app, db } = await createApp({ dbPath: ":memory:", gmPassword: "test", npcPassword: "test", characterMedia: {
-    enabled: true, bucket: "test-character-media", endpoint: "oss-cn-shanghai.aliyuncs.com", accessId: "private-storage-id", secret: "private-storage-secret",
+  const { app, db } = await createApp({ databaseUrl: process.env.TEST_DATABASE_URL, dbPath: ":memory:", gmPassword: "test", npcPassword: "test", characterMedia: {
+    directDownload: false, enabled: true, bucket: "test-character-media", endpoint: "oss-cn-shanghai.aliyuncs.com", accessId: "private-storage-id", secret: "private-storage-secret",
     fetch: async (url, options) => {
       if (options.method === "PUT") { assert.equal(options.headers["x-oss-object-acl"], "private"); objects.set(url, Buffer.from(options.body)); return new Response(""); }
       return new Response(objects.get(url), { status: objects.has(url) ? 200 : 404 });
@@ -18,7 +18,7 @@ test("confirmed角色语音持久化、复用、私有音频和旧修订隔离",
       if (url.endsWith("/get_voice")) return Response.json({ system_voice: [{ voice_id: "test_voice", voice_name: "温柔女声", description: ["温柔", "女声"] }] });
       if (url.endsWith("/chat/completions")) return Response.json({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify({ script: "我是林晚，一名修复旧档案的手艺人。今晚我带着一份尚未完成的修复笔记来到索恩庄园。每一道折痕都有它的来历，每一段被遗忘的故事都值得有人认真倾听。如果你也对旧物的往事感兴趣，不妨与我聊聊，或许我们能一起找到新的线索。", voice_id: "test_voice", speed: 1, pitch: 0 }) } }] });
       if (url.endsWith("/t2a_async_v2")) { creates++; return Response.json({ task_id: "123", file_id: "456" }); }
-      if (url.includes("/query/t2a_async_query_v2")) return Response.json({ status: "Success", file_id: "456" });
+      if (url.includes("/query/t2a_async_query_v2")) return Response.json({ status: providerStatus, file_id: "456" });
       if (url.includes("/files/retrieve_content")) return new Response(mp3);
       throw new Error("unexpected request");
     },
@@ -71,6 +71,15 @@ test("confirmed角色语音持久化、复用、私有音频和旧修订隔离",
   assert.equal(resaved.revision, 1);
   assert.equal((await request("/character/voice", {})).status, 200);
   assert.equal(creates, 1, "saving unchanged text must reuse the paid voice task");
+  providerStatus = "Processing";
+  await db.prepare("UPDATE character_voices SET status='processing',updated_at=? WHERE player_id=?").run(Date.now() - 3600000, "voice-owner");
+  assert.equal((await (await request("/character/voice", {})).json()).status, "processing");
+  assert.equal(creates, 1, "returning after an hour must reuse the paid task");
+  await db.prepare("UPDATE character_voices SET status='error',error='语音生成超时，请重试' WHERE player_id=?").run("voice-owner");
+  assert.equal((await (await request("/character/voice", {})).json()).status, "processing");
+  assert.equal(creates, 1, "legacy timeout must recover without new TTS");
+  providerStatus = "Success";
+  assert.equal((await (await request("/character/voice")).json()).status, "ready");
   const cues = [{ start: 0, end: 5, text: "我是林晚，一名档案修复师。" }];
   await db.prepare("UPDATE character_voices SET subtitles=?,duration=5,subtitle_source='provider' WHERE player_id=?").run(JSON.stringify(cues), "voice-owner");
   const captioned = await (await request("/character/voice")).json();

@@ -21,7 +21,7 @@ for (const line of readFileSync(envPath, "utf8").split("\n")) {
 }
 if (!process.env.GM_PASSWORD || !process.env.NPC_PASSWORD)
   throw new Error("请配置GM_PASSWORD和NPC_PASSWORD");
-const { app } = await createApp({
+const { app, voiceJobs } = await createApp({
   databaseUrl: process.env.DATABASE_URL,
   dbPath: process.env.DB_PATH || path.join(root, "data/alaska.sqlite"),
   gmPassword: process.env.GM_PASSWORD,
@@ -66,6 +66,7 @@ if (process.env.NODE_ENV === "production") {
   });
   app.use(vite.middlewares);
 }
+voiceJobs.start();
 app.listen(
   Number(process.env.PORT || 3000),
   process.env.HOST || "127.0.0.1",

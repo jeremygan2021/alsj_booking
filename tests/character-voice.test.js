@@ -140,11 +140,10 @@ test("付费语音提交前等待任务校验，已取消的任务不发送TTS�
   ]);
 });
 
-test("介绍不完整、越界、泄露密钥或虚构音色时不提交语音", async () => {
+test("介绍不完整、越界或泄露密钥时不提交语音", async () => {
   for (const value of [
     { script: "太短" }, { script: script + "真正凶手是维拉" },
     { script: script + " sk-dont-ever-speak-api-key" },
-    { voice_id: "not_in_catalog" }, { speed: 5 }, { pitch: 9 },
   ]) {
     let submitted = false;
     const config = cfg(async (url) => {
@@ -155,6 +154,55 @@ test("介绍不完整、越界、泄露密钥或虚构音色时不提交语音",
     await assert.rejects(submitCharacterVoice(character, config), /校验/);
     assert.equal(submitted, false);
   }
+});
+
+test("虚构音色、音色名称和字符串参数解析为实时目录中的合法参数", async () => {
+  for (const value of [
+    { voice_id: "not_in_catalog", speed: 5, pitch: 9 },
+    { voice_id: voices[1].voice_name, speed: "0.98", pitch: "-1" },
+    { voice_id: "  " + voices[1].voice_id + "  ", speed: "bad", pitch: 0.5 },
+  ]) {
+    let submitted;
+    const config = cfg(async (url, req) => {
+      if (url.endsWith("/get_voice")) return json({ system_voice: voices });
+      if (url.endsWith("/chat/completions")) return modelResult(value);
+      submitted = JSON.parse(req.body);
+      return json({ task_id: "1", file_id: "2" });
+    });
+    const result = await submitCharacterVoice(character, config);
+    assert.equal(submitted.voice_setting.voice_id, value.voice_id === "not_in_catalog" ? voices[0].voice_id : voices[1].voice_id);
+    assert.equal(result.voice_id, submitted.voice_setting.voice_id);
+    assert.equal(submitted.voice_setting.speed, value.speed === "0.98" ? 0.98 : 1);
+    assert.equal(submitted.voice_setting.pitch, value.pitch === "-1" ? -1 : 0);
+  }
+});
+
+test("文案失败自动重试、只提交一次TTS，连续失败返回具体安全诊断", async () => {
+  let texts = 0, speech = 0, before = 0;
+  const config = cfg(async (url, req) => {
+    if (url.endsWith("/get_voice")) return json({ system_voice: voices });
+    if (url.endsWith("/chat/completions")) {
+      texts++;
+      if (texts === 1) return modelResult({ script: "太短" });
+      assert.match(req.body, /INTRO_LENGTH/);
+      return modelResult();
+    }
+    speech++;
+    return json({ task_id: "1", file_id: "2" });
+  });
+  await submitCharacterVoice(character, config, { beforeSubmit: () => { before++; } });
+  assert.equal(texts, 2);
+  assert.equal(speech, 1);
+  assert.equal(before, 1);
+  let invalidCalls = 0;
+  const invalid = cfg(async (url) => {
+    if (url.endsWith("/get_voice")) return json({ system_voice: voices });
+    assert.ok(url.endsWith("/chat/completions"));
+    invalidCalls++;
+    return modelResult({ script: script + "真正凶手是维拉" });
+  });
+  await assert.rejects(submitCharacterVoice(character, invalid), error => error.code === "INTRO_FORBIDDEN_PLOT");
+  assert.equal(invalidCalls, 3);
 });
 
 test("轮询处理中和失败任务，成功后从固定MiniMax端点下载MP3", async () => {
