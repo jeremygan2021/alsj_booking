@@ -1,4 +1,5 @@
 import React from "react";
+import { INVESTIGATION_GROUPS } from "../investigation-groups";
 import { ArrowUpRight, Check, Lock } from "lucide-react";
 import { Badge, Button, Empty, Field } from "./ui";
 import { phases, factions, formatTime } from "../constants";
@@ -129,7 +130,7 @@ function PlayerReview({ data, busy, onUpdate }) {
               </Field>
               <Field label="调查小组">
                 <select name="group" defaultValue={p.group_id}>
-                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                  {INVESTIGATION_GROUPS.map((n) => (
                     <option value={n} key={n}>
                       第{n}组
                     </option>

@@ -1,3 +1,5 @@
+import { INVESTIGATION_GROUPS } from "../src/investigation-groups.js";
+
 // Policy collaboration is independent of case answers and individual value votes.
 // Historical faction IDs are preserved to keep existing rosters compatible.
 export const factionPolicies = Object.freeze({
@@ -86,7 +88,7 @@ export function createFactionPlayService({
       )
         fail("请先完成票务核验、角色审核和现场签到", 403);
       if (!factionPolicies[value.faction]) fail("请等待GM确认正式阵营", 403);
-      if (!Number.isInteger(value.group_id) || value.group_id < 1)
+      if (!INVESTIGATION_GROUPS.includes(value.group_id))
         fail("请联系GM确认调查组", 403);
     }
     return value;

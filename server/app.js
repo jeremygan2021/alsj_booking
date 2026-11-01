@@ -1,3 +1,7 @@
+import {
+  INVESTIGATION_GROUPS,
+  leastPopulatedInvestigationGroup,
+} from "../src/investigation-groups.js";
 import { createCharacterVoiceJobs } from "./character-voice-jobs.js";
 import { mountRoleCardRoutes } from "./role-cards.js";
 import { createCharacterPhotoService } from "./character-photo.js";
@@ -444,7 +448,9 @@ export async function createApp({
             name,
             phone,
             "!sms-only!",
-            (count % 6) + 1,
+            leastPopulatedInvestigationGroup(
+              await all("SELECT group_id,COUNT(*) n FROM players GROUP BY group_id"),
+            ),
           );
         }
         await paidPhones.matchPlayer(p.id);
@@ -477,7 +483,9 @@ export async function createApp({
         name,
         contact,
         hashPassword(password),
-        ((await one("SELECT COUNT(*) n FROM players")).n % 6) + 1,
+        leastPopulatedInvestigationGroup(
+          await all("SELECT group_id,COUNT(*) n FROM players GROUP BY group_id"),
+        ),
       );
       await paidPhones.matchPlayer(id);
     });
@@ -1436,13 +1444,9 @@ export async function createApp({
             await run("UPDATE characters SET faction=? WHERE player_id=?", r.body.faction, id);
         }
       }
-      if (r.body.group) {
-        if (
-          !Number.isInteger(r.body.group) ||
-          r.body.group < 1 ||
-          r.body.group > 6
-        )
-          fail("调查组必须为1到6");
+      if (r.body.group !== undefined) {
+        if (!INVESTIGATION_GROUPS.includes(r.body.group))
+          fail("调查组必须为1到4");
         await run("UPDATE players SET group_id=? WHERE id=?", r.body.group, id);
       }
       await audit(r, `更新玩家 ${id.slice(0, 8)}：${JSON.stringify(r.body)}`);

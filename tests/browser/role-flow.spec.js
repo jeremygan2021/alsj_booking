@@ -91,6 +91,10 @@ test("Cos故事与头像 → 自动审核 → NPC关联玩家 → QR搜证 → 3
   const review = gmPage.getByRole("dialog");
   await expect(review).toContainText("蝙蝠侠");
   await expect(review).toContainText("NPC演绎提示");
+  await expect(review.getByLabel("调查小组").locator("option")).toHaveText([
+    "第1组", "第2组", "第3组", "第4组",
+  ]);
+  await review.getByLabel("调查小组").selectOption("4");
   await review.getByRole("button", { name: "核验付款", exact: true }).click();
   await review.getByRole("button", { name: "现场签到 · +3金币" }).click();
   await review.getByLabel("角色审核").selectOption("approved");
@@ -101,6 +105,7 @@ test("Cos故事与头像 → 自动审核 → NPC关联玩家 → QR搜证 → 3
         (await (await page.request.get("/api/me")).json()).character.status,
     )
     .toBe("approved");
+  expect((await (await page.request.get("/api/me")).json()).player.group_id).toBe(4);
   const npcPage = await npcContext.newPage();
   await npcPage.goto("/admin");
   await npcPage.getByRole("button", { name: /查看关联玩家/ }).click();

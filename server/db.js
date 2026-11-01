@@ -16,6 +16,7 @@ import { applyCharacterLinks } from "./migrations/character-links.js";
 import { applyPaidPhones } from "./migrations/paid-phones.js";
 import { migrateFactionState } from "./migrations/faction-state.js";
 import { applyEventCapacity } from "./migrations/event-capacity.js";
+import { applyFourInvestigationGroups } from "./migrations/investigation-groups.js";
 import { npcs, evidence, lots } from "./content.js";
 async function openSqlite(path) {
   if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
@@ -91,6 +92,7 @@ async function openSqlite(path) {
   await db.transaction(() => applyMaleNora(db));
   await db.transaction(() => applyFemaleTheodore(db));
   await db.transaction(() => migrateFactionPlay(db));
+  await db.transaction(() => applyFourInvestigationGroups(db));
   return db;
 }
 

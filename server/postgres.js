@@ -15,6 +15,7 @@ import { applyCharacterLinks } from "./migrations/character-links.js";
 import { applyPaidPhones } from "./migrations/paid-phones.js";
 import { migrateFactionState } from "./migrations/faction-state.js";
 import { applyEventCapacity } from "./migrations/event-capacity.js";
+import { applyFourInvestigationGroups } from "./migrations/investigation-groups.js";
 import { npcs, evidence, lots } from "./content.js";
 // Keep aggregate counts as numbers to preserve the API's numeric fields.
 pg.types.setTypeParser(20, Number);
@@ -138,6 +139,7 @@ export async function openPostgres(connectionString) {
     await db.transaction(() => applyMaleNora(db));
     await db.transaction(() => applyFemaleTheodore(db));
     await db.transaction(() => migrateFactionPlay(db));
+    await db.transaction(() => applyFourInvestigationGroups(db));
     return db;
   } catch (error) {
     await pool.end();

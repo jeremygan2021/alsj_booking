@@ -389,7 +389,7 @@ export default function FactionPlay({ gm = false, phase, notify }) {
         <summary>协商规则与结算说明</summary>
         <ul>
           <li>
-            建议六个调查组，阵营人数由GM抽签规则决定。沿用现有实际分组与归属。
+            全场设四个调查组，阵营人数由GM抽签规则决定。调查组与阵营分别分配。
           </li>
           <li>
             每阵营共用一条保障条款；引用一条本组已取得的官方证据，写明关联，经GM确认有效，再取得一个外阵营、外调查组的真实签署，即达成目标。
